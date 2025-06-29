@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>net.thauvin.erik</groupId>
+  <artifactId>frankfurter4j</artifactId>
+  <version>0.9.0-SNAPSHOT</version>
+  <name>frankfurter4j</name>
+  <description>Retrieve reference exchange rates from Frankfurter.dev</description>
+  <url>https://github.com/ethauvin/frankfurter4j</url>
+  <licenses>
+    <license>
+      <name>BSD 3-Clause</name>
+      <url>https://opensource.org/licenses/BSD-3-Clause</url>
+    </license>
+  </licenses>
+  <dependencies>
+    <dependency>
+      <groupId>com.uwyn</groupId>
+      <artifactId>urlencoder</artifactId>
+      <version>1.3.5</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.13.1</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+  <developers>
+    <developer>
+      <id>ethauvin</id>
+      <name>Erik C. Thauvin</name>
+      <email>erik@thauvin.net</email>
+      <url>https://erik.thauvin.net/</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/ethauvin/frankfurter4j.git</connection>
+    <developerConnection>scm:git:git@github.com:ethauvin/frankfurter4j.git</developerConnection>
+    <url>https://github.com/ethauvin/frankfurter4j</url>
+  </scm>
+</project>

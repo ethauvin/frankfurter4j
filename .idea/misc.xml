@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EntryPointsManager">
+    <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="jacoco" />
+    <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="pmd" />
+    <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="pmdCli" />
+    <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="pomRoot" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build" />
+  </component>
+</project>

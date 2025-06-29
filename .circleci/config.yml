@@ -1,0 +1,42 @@
+version: 2.1
+
+commands:
+  build_and_test:
+    parameters:
+      reports-dir:
+        type: string
+        default: "build/reports/test_results"
+    steps:
+      - checkout
+      - run:
+          name: Download dependencies
+          command: ./bld download
+      - run:
+          name: Compile source
+          command: ./bld compile
+      - run:
+          name: Run tests
+          command: ./bld jacoco -reports-dir=<< parameters.reports-dir >>
+      - store_test_results:
+          path: << parameters.reports-dir >>
+      - store_artifacts:
+          path: build/reports/jacoco/test/html
+jobs:
+  bld_jdk17:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - build_and_test
+
+  bld_jdk21:
+    docker:
+      - image: cimg/openjdk:21.0
+    steps:
+      - build_and_test
+
+workflows:
+  bld:
+    jobs:
+      - bld_jdk17
+      - bld_jdk21
+
