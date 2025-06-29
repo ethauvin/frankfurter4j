@@ -245,7 +245,7 @@ class FrankfurterUtilsTests {
 
         @Test
         void formatCurrencyRoundedWithNegativeAmount() {
-            assertEquals("-$1,234.57",
+            assertEquals(FormatCurrencyUtils.toDollar(-1234.57),
                     FrankfurterUtils.formatCurrency("USD", -1234.567, true),
                     "Negative amounts should be formatted correctly with a negative symbol");
         }
@@ -275,34 +275,36 @@ class FrankfurterUtilsTests {
 
         @Test
         void formatCurrencyRoundedWithValidEUR() {
-            assertEquals("1.234,57 €",
+            assertEquals(FormatCurrencyUtils.toEur(1234.57),
                     FrankfurterUtils.formatCurrency("EUR", 1234.567, true),
                     "EUR amount should be formatted correctly in the German locale");
         }
 
         @Test
         void formatCurrencyRoundedWithValidGBP() {
-            assertEquals("£1,234.57",
+            assertEquals(FormatCurrencyUtils.toPound(1234.57),
                     FrankfurterUtils.formatCurrency("GBP", 1234.567, true),
                     "GBP amount should be formatted correctly");
         }
 
         @Test
         void formatCurrencyRoundedWithValidJPY() {
-            assertEquals("￥1,235", FrankfurterUtils.formatCurrency("JPY", 1234.567, true),
+            assertEquals(FormatCurrencyUtils.toYen(1235.00),
+                    FrankfurterUtils.formatCurrency("JPY", 1234.56, true),
                     "JPY amount should be formatted as a whole number with proper symbol");
         }
 
         @Test
         void formatCurrencyRoundedWithValidUSD() {
-            assertEquals("$1,234.57",
+            assertEquals(FormatCurrencyUtils.toDollar(1234.57),
                     FrankfurterUtils.formatCurrency("USD", 1234.567, true),
                     "USD amount should be formatted correctly");
         }
 
         @Test
         void formatCurrencyRoundedWithZeroAmount() {
-            assertEquals("$0.00", FrankfurterUtils.formatCurrency("USD", 0.0, true),
+            assertEquals(FormatCurrencyUtils.toDollar(0.0),
+                    FrankfurterUtils.formatCurrency("USD", 0.0, true),
                     "Zero amount should be formatted correctly");
         }
 
@@ -323,7 +325,8 @@ class FrankfurterUtilsTests {
 
         @Test
         void formatCurrencyWithNegativeAmount() {
-            assertEquals("-$1,234.567", FrankfurterUtils.formatCurrency("USD", -1234.567),
+            assertEquals(FormatCurrencyUtils.toDollar(-1234.567),
+                    FrankfurterUtils.formatCurrency("USD", -1234.567),
                     "Negative amounts should be formatted correctly with a negative symbol");
         }
 
@@ -352,25 +355,29 @@ class FrankfurterUtilsTests {
 
         @Test
         void formatCurrencyWithValidEUR() {
-            assertEquals("1.234,567 €", FrankfurterUtils.formatCurrency("EUR", 1234.567),
+            assertEquals(FormatCurrencyUtils.toEur(1234.567),
+                    FrankfurterUtils.formatCurrency("EUR", 1234.567),
                     "EUR amount should be formatted correctly in the German locale");
         }
 
         @Test
         void formatCurrencyWithValidJPY() {
-            assertEquals("￥1,234.567", FrankfurterUtils.formatCurrency("JPY", 1234.567),
+            assertEquals(FormatCurrencyUtils.toYen(1234.567),
+                    FrankfurterUtils.formatCurrency("JPY", 1234.567),
                     "JPY amount should be formatted as a whole number with proper symbol");
         }
 
         @Test
         void formatCurrencyWithValidUSD() {
-            assertEquals("$1,234.567", FrankfurterUtils.formatCurrency("USD", 1234.567),
+            assertEquals(FormatCurrencyUtils.toDollar(1234.567),
+                    FrankfurterUtils.formatCurrency("USD", 1234.567),
                     "USD amount should be formatted correctly");
         }
 
         @Test
         void formatCurrencyWithZeroAmount() {
-            assertEquals("$0.00", FrankfurterUtils.formatCurrency("USD", 0.0),
+            assertEquals(FormatCurrencyUtils.toDollar(0.0),
+                    FrankfurterUtils.formatCurrency("USD", 0.0),
                     "Zero amount should be formatted correctly");
         }
     }

@@ -76,9 +76,12 @@ class ReadmeExamplesTests {
 
     @Test
     void formatCurrency() {
-        assertEquals("$100.00", FrankfurterUtils.formatCurrency("USD", 100.0));
-        assertEquals("1.234,567 €", FrankfurterUtils.formatCurrency("EUR", 1234.567));
-        assertEquals("1.234,57 €", FrankfurterUtils.formatCurrency("EUR", 1234.567, true));
+        assertEquals(FormatCurrencyUtils.toDollar(100.0)
+                , FrankfurterUtils.formatCurrency("USD", 100.0));
+        assertEquals(FormatCurrencyUtils.toEur(1234.567),
+                FrankfurterUtils.formatCurrency("EUR", 1234.567));
+        assertEquals(FormatCurrencyUtils.toEur(1234.57),
+                FrankfurterUtils.formatCurrency("EUR", 1234.567, true));
     }
 
     @Test
