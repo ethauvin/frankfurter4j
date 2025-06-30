@@ -10,7 +10,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/ethauvin/frankfurter4j/badge.svg?targetFile=pom.xml)](https://snyk.io/test/github/ethauvin/frankfurter4j?targetFile=pom.xml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ethauvin_frankfurter4j&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ethauvin_frankfurter4j)
 [![GitHub CI](https://github.com/ethauvin/frankfurter4j/actions/workflows/bld.yml/badge.svg)](https://github.com/ethauvin/frankfurter4j/actions/workflows/bld.yml)
-[![CircleCI](https://circleci.com/gh/ethauvin/frankfurter4j/tree/master.svg?style=shield)](https://circleci.com/gh/ethauvin/frankfurter4j/tree/master)
+[![CircleCI](https://circleci.com/gh/ethauvin/frankfurter4j/tree/main.svg?style=shield)](https://circleci.com/gh/ethauvin/frankfurter4j/tree/main)
 
 Retrieve reference exchange rates from [Frankfurter.dev](https://frankfurter.dev/), a free, open-source currency data
 API.
