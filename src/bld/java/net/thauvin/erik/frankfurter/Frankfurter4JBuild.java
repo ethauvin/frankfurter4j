@@ -79,9 +79,9 @@ public class Frankfurter4JBuild extends Project {
         scope(test)
                 .include(dependency("org.mockito", "mockito-core", version(5, 18, 0)))
                 .include(dependency("org.junit.jupiter",
-                        "junit-jupiter", version(5, 13, 2)))
+                        "junit-jupiter", version(5, 13, 3)))
                 .include(dependency("org.junit.platform",
-                        "junit-platform-console-standalone", version(1, 13, 2)));
+                        "junit-platform-console-standalone", version(1, 13, 3)));
 
         publishOperation()
                 .repository(version.isSnapshot() ? repository(SONATYPE_SNAPSHOTS_LEGACY.location())
