@@ -47,6 +47,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -220,7 +221,9 @@ public final class FrankfurterUtils {
      */
     @SuppressWarnings("PMD.ExceptionAsFlowControl")
     public static String fetchUri(URI uri) throws IOException {
-        LOGGER.finest(uri.toString());
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest(uri.toString());
+        }
         var connection = (HttpURLConnection) uri.toURL().openConnection();
         try {
             connection.setRequestMethod("GET");
@@ -312,7 +315,7 @@ public final class FrankfurterUtils {
      * A working day is defined as a day that is not a weekend (Saturday or Sunday) and does not fall on a
      * {@link #closingDays(int) closing day}.
      *
-     * @param date the {@link LocalDate} to evaluate
+     * @param date        the {@link LocalDate} to evaluate
      * @param closingDays a list of {@link LocalDate} objects representing non-working days
      * @return {@code true} if the specified date is a working day, {@code false} otherwise
      * @see #isWeekend(LocalDate)

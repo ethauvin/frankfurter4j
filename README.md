@@ -4,8 +4,8 @@
 [![Java](https://img.shields.io/badge/java-17%2B-blue)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 [![bld](https://img.shields.io/badge/2.2.1-FA9052?label=bld&labelColor=2392FF)](https://rife2.com/bld)
 [![Release](https://img.shields.io/github/release/ethauvin/frankfurter4j.svg)](https://github.com/ethauvin/frankfurter4j/releases/latest)
-[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/net.thauvin.erik/frankfurter4j.svg?label=sanpshot&server=https%3A%2F%2Foss.sonatype.org)](https://oss.sonatype.org/content/repositories/snapshots/net/thauvin/erik/httpstatus/httpstatus/)
-[![Maven Central](https://img.shields.io/maven-central/v/net.thauvin.erik./frankfurter.svg?color=blue)](https://central.sonatype.com/artifact/net.thauvin.erik.httpstatus/httpstatus)
+[![Maven Central](https://img.shields.io/maven-central/v/net.thauvin.erik./frankfurter.svg?color=blue)](https://central.sonatype.com/artifact/net.thauvin.erik/frankfurter4j)
+[![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fnet%2Fthauvin%2Ferik%2Ffrankfurter4j%2Fmaven-metadata.xml&label=snapshot)](https://github.com/ethauvin/frankfurter4j/packages/2561141/versions)
 
 [![Known Vulnerabilities](https://snyk.io/test/github/ethauvin/frankfurter4j/badge.svg?targetFile=pom.xml)](https://snyk.io/test/github/ethauvin/frankfurter4j?targetFile=pom.xml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ethauvin_frankfurter4j&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ethauvin_frankfurter4j)
@@ -37,7 +37,7 @@ your [build](https://github.com/ethauvin/frankfurter4j/blob/master/examples/src/
 file:
 
 ```java
-repositories = List.of(MAVEN_CENTRAL);
+repositories = List.of(MAVEN_CENTRAL, CENTRAL_SNAPSHOTS);
 
 scope(compile)
     .include(dependency("net.thauvin.erik:frankfurter4j:0.9.0"));
@@ -49,6 +49,10 @@ To use with [Gradle](https://gradle.org/), include the following dependency in y
 
 ```gradle
 repositories {
+    maven {
+        name = 'Central Portal Snapshots'
+        url = 'https://central.sonatype.com/repository/maven-snapshots/'
+    }
     mavenCentral()
 }
 
