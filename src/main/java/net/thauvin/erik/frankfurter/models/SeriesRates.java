@@ -39,6 +39,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Represents exchange rates over a series of dates for multiple currencies.
+ */
 public class SeriesRates {
     private final Double amount;
     private final String base;
@@ -46,6 +49,17 @@ public class SeriesRates {
     private final Map<LocalDate, Map<String, Double>> rates;
     private final String startDate;
 
+    /**
+     * Constructs a {@link SeriesRates} object which represents a time series of exchange rates for a specific base
+     * currency within a defined date range.
+     *
+     * @param amount    the amount to be converted or used in calculations
+     * @param base      the base currency for the time series of exchange rates
+     * @param startDate the start date of the time series, formatted as a string
+     * @param endDate   the end date of the time series, formatted as a string
+     * @param rates     a map where the keys are dates ({@link LocalDate}) and the values are maps of currency codes
+     *                  to their respective exchange rates as doubles
+     */
     SeriesRates(Double amount,
                 String base,
                 String startDate,
@@ -97,8 +111,8 @@ public class SeriesRates {
     /**
      * Retrieves the exchange rate for a specific date and currency symbol from the time series.
      *
-     * @param date           The date for which the exchange rate is to be retrieved, formatted as a string
-     * @param currencySymbol The currency symbol for which the exchange rate is to be retrieved
+     * @param date           the date for which the exchange rate is to be retrieved, formatted as a string
+     * @param currencySymbol the currency symbol for which the exchange rate is to be retrieved
      * @return The exchange rate for the specified date and currency symbol, or null if no rate is available
      */
     public Double getRateFor(LocalDate date, String currencySymbol) {
@@ -112,7 +126,7 @@ public class SeriesRates {
     /**
      * Retrieves the exchange rates mapped by date and currency symbol.
      *
-     * @return A map where the keys are {@link LocalDate} objects representing the dates, and the values
+     * @return a map where the keys are {@link LocalDate} objects representing the dates, and the values
      * are maps with currency symbols as keys and exchange rates as double values.
      */
     public Map<LocalDate, Map<String, Double>> getRates() {
@@ -122,8 +136,8 @@ public class SeriesRates {
     /**
      * Retrieves the exchange rates for all currencies on the specified date.
      *
-     * @param date The date for which the exchange rates are to be retrieved as a {@link LocalDate}
-     * @return A map of currency symbols to their respective exchange rates on the specified date,
+     * @param date the date for which the exchange rates are to be retrieved as a {@link LocalDate}
+     * @return a map of currency symbols to their respective exchange rates on the specified date,
      * or null if no rates are available for the date
      */
     public Map<String, Double> getRatesFor(LocalDate date) {
@@ -145,7 +159,7 @@ public class SeriesRates {
     /**
      * Checks if exchange rates are available for the specified date.
      *
-     * @param date The date for which to check the availability of exchange rates
+     * @param date the date for which to check the availability of exchange rates
      * @return {@code true} if exchange rates are available for the specified date, {@code false} otherwise
      */
     public boolean hasRatesFor(LocalDate date) {
@@ -155,8 +169,8 @@ public class SeriesRates {
     /**
      * Checks if a symbol is available for a specified date in the exchange rate time series.
      *
-     * @param date   The {@link LocalDate} for which to check the availability of the symbol
-     * @param symbol The currency symbol to check for availability
+     * @param date   the {@link LocalDate} for which to check the availability of the symbol
+     * @param symbol the currency symbol to check for availability
      * @return {@code true} if the symbol is available for the specified date, {@code false} otherwise
      */
     public boolean hasSymbolFor(LocalDate date, String symbol) {

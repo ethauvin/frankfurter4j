@@ -58,10 +58,10 @@ public class LatestRates {
     private final Collection<String> symbols;
 
     /**
-     * Constructs a new LatestRates instance using the specified Builder.
+     * Constructs a new {@link LatestRates} instance using the specified Builder.
      *
-     * @param builder The Builder instance containing the base currency, date,
-     *                and symbols to initialize the LatestRates object.
+     * @param builder the Builder instance containing the base currency, date, and symbols to initialize the
+     *                {@link LatestRates} object
      */
     public LatestRates(Builder builder) {
         this.amount = builder.amount;
@@ -73,7 +73,7 @@ public class LatestRates {
     /**
      * Retrieves the amount of the latest exchange rate or time series.
      *
-     * @return A {@code Double} representing the amount
+     * @return a {@code Double} representing the amount
      */
     public Double getAmount() {
         return amount;
@@ -82,7 +82,7 @@ public class LatestRates {
     /**
      * Retrieves the base currency for the current rates or time series.
      *
-     * @return A string representing the base currency
+     * @return a string representing the base currency
      */
     public String getBase() {
         return base;
@@ -91,7 +91,7 @@ public class LatestRates {
     /**
      * Retrieves the date associated with the latest exchange rates.
      *
-     * @return A {@link LocalDate} representing the date
+     * @return a {@link LocalDate} representing the date
      */
     public LocalDate getDate() {
         return date;
@@ -99,13 +99,14 @@ public class LatestRates {
 
     /**
      * Retrieves the latest exchange rates based on a specified base currency, date, and optional symbols.
+     * <p>
      * This method constructs a request to the Frankfurter API, fetches the data, and parses the response
      * into a {@link ExchangeRates} object.
      *
      * @return an instance of {@link ExchangeRates} containing the base currency, date, and exchange rates
-     * @throws IOException         if an error occurs during the API request or response handling
+     * @throws IOException         if an error occurs during the aPI request or response handling
      * @throws URISyntaxException  if the URI syntax is invalid
-     * @throws JsonSyntaxException if the JSON response from the API does not match the expected format
+     * @throws JsonSyntaxException if the JSON response from the aPI does not match the expected format
      */
     public ExchangeRates getExchangeRates() throws IOException, URISyntaxException, JsonSyntaxException {
         var gson = new GsonBuilder()
@@ -141,14 +142,16 @@ public class LatestRates {
     /**
      * Retrieves the collection of currency symbols associated with the rates.
      *
-     * @return A collection of strings representing the currency symbols
+     * @return a collection of strings representing the currency symbols
      */
     public Collection<String> getSymbols() {
         return symbols;
     }
 
     /**
-     * Builder class to create and configure an instance of {@link LatestRates}.
+     * Builder class to construct instances of the {@link LatestRates} class.
+     * <p>
+     * This class allows incremental configuration of the {@link LatestRates} object via method chaining.
      */
     public static class Builder {
         private final Collection<String> symbols = new ArrayList<>();
@@ -193,7 +196,8 @@ public class LatestRates {
         /**
          * Builds and returns a new instance of {@link LatestRates} using the current state of the {@link Builder}.
          *
-         * @return a new {@link LatestRates} instance configured with the base currency, date, and symbols set in the Builder
+         * @return a new {@link LatestRates} instance configured with the base currency, date, and symbols set in the
+         * Builder
          */
         public LatestRates build() {
             return new LatestRates(this);

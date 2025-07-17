@@ -256,3 +256,7 @@ cd frankfurter4j
 
 The project has an [IntelliJ IDEA](https://www.jetbrains.com/idea/) project structure. You can just open it after all
 the dependencies were downloaded and peruse the code.
+
+## More…
+
+If all else fails, there's always more [Documentation](https://ethauvin.github.io/frankfurter4j/).

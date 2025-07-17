@@ -50,10 +50,10 @@ public class ExchangeRates {
     /**
      * Constructs an instance of the ExchangeRates class.
      *
-     * @param amount The amount of the base currency
-     * @param base   The base currency
-     * @param date   The date of the exchange rates
-     * @param rates  The exchange rates
+     * @param amount the amount of the base currency
+     * @param base   the base currency
+     * @param date   the date of the exchange rates
+     * @param rates  the exchange rates
      */
     ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
         this.amount = amount;
@@ -92,7 +92,7 @@ public class ExchangeRates {
     /**
      * Retrieves the exchange rate for the specified currency symbol.
      *
-     * @param symbol The currency symbol
+     * @param symbol the currency symbol
      */
     public Double getRateFor(String symbol) {
         if (symbol == null || symbol.isBlank()) {
@@ -123,7 +123,7 @@ public class ExchangeRates {
     /**
      * Checks if the exchange rates contain the specified currency symbol.
      *
-     * @param symbol The currency symbol to check for
+     * @param symbol the currency symbol to check for
      * @return {@code true} if the exchange rates contain the symbol, {@code false} otherwise
      */
     public boolean hasRateFor(String symbol) {

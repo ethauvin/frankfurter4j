@@ -63,7 +63,7 @@ public class TimeSeries {
     /**
      * Constructs a new instance of the TimeSeries class using the specified builder object.
      *
-     * @param builder The Builder instance containing the configuration for the TimeSeries object
+     * @param builder the Builder instance containing the configuration for the TimeSeries object
      */
     public TimeSeries(Builder builder) {
         this.amount = builder.amount;
@@ -76,7 +76,7 @@ public class TimeSeries {
     /**
      * Retrieves the amount associated with the current time series.
      *
-     * @return A {@code Double} representing the value of the amount field
+     * @return a {@code Double} representing the value of the amount field
      */
     public Double getAmount() {
         return amount;
@@ -85,7 +85,7 @@ public class TimeSeries {
     /**
      * Retrieves the base currency for the current time series.
      *
-     * @return A string representing the base currency
+     * @return a string representing the base currency
      */
     public String getBase() {
         return base;
@@ -106,13 +106,13 @@ public class TimeSeries {
      * This method constructs a time series request using defined start and end dates, base currency,
      * symbols, and amount, and fetches the corresponding data.
      *
-     * @return A {@link SeriesRates} object containing the exchange rate information
-     * for the specified time range and conditions.
-     * @throws IOException              If an I/O error occurs during data retrieval
-     * @throws URISyntaxException       If the generated URI for the data request is invalid
-     * @throws IllegalArgumentException If required parameters such as the start date are not set, or
+     * @return a {@link SeriesRates} object containing the exchange rate information for the specified time range and
+     * conditions.
+     * @throws IOException              if an I/O error occurs during data retrieval
+     * @throws URISyntaxException       if the generated URI for the data request is invalid
+     * @throws IllegalArgumentException if required parameters such as the start date are not set, or
      *                                  if the end date is before the start date
-     * @throws JsonSyntaxException      If the JSON response from the API does not match the expected format
+     * @throws JsonSyntaxException      if the JSON response from the aPI does not match the expected format
      */
     public SeriesRates getPeriodicRates() throws IOException, URISyntaxException, JsonSyntaxException {
         var gson = new GsonBuilder()
@@ -170,15 +170,16 @@ public class TimeSeries {
     /**
      * Retrieves the collection of currency symbols associated with the time series.
      *
-     * @return A collection containing the currency symbols
+     * @return a collection containing the currency symbols
      */
     public Collection<String> getSymbols() {
         return symbols;
     }
 
     /**
-     * The Builder class provides a flexible way to construct instances of the TimeSeries class.
-     * This class allows incremental configuration of the TimeSeries object via method chaining.
+     * Builder class to construct instances of the {@link TimeSeries} class.
+     * <p>
+     * This class allows incremental configuration of the {@link TimeSeries} object via method chaining.
      */
     public static class Builder {
         private final Collection<String> symbols = new ArrayList<>();
@@ -211,8 +212,9 @@ public class TimeSeries {
 
 
         /**
-         * Sets the base currency symbol for the builder. The provided symbol will be formatted to uppercase
-         * if it is a valid 3-letter currency symbol.
+         * Sets the base currency symbol for the builder.
+         * <p>
+         * The provided symbol will be formatted to uppercase if it is a valid 3-letter currency symbol.
          *
          * @param base the base currency symbol to be set; must consist of exactly three alphabetical characters
          * @return the current {@code Builder} instance for method chaining
@@ -226,7 +228,7 @@ public class TimeSeries {
         /**
          * Builds and returns a new instance of the {@code TimeSeries} class using the current state of the Builder.
          *
-         * @return A new {@code TimeSeries} instance configured according to the properties set in the Builder
+         * @return a new {@code TimeSeries} instance configured according to the properties set in the Builder
          */
         public TimeSeries build() {
             return new TimeSeries(this);
@@ -234,6 +236,7 @@ public class TimeSeries {
 
         /**
          * Sets the end date for the builder using a {@code LocalDate} object.
+         * <p>
          * The provided date must be on or after January 4, 1994.
          *
          * @param endDate the {@code LocalDate} object representing the end date to be set
@@ -249,6 +252,7 @@ public class TimeSeries {
 
         /**
          * Sets the start date for the builder using a {@code LocalDate} object.
+         * <p>
          * The provided date must not be earlier than January 4, 1994.
          *
          * @param startDate the {@code LocalDate} object representing the start date to be set
@@ -264,6 +268,7 @@ public class TimeSeries {
 
         /**
          * Sets the currency symbols for the builder using a variable number of string arguments.
+         * <p>
          * Each provided symbol will be formatted and added to the builder's symbols collection.
          *
          * @param symbols an array of strings representing currency symbols to be added
@@ -276,6 +281,7 @@ public class TimeSeries {
 
         /**
          * Sets the currency symbols for the builder using a collection of string arguments.
+         * <p>
          * Each provided symbol will be formatted to uppercase and added to the builder's symbols collection.
          *
          * @param symbols a collection of strings representing currency symbols to be added

@@ -48,8 +48,8 @@ public class Currencies extends ConcurrentHashMap<String, String> {
     /**
      * Retrieves the full name of a currency by its symbol.
      *
-     * @param symbol The currency symbol
-     * @return The full name of the currency, or null if the symbol doesn't exist
+     * @param symbol the currency symbol
+     * @return the full name of the currency, or null if the symbol doesn't exist
      */
     public String getFullNameFor(String symbol) {
         if (symbol == null || symbol.isBlank()) {
@@ -61,8 +61,8 @@ public class Currencies extends ConcurrentHashMap<String, String> {
     /**
      * Retrieves the currency symbol corresponding to the given currency name.
      *
-     * @param name The full name of the currency for which the symbol is to be retrieved
-     * @return The symbol of the currency if the name matches an entry, or null if no match is found
+     * @param name the full name of the currency for which the symbol is to be retrieved
+     * @return the symbol of the currency if the name matches an entry, or null if no match is found
      */
     public String getSymbolFor(String name) {
         if (name == null || name.isBlank()) {
@@ -79,8 +79,8 @@ public class Currencies extends ConcurrentHashMap<String, String> {
     /**
      * Retrieves the currency symbol corresponding to a currency name that matches the given regular expression pattern.
      *
-     * @param regexPattern The pattern used to match currency names
-     * @return The symbol of the currency if a matching name is found, or null if no match is found or if the pattern
+     * @param regexPattern the pattern used to match currency names
+     * @return the symbol of the currency if a matching name is found, or null if no match is found or if the pattern
      * is null.
      */
     public String getSymbolFor(Pattern regexPattern) {

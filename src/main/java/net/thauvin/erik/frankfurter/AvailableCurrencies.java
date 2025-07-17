@@ -42,7 +42,7 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * The AvailableCurrencies class is a utility class that provides methods to retrieve information about available currencies.
+ * Utility class that provides methods to retrieve information about available currencies.
  */
 public final class AvailableCurrencies {
     private AvailableCurrencies() {
@@ -52,9 +52,9 @@ public final class AvailableCurrencies {
     /**
      * Fetches the collection of available currencies and their corresponding full names.
      *
-     * @return A {@link Currencies} object containing a map of available currency symbols to their full names
-     * @throws IOException         If an input or output exception occurs during the API request
-     * @throws JsonSyntaxException If the JSON response from the API does not match the expected format
+     * @return a {@link Currencies} object containing a map of available currency symbols to their full names
+     * @throws IOException         if an input or output exception occurs during the aPI request
+     * @throws JsonSyntaxException if the JSON response from the aPI does not match the expected format
      */
     public static Currencies getCurrencies() throws IOException, JsonSyntaxException {
         var gson = new GsonBuilder().setPrettyPrinting().create();

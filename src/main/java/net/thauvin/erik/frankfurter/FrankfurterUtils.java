@@ -120,7 +120,7 @@ public final class FrankfurterUtils {
      * <p>
      * Easter Monday is 1 day after Easter Sunday
      *
-     * @param year The year for which to calculate Easter Monday
+     * @param year the year for which to calculate Easter Monday
      * @return {@link LocalDate} representing Easter Monday
      * @see #calculateEasterSunday(int)
      */
@@ -134,7 +134,7 @@ public final class FrankfurterUtils {
      * <p>
      * Based on the algorithm by Jean Meeus.
      *
-     * @param year The year for which to calculate Easter
+     * @param year the year for which to calculate Easter
      * @return {@link LocalDate} representing Easter Sunday
      */
     public static LocalDate calculateEasterSunday(int year) {
@@ -162,7 +162,7 @@ public final class FrankfurterUtils {
      * <p>
      * Good Friday is 2 days before Easter Sunday
      *
-     * @param year The year for which to calculate Good Friday
+     * @param year the year for which to calculate Good Friday
      * @return {@link LocalDate} representing Good Friday
      * @see #calculateEasterSunday(int)
      */
@@ -248,10 +248,10 @@ public final class FrankfurterUtils {
     /**
      * Formats a currency amount based on the provided ISO currency symbol and amount.
      *
-     * @param symbol The 3-letter ISO currency symbol (e.g., "USD", "EUR")
-     * @param amount The monetary amount to format
-     * @return A formatted currency string
-     * @throws IllegalArgumentException If the currency symbol is unknown or invalid
+     * @param symbol the 3-letter ISO currency symbol (e.g., "USD", "EUR")
+     * @param amount the monetary amount to format
+     * @return a formatted currency string
+     * @throws IllegalArgumentException if the currency symbol is unknown or invalid
      */
     public static String formatCurrency(String symbol, Double amount) {
         return formatCurrency(symbol, amount, false);
@@ -260,11 +260,11 @@ public final class FrankfurterUtils {
     /**
      * Formats a currency amount based on the provided ISO currency symbol, amount, and rounding preference.
      *
-     * @param symbol  The 3-letter ISO currency symbol (e.g., "USD", "EUR")
-     * @param amount  The monetary amount to format
+     * @param symbol  the 3-letter ISO currency symbol (e.g., "USD", "EUR")
+     * @param amount  the monetary amount to format
      * @param rounded Whether to round the amount
-     * @return A formatted currency string
-     * @throws IllegalArgumentException If the currency symbol is unknown or invalid
+     * @return a formatted currency string
+     * @throws IllegalArgumentException if the currency symbol is unknown or invalid
      */
     public static String formatCurrency(String symbol, Double amount, boolean rounded) {
         var normalizedSymbol = normalizeSymbol(symbol);
@@ -290,7 +290,7 @@ public final class FrankfurterUtils {
      * Validates whether the provided symbol is a non-null string consisting of exactly three alphabetical characters
      * (either uppercase or lowercase).
      *
-     * @param symbol The string to be validated
+     * @param symbol the string to be validated
      * @return {@code true} if the symbol is non-null and matches the required format of three alphabetical characters,
      * {@code false} otherwise.
      */
@@ -328,9 +328,9 @@ public final class FrankfurterUtils {
     /**
      * Formats a given currency symbol to uppercase if it matches the required format of three alphabetical characters.
      *
-     * @param symbol The currency symbol to be formatted, which must consist of exactly three alphabetical characters
+     * @param symbol the currency symbol to be formatted, which must consist of exactly three alphabetical characters
      * @return The normalized version of the currency symbol if it is valid
-     * @throws IllegalArgumentException If the provided symbol is not exactly three alphabetical characters
+     * @throws IllegalArgumentException if the provided symbol is not exactly three alphabetical characters
      */
     public static String normalizeSymbol(String symbol) {
         if (isValidSymbol(symbol)) {
@@ -341,7 +341,7 @@ public final class FrankfurterUtils {
     }
 
     /**
-     * Builds a URI by combining the {@code API_BASE_URL base url}, a specified path, and query parameters.
+     * Builds a URI by combining the {@code aPI_BASE_URL base url}, a specified path, and query parameters.
      * <p>
      * The path is appended to the base URL, and query parameters are appended as a query string.
      *
