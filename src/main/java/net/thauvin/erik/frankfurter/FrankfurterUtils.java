@@ -39,11 +39,15 @@ import net.thauvin.erik.frankfurter.exceptions.HttpErrorException;
 import net.thauvin.erik.frankfurter.models.Error;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,6 +80,17 @@ public final class FrankfurterUtils {
      * Map currency codes to their respective locales for proper formatting
      */
     private static final Map<String, Locale> CURRENCY_LOCALES = new ConcurrentHashMap<>();
+    /**
+     * Gson instance for parsing JSON responses.
+     */
+    private static final Gson GSON = new Gson();
+    /**
+     * Client for executing HTTP requests.
+     */
+    private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
 
     static {
         CURRENCY_LOCALES.put("AUD", new Locale("en", "AU"));
@@ -219,30 +234,26 @@ public final class FrankfurterUtils {
      * @throws HttpErrorException if the response status code is not 200
      * @throws IOException        if an I/O error occurs during the request
      */
-    @SuppressWarnings("PMD.ExceptionAsFlowControl")
-    public static String fetchUri(URI uri) throws IOException {
+    public static String fetchUri(URI uri) throws IOException, InterruptedException, IllegalArgumentException {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest(uri.toString());
         }
-        var connection = (HttpURLConnection) uri.toURL().openConnection();
-        try {
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.connect();
 
-            if (connection.getResponseCode() != 200) {
-                try {
-                    var response = new String(connection.getErrorStream().readAllBytes());
-                    var error = new Gson().fromJson(response, Error.class);
-                    throw new HttpErrorException(connection.getResponseCode(), error.message(), uri);
-                } catch (JsonSyntaxException | NullPointerException e) {
-                    throw new HttpErrorException(connection.getResponseCode(), "Unable to parse error message", uri, e);
-                }
-            }
-            return new String(connection.getInputStream().readAllBytes());
-        } finally {
-            connection.disconnect();
+        var request = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build();
+
+        var response =
+                HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+        if (response.statusCode() != 200) {
+            handleErrorResponse(response, uri);
         }
+
+        return response.body();
     }
 
     /**
@@ -283,6 +294,21 @@ public final class FrankfurterUtils {
 
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unknown currency symbol: " + normalizedSymbol, e);
+        }
+    }
+
+    @SuppressWarnings("PMD.ExceptionAsFlowControl")
+    private static void handleErrorResponse(HttpResponse<String> response, URI uri) throws IOException {
+        try {
+            String errorBody = response.body();
+            if (errorBody != null && !errorBody.isEmpty()) {
+                var error = GSON.fromJson(errorBody, Error.class);
+                throw new HttpErrorException(response.statusCode(), error.message(), uri);
+            } else {
+                throw new HttpErrorException(response.statusCode(), "No error message provided", uri);
+            }
+        } catch (JsonSyntaxException | NullPointerException e) {
+            throw new HttpErrorException(response.statusCode(), "Unable to parse error message", uri, e);
         }
     }
 

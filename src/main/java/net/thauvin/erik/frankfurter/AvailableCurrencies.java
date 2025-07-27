@@ -56,7 +56,7 @@ public final class AvailableCurrencies {
      * @throws IOException         if an input or output exception occurs during the aPI request
      * @throws JsonSyntaxException if the JSON response from the aPI does not match the expected format
      */
-    public static Currencies getCurrencies() throws IOException, JsonSyntaxException {
+    public static Currencies getCurrencies() throws IOException, JsonSyntaxException, InterruptedException {
         var gson = new GsonBuilder().setPrettyPrinting().create();
         var currencies = new Currencies();
         var mapType = new TypeToken<Map<String, String>>() {

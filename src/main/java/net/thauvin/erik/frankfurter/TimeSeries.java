@@ -114,7 +114,8 @@ public class TimeSeries {
      *                                  if the end date is before the start date
      * @throws JsonSyntaxException      if the JSON response from the aPI does not match the expected format
      */
-    public SeriesRates getPeriodicRates() throws IOException, URISyntaxException, JsonSyntaxException {
+    public SeriesRates getPeriodicRates()
+            throws IOException, URISyntaxException, JsonSyntaxException, InterruptedException {
         var gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .setFieldNamingPolicy(com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

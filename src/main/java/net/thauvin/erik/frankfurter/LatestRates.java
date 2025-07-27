@@ -108,7 +108,8 @@ public class LatestRates {
      * @throws URISyntaxException  if the URI syntax is invalid
      * @throws JsonSyntaxException if the JSON response from the aPI does not match the expected format
      */
-    public ExchangeRates getExchangeRates() throws IOException, URISyntaxException, JsonSyntaxException {
+    public ExchangeRates getExchangeRates()
+            throws IOException, URISyntaxException, JsonSyntaxException, InterruptedException {
         var gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
                 .setPrettyPrinting()

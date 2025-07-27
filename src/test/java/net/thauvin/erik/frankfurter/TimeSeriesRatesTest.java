@@ -36,6 +36,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -46,7 +49,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"PMD.LinguisticNaming", "PMD.AvoidDuplicateLiterals"})
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 @ExtendWith(BeforeAllTests.class)
 class TimeSeriesRatesTest {
     private static final String VALID_BASE_CURRENCY = "USD";
@@ -145,14 +148,14 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void builderEndDateBeforeMinDate() {
+        void builderEndDateIsBeforeMinDate() {
             var builder = new TimeSeries.Builder();
             var invalidDate = FrankfurterUtils.MIN_DATE.minusDays(1);
             assertThrows(IllegalArgumentException.class, () -> builder.endDate(invalidDate));
         }
 
         @Test
-        void builderEndDateLocalDate() {
+        void builderEndDateIsLocalDate() {
             var builder = new TimeSeries.Builder();
             builder.endDate(VALID_END_DATE);
             var timeSeries = builder.startDate(VALID_START_DATE).build();
@@ -160,7 +163,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void builderEndDateNullDate() {
+        void builderEndDateIsNull() {
             var builder = new TimeSeries.Builder();
             assertThrows(IllegalArgumentException.class, () -> builder.endDate(null));
         }
@@ -174,14 +177,14 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void builderStartDateBeforeMinDate() {
+        void builderStartDateIsBeforeMinDate() {
             var builder = new TimeSeries.Builder();
             var invalidDate = FrankfurterUtils.MIN_DATE.minusDays(1);
             assertThrows(IllegalArgumentException.class, () -> builder.startDate(invalidDate));
         }
 
         @Test
-        void builderStartDateLocalDate() {
+        void builderStartDateIsLocalDate() {
             var builder = new TimeSeries.Builder();
             builder.startDate(VALID_START_DATE);
             var timeSeries = builder.build();
@@ -189,7 +192,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void builderStartDateNullInBuilderAllowed() {
+        void builderStartDateIsNull() {
             var builder = new TimeSeries.Builder();
             assertThrows(IllegalArgumentException.class, () -> builder.startDate(null));
             var timeSeries = builder.build();
@@ -197,7 +200,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void builderStartDateSameAsEndDate() {
+        void builderStartDateIsSameAsEndDate() {
             var builder = new TimeSeries.Builder();
             builder.startDate(VALID_START_DATE).endDate(VALID_START_DATE);
             var timeSeries = builder.build();
@@ -206,36 +209,8 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void builderSymbolsCollection() {
+        void builderSymbolsListWithInvalidSymbol() {
             var builder = new TimeSeries.Builder();
-            builder.symbols(Arrays.asList("jpy", "cad"));
-            var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().containsAll(Arrays.asList("JPY", "CAD")));
-            assertEquals(2, timeSeries.getSymbols().size());
-        }
-
-        @Test
-        void builderSymbolsEmpty() {
-            var builder = new TimeSeries.Builder();
-            builder = builder.symbols(); // Empty varargs
-            var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().isEmpty());
-        }
-
-        @Test
-        void builderSymbolsEmptyCollection() {
-            var builder = new TimeSeries.Builder();
-            builder.symbols(Collections.emptyList()); // Empty collection
-            var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().isEmpty());
-        }
-
-        @Test
-        void builderSymbolsInvalidContent() {
-            var builder = new TimeSeries.Builder();
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols("EU"));
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols("EUROS"));
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols("E$R"));
 
             var ex = assertThrows(IllegalArgumentException.class,
                     () -> builder.symbols(List.of("US", "EUR"))
@@ -244,16 +219,57 @@ class TimeSeriesRatesTest {
 
             ex = assertThrows(IllegalArgumentException.class, () -> builder.symbols(List.of("USD", "EUROPE")));
             assertEquals("Invalid currency symbol: EUROPE", ex.getMessage());
+        }
 
-
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols((String) null)); // Varargs with null
+        @Test
+        void builderSymbolsListWithNull() {
+            var builder = new TimeSeries.Builder();
             assertThrows(IllegalArgumentException.class, () -> builder.symbols("USD", null));
-
             assertThrows(IllegalArgumentException.class, () -> builder.symbols(Arrays.asList("USD", null))); // Collection with null
         }
 
         @Test
-        void builderSymbolsVarargs() {
+        void builderSymbolsWithCollection() {
+            var builder = new TimeSeries.Builder();
+            builder.symbols(Arrays.asList("jpy", "cad"));
+            var timeSeries = builder.build();
+            assertTrue(timeSeries.getSymbols().containsAll(Arrays.asList("JPY", "CAD")));
+            assertEquals(2, timeSeries.getSymbols().size());
+        }
+
+        @Test
+        void builderSymbolsWithEmptyCollection() {
+            var builder = new TimeSeries.Builder();
+            builder.symbols(Collections.emptyList()); // Empty collection
+            var timeSeries = builder.build();
+            assertTrue(timeSeries.getSymbols().isEmpty());
+        }
+
+        @Test
+        void builderSymbolsWithEmptyVarargs() {
+            var builder = new TimeSeries.Builder();
+            builder = builder.symbols(); // Empty varargs
+            var timeSeries = builder.build();
+            assertTrue(timeSeries.getSymbols().isEmpty());
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"EU", "EUROS", "E$S"})
+        void builderSymbolsWithInvalidSymbol(String input) {
+            var builder = new TimeSeries.Builder();
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols(input));
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void builderSymbolsWithNullVarargs(String input) {
+            var builder = new TimeSeries.Builder();
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols(input)); // Varargs with null
+
+        }
+
+        @Test
+        void builderSymbolsWithVarargs() {
             var builder = new TimeSeries.Builder();
             builder.symbols("eur", "gbp");
             var timeSeries = builder.build();
@@ -266,7 +282,7 @@ class TimeSeriesRatesTest {
     @DisplayName("Periodic Rates Tests")
     class PeriodicRatesTests {
         @Test
-        void getPeriodicRatesAllParameters() throws IOException, URISyntaxException {
+        void periodicRatesAllParameters() throws IOException, URISyntaxException, InterruptedException {
             var timeSeries = new TimeSeries.Builder()
                     .amount(5.25)
                     .startDate(VALID_START_DATE)
@@ -289,7 +305,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void getPeriodicRatesCurrentMonth() throws IOException, URISyntaxException {
+        void periodicRatesCurrentMonth() throws IOException, URISyntaxException, InterruptedException {
             var now = LocalDate.now();
             var timeSeries = new TimeSeries.Builder()
                     .startDate(now.withDayOfMonth(1))
@@ -304,7 +320,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void getPeriodicRatesEndDateBeforeStartDate() {
+        void periodicRatesEndDateBeforeStartDate() {
             var timeSeries = new TimeSeries.Builder()
                     .startDate(VALID_END_DATE)
                     .endDate(VALID_START_DATE)
@@ -314,7 +330,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void getPeriodicRatesForUSD() throws IOException, URISyntaxException {
+        void periodicRatesForUSD() throws IOException, URISyntaxException, InterruptedException {
             var startDate = LocalDate.of(2025, 1, 2);
             var endDate = LocalDate.of(2025, 1, 9);
             var timeSeries =
@@ -331,7 +347,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void getPeriodicRatesOnlyStartDate() throws IOException, URISyntaxException {
+        void periodicRatesOnlyStartDate() throws IOException, URISyntaxException, InterruptedException {
             var timeSeries = new TimeSeries.Builder()
                     .startDate(VALID_START_DATE) // Default base EUR, no end date, no symbols
                     .build();
@@ -345,14 +361,14 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void getPeriodicRatesStartDateNull() {
+        void periodicRatesStartDateNull() {
             var timeSeries = new TimeSeries.Builder().build(); // startDate is null
             var exception = assertThrows(IllegalArgumentException.class, timeSeries::getPeriodicRates);
             assertEquals("The start date is required.", exception.getMessage());
         }
 
         @Test
-        void getPeriodicRatesWithIntAmount() throws IOException, URISyntaxException {
+        void periodicRatesWithIntAmount() throws IOException, URISyntaxException, InterruptedException {
             var timeSeries = new TimeSeries.Builder()
                     .startDate(VALID_START_DATE)
                     .endDate(VALID_START_DATE)
@@ -368,7 +384,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void getPeriodicRatesWithNullAmount() throws IOException, URISyntaxException {
+        void periodicRatesWithNullAmount() throws IOException, URISyntaxException, InterruptedException {
             var timeSeries = new TimeSeries.Builder()
                     .amount(null) // not set
                     .startDate(VALID_START_DATE)

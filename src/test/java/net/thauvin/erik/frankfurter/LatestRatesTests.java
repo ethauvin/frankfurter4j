@@ -63,7 +63,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRates() throws IOException, URISyntaxException {
+    void getExchangeRates() throws IOException, URISyntaxException, InterruptedException {
         var builder = new LatestRates.Builder().build();
         var ratesData = builder.getExchangeRates();
 
@@ -84,7 +84,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesForHistoricalDate() throws IOException, URISyntaxException {
+    void getExchangeRatesForHistoricalDate() throws IOException, URISyntaxException, InterruptedException {
         var date = LocalDate.of(2010, 1, 4);
         var latestRates = new LatestRates.Builder()
                 .date(date)
@@ -98,7 +98,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesForHistoricalDateWithAmount() throws IOException, URISyntaxException {
+    void getExchangeRatesForHistoricalDateWithAmount() throws IOException, URISyntaxException, InterruptedException {
         var date = LocalDate.of(2010, 1, 1);
         var latestRates = new LatestRates.Builder()
                 .amount(10.0)
@@ -114,7 +114,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesWithAllParameters() throws IOException, URISyntaxException {
+    void getExchangeRatesWithAllParameters() throws IOException, URISyntaxException, InterruptedException {
         var testDate = LocalDate.of(2025, 1, 30);
         var builder = new LatestRates.Builder()
                 .amount(10.0)
@@ -136,7 +136,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesWithIntAmount() throws IOException, URISyntaxException {
+    void getExchangeRatesWithIntAmount() throws IOException, URISyntaxException, InterruptedException {
         var builder = new LatestRates.Builder().amount(10).build();
         var ratesData = builder.getExchangeRates();
 
@@ -149,7 +149,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesWithNullAmount() throws IOException, URISyntaxException {
+    void getExchangeRatesWithNullAmount() throws IOException, URISyntaxException, InterruptedException {
         var builder = new LatestRates.Builder()
                 .amount(null) // not set
                 .build();
@@ -167,7 +167,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesWithValidBaseAndSymbols() throws IOException, URISyntaxException {
+    void getExchangeRatesWithValidBaseAndSymbols() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder().base("USD").symbols("EUR", "GBP").build();
         var exchangeRates = latestRates.getExchangeRates();
         assertNotNull(exchangeRates);
@@ -175,6 +175,6 @@ class LatestRatesTests {
         assertTrue(exchangeRates.getRates().containsKey("EUR"), "rates() should contain 'EUR'");
         assertTrue(exchangeRates.getRates().get("EUR") > 0, "EUR rate should be greater than 0");
         assertTrue(exchangeRates.getRates().containsKey("GBP"), "rates() should contain 'GBP");
-        assertTrue(exchangeRates.getRates().get("GBP") > 0, "");
+        assertTrue(exchangeRates.getRates().get("GBP") > 0, "GPB rate should be greater than 0");
     }
 }

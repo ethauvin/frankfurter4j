@@ -36,6 +36,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.regex.Pattern;
 
@@ -65,13 +70,15 @@ class CurrenciesTests {
             assertEquals(0, emptyData.size(), "Size of a new Currencies should be 0.");
         }
 
-        @Test
-        void getCurrencyNameWithEmptySymbol() {
-            assertNull(currencies.getFullNameFor(""),
-                    "Should return null for an empty string symbol if not explicitly added.");
-            currencies.put("", "Empty Symbol Currency");
-            assertNull(currencies.getFullNameFor(""),
-                    "Should return null if an empty string symbol was explicitly added.");
+        @ParameterizedTest
+        @EmptySource
+        @ValueSource(strings = {" ", "   "})
+        void getCurrencyNameWithEmptyOrBlankSymbol(String input) {
+            assertNull(currencies.getFullNameFor(input),
+                    "Should return null for an empty or blank string symbol if not explicitly added.");
+            currencies.put(input, "Empty Symbol Currency");
+            assertNull(currencies.getFullNameFor(input),
+                    "Should return null if an empty or blank string symbol was explicitly added.");
         }
 
         @Test
@@ -98,24 +105,22 @@ class CurrenciesTests {
                     "Should return null for a non-existing currency symbol.");
         }
 
-        @Test
-        void getCurrencyNameWithNullSymbol() {
-            assertNull(currencies.getFullNameFor(null),
-                    "Should return null when the symbol is null (as per HashMap behavior).");
+        @ParameterizedTest
+        @NullAndEmptySource
+        void getCurrencyNameWithNullOrEmptySymbol(String input) {
+            assertNull(currencies.getFullNameFor(input),
+                    "Should return null when the symbol is null or empty (as per HashMap behavior).");
         }
     }
 
     @Nested
     @DisplayName("Currency Symbol Tests")
     class CurrencySymbolTests {
-        @Test
-        void getCurrencySymbolWithBlankName() {
-            assertNull(currencies.getSymbolFor("   "));
-        }
-
-        @Test
-        void getCurrencySymbolWithEmptyName() {
-            assertNull(currencies.getSymbolFor(""));
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void getCurrencySymbolWithBlankName(String input) {
+            assertNull(currencies.getSymbolFor(input));
         }
 
         @Test
@@ -134,14 +139,10 @@ class CurrenciesTests {
             assertEquals("USD", currencies.getSymbolFor("United STATES dollar"));
         }
 
-        @Test
-        void getCurrencySymbolWithNull() {
-            assertNull(currencies.getSymbolFor((String) null));
-        }
-
-        @Test
-        void getCurrencySymbolWithNullRegex() {
-            assertNull(currencies.getSymbolFor((Pattern) null));
+        @ParameterizedTest
+        @NullSource
+        void getCurrencySymbolWithNullRegex(Pattern input) {
+            assertNull(currencies.getSymbolFor(input));
         }
 
         @Test

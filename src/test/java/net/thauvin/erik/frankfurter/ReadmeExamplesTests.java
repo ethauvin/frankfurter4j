@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(BeforeAllTests.class)
 class ReadmeExamplesTests {
     @Test
-    void currenciesExample() throws IOException {
+    void currenciesExample() throws IOException, InterruptedException {
         var currencies = AvailableCurrencies.getCurrencies();
 
         assertEquals(currencies.get("USD"), currencies.getFullNameFor("usd"));
@@ -57,7 +57,7 @@ class ReadmeExamplesTests {
 
     @Test
     @SuppressWarnings("PMD.SystemPrintln")
-    void currencyConversionExample() throws IOException, URISyntaxException {
+    void currencyConversionExample() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder()
                 .amount(10)
                 .base("USD")
@@ -85,7 +85,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void historicalRatesExamples() throws IOException, URISyntaxException {
+    void historicalRatesExamples() throws IOException, URISyntaxException, InterruptedException {
         var date = LocalDate.of(1999, 1, 4);
         var latestRates = new LatestRates.Builder()
                 .date(date)
@@ -95,7 +95,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void historicalRatesExamplesWithBaseAndCurrencies() throws IOException, URISyntaxException {
+    void historicalRatesExamplesWithBaseAndCurrencies() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder()
                 .base("USD")
                 .date(LocalDate.of(1999, 1, 4))
@@ -107,7 +107,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void latestRatesExample() throws IOException, URISyntaxException {
+    void latestRatesExample() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder().build();
         var exchangeRates = latestRates.getExchangeRates();
 
@@ -120,7 +120,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void latestRatesExampleWithBase() throws IOException, URISyntaxException {
+    void latestRatesExampleWithBase() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder()
                 .base("USD")
                 .build();
@@ -131,7 +131,7 @@ class ReadmeExamplesTests {
 
     @Test
     @SuppressWarnings("PMD.SystemPrintln")
-    void periodicRatesExample() throws IOException, URISyntaxException {
+    void periodicRatesExample() throws IOException, URISyntaxException, InterruptedException {
         var timeSeries = new TimeSeries.Builder()
                 .startDate(LocalDate.of(2000, 1, 1))
                 .endDate(LocalDate.of(2000, 12, 31))
@@ -164,7 +164,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void periodicRatesExampleToPresent() throws IOException, URISyntaxException {
+    void periodicRatesExampleToPresent() throws IOException, URISyntaxException, InterruptedException {
         var timeSeries = new TimeSeries.Builder()
                 .startDate(LocalDate.of(2025, 1, 1))
                 .build();
@@ -174,7 +174,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void periodicRatesExampleWithCurrencies() throws IOException, URISyntaxException {
+    void periodicRatesExampleWithCurrencies() throws IOException, URISyntaxException, InterruptedException {
         var timeSeries = new TimeSeries.Builder()
                 .startDate(LocalDate.of(2025, 1, 1))
                 .endDate(LocalDate.now())
@@ -186,7 +186,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void tldrExample() throws IOException, URISyntaxException {
+    void tldrExample() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder()
                 .amount(100.0)
                 .base("USD")

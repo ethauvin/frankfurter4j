@@ -37,6 +37,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -132,9 +136,10 @@ class FrankfurterUtilsTests {
             }
         }
 
-        @Test
-        void validateDateWithNullDate() {
-            assertThrows(IllegalArgumentException.class, () -> FrankfurterUtils.validateDate(null));
+        @ParameterizedTest
+        @NullSource
+        void validateDateWithNullDate(LocalDate input) {
+            assertThrows(IllegalArgumentException.class, () -> FrankfurterUtils.validateDate(input));
         }
 
         @Test
@@ -186,7 +191,7 @@ class FrankfurterUtilsTests {
     @DisplayName("Fetch URI Tests")
     class FetchUriTests {
         @Test
-        void fetchUri() throws IOException {
+        void fetchUri() throws IOException, InterruptedException {
             var uri = URI.create(FrankfurterUtils.API_BASE_URL + "2025-01-02?symbols=USD");
             var response = FrankfurterUtils.fetchUri(uri);
 
@@ -199,8 +204,8 @@ class FrankfurterUtilsTests {
             var uri = URI.create("htt://invalid-url");
             try {
                 FrankfurterUtils.fetchUri(uri);
-            } catch (IOException e) {
-                assertEquals("java.net.MalformedURLException", e.getClass().getName());
+            } catch (IllegalArgumentException | IOException | InterruptedException e) {
+                assertEquals("java.lang.IllegalArgumentException", e.getClass().getName());
             }
         }
 
@@ -212,7 +217,7 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUrlWithEmptyUrl() {
+        void fetchUriWithEmptyUrl() throws InterruptedException {
             var uri = URI.create("");
             try {
                 FrankfurterUtils.fetchUri(uri);
@@ -222,13 +227,13 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUrlWithUnknownHost() {
+        void fetchUriWithUnknownHost() throws InterruptedException {
             var uri = URI.create("https://fake.unknown.host");
             try {
                 FrankfurterUtils.fetchUri(uri);
             } catch (IOException e) {
-                assertEquals("java.net.UnknownHostException", e.getClass().getName(),
-                        "Expected UnknownHostException for unknown host");
+                assertEquals("java.net.ConnectException", e.getClass().getName(),
+                        "Expected ConnectException for unknown host");
             }
         }
     }
@@ -250,17 +255,19 @@ class FrankfurterUtilsTests {
                     "Negative amounts should be formatted correctly with a negative symbol");
         }
 
-        @Test
-        void formatCurrencyRoundedWithNullAmount() {
+        @ParameterizedTest
+        @NullSource
+        void formatCurrencyRoundedWithNullAmount(Double input) {
             assertThrows(IllegalArgumentException.class,
-                    () -> FrankfurterUtils.formatCurrency("USD", null, true),
+                    () -> FrankfurterUtils.formatCurrency("USD", input, true),
                     "Null amount should throw a NullPointerException");
         }
 
-        @Test
-        void formatCurrencyRoundedWithNullCurrencyCode() {
+        @ParameterizedTest
+        @NullSource
+        void formatCurrencyRoundedWithNullCurrencyCode(String input) {
             assertThrows(IllegalArgumentException.class,
-                    () -> FrankfurterUtils.formatCurrency(null, 100.0, true),
+                    () -> FrankfurterUtils.formatCurrency(input, 100.0, true),
                     "Null currency code should throw an IllegalArgumentException");
         }
 
@@ -309,7 +316,7 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void formatCurrencyWithAllSymbols() throws IOException {
+        void formatCurrencyWithAllSymbols() throws IOException, InterruptedException {
             var currencies = AvailableCurrencies.getCurrencies();
             for (var key : Collections.list(currencies.keys())) {
                 assertDoesNotThrow(() -> FrankfurterUtils.formatCurrency(key, 10.0), key);
@@ -330,17 +337,19 @@ class FrankfurterUtilsTests {
                     "Negative amounts should be formatted correctly with a negative symbol");
         }
 
-        @Test
-        void formatCurrencyWithNullAmount() {
+        @ParameterizedTest
+        @NullSource
+        void formatCurrencyWithNullAmount(Double input) {
             assertThrows(IllegalArgumentException.class,
-                    () -> FrankfurterUtils.formatCurrency("USD", null),
+                    () -> FrankfurterUtils.formatCurrency("USD", input),
                     "Null amount should throw a NullPointerException");
         }
 
-        @Test
-        void formatCurrencyWithNullCurrencyCode() {
+        @ParameterizedTest
+        @NullSource
+        void formatCurrencyWithNullCurrencyCode(String input) {
             assertThrows(IllegalArgumentException.class,
-                    () -> FrankfurterUtils.formatCurrency(null, 100.0),
+                    () -> FrankfurterUtils.formatCurrency(input, 100.0),
                     "Null currency code should throw an IllegalArgumentException");
         }
 
@@ -444,12 +453,13 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Normalize Symbol Tests")
     class NormalizeSymbolTests {
-        @Test
-        void normalizeSymbolWithEmptyString() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        void normalizeSymbolWithEmptyString(String input) {
             try {
-                FrankfurterUtils.normalizeSymbol("");
+                FrankfurterUtils.normalizeSymbol(input);
             } catch (IllegalArgumentException e) {
-                assertEquals("Invalid currency symbol: ", e.getMessage(),
+                assertEquals("Invalid currency symbol: " + input, e.getMessage(),
                         "Empty string should throw an IllegalArgumentException");
             }
         }
@@ -508,21 +518,17 @@ class FrankfurterUtilsTests {
                     "Should be invalid if it contains special characters");
         }
 
-        @Test
-        void validateSymbolWithEmptyString() {
-            assertFalse(FrankfurterUtils.isValidSymbol(""), "Should be invalid for an empty string");
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void validateSymbolWithEmptyString(String input) {
+            assertFalse(FrankfurterUtils.isValidSymbol(input), "Should be invalid for an empty string");
         }
 
         @Test
         void validateSymbolWithLeadingSpace() {
             assertFalse(FrankfurterUtils.isValidSymbol(" ABC"),
                     "Should be invalid if it has leading spaces");
-        }
-
-        @Test
-        void validateSymbolWithNull() {
-            //noinspection ConstantValue
-            assertFalse(FrankfurterUtils.isValidSymbol(null), "Should be invalid for null");
         }
 
         @Test
@@ -574,18 +580,22 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("URI Builder Tests")
     class UriBuilderTests {
-        @Test
-        void uriBuilderWithEmptyPath() throws Exception {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void uriBuilderWithEmptyPath(String input) throws Exception {
             var query = Map.of("symbols", "USD");
             var expected = FrankfurterUtils.API_BASE_URL + "?symbols=USD";
-            var result = FrankfurterUtils.uriBuilder("", query).toString();
+            var result = FrankfurterUtils.uriBuilder(input, query).toString();
 
             assertEquals(expected, result, "URI with empty path should only include the query.");
         }
 
-        @Test
-        void uriBuilderWithEmptyPathAndQuery() throws Exception {
-            var result = FrankfurterUtils.uriBuilder("", Collections.emptyMap()).toString();
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void uriBuilderWithEmptyPathAndQuery(String input) throws Exception {
+            var result = FrankfurterUtils.uriBuilder(input, Collections.emptyMap()).toString();
             assertEquals(FrankfurterUtils.API_BASE_URL, result,
                     "URI with null path and null query should return the base URL.");
         }
@@ -631,7 +641,6 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Working Days Tests")
     class WorkingDaysTests {
-
         @Test
         void workingDaysEmptyWhenSameDateIsWeekendOrHoliday() {
             var startDate = LocalDate.of(2025, 12, 25); // Christmas holiday

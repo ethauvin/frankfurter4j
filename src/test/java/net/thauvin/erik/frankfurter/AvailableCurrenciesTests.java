@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(BeforeAllTests.class)
 class AvailableCurrenciesTests {
     @Test
-    void getCurrencies() throws IOException {
+    void getCurrencies() throws IOException, InterruptedException {
         var currencies = AvailableCurrencies.getCurrencies();
         assertTrue(currencies.size() > 1);
         assertEquals("United States Dollar", currencies.get("USD"));
@@ -59,7 +59,7 @@ class AvailableCurrenciesTests {
     }
 
     @Test
-    void getCurrenciesWithEmptyResponse() throws IOException {
+    void getCurrenciesWithEmptyResponse() throws IOException, InterruptedException {
         try (var mock = Mockito.mockStatic(FrankfurterUtils.class)) {
             mock.when(() -> FrankfurterUtils.fetchUri(URI.create("https://api.frankfurter.dev/v1/currencies")))
                     .thenReturn("{}");

@@ -35,6 +35,9 @@ package net.thauvin.erik.frankfurter.models;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -134,39 +137,33 @@ class ExchangeRatesTests {
     @Nested
     @DisplayName("Get Rate For Symbol Tests")
     class GetRateForSymbolTests {
-        @Test
-        void getRateForBlankSymbol() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void getRateForBlankSymbol(String input) {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), ratesMap);
+            var exchangeRates = new ExchangeRates(1.0, "AUD",
+                    LocalDate.of(2025, 2, 28), ratesMap);
 
-            assertNull(exchangeRates.getRateFor(""),
+            assertNull(exchangeRates.getRateFor(input),
                     "Should return null when the symbol is a blank string");
-            assertNull(exchangeRates.getRateFor("   "),
-                    "Should return null when the symbol contains only whitespaces");
         }
 
         @Test
         void getRateForInvalidSymbol() {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), ratesMap);
+            var exchangeRates = new ExchangeRates(1.0, "AUD",
+                    LocalDate.of(2025, 2, 28), ratesMap);
 
             assertNull(exchangeRates.getRateFor("JPY"),
                     "Should return null for non-existent currency symbol");
         }
 
         @Test
-        void getRateForNullSymbol() {
-            var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), ratesMap);
-
-            assertNull(exchangeRates.getRateFor(null),
-                    "Should return null when the symbol is null");
-        }
-
-        @Test
         void getRateForValidSymbol() {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), ratesMap);
+            var exchangeRates = new ExchangeRates(1.0, "AUD",
+                    LocalDate.of(2025, 2, 28), ratesMap);
 
             assertEquals(1.08, exchangeRates.getRateFor("USD"),
                     "Should retrieve correct rate for USD");
@@ -181,7 +178,8 @@ class ExchangeRatesTests {
         @Test
         void getSymbolsFromEmptyRates() {
             var ratesMap = new HashMap<String, Double>();
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), ratesMap);
+            var exchangeRates = new ExchangeRates(1.0, "AUD",
+                    LocalDate.of(2025, 2, 28), ratesMap);
 
             var symbols = exchangeRates.getSymbols();
 
@@ -191,7 +189,8 @@ class ExchangeRatesTests {
         @Test
         void getSymbolsFromNonEmptyRates() {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96, "JPY", 151.0);
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), ratesMap);
+            var exchangeRates = new ExchangeRates(1.0, "AUD",
+                    LocalDate.of(2025, 2, 28), ratesMap);
 
             var symbols = exchangeRates.getSymbols();
 
@@ -200,7 +199,8 @@ class ExchangeRatesTests {
 
         @Test
         void getSymbolsFromNullRates() {
-            var exchangeRates = new ExchangeRates(1.0, "AUD", LocalDate.of(2025, 2, 28), null);
+            var exchangeRates = new ExchangeRates(1.0, "AUD",
+                    LocalDate.of(2025, 2, 28), null);
 
             assertThrows(NullPointerException.class, exchangeRates::getSymbols,
                     "Should throw NullPointerException when rates map is null");

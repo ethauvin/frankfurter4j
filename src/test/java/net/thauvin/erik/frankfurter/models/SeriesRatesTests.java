@@ -37,6 +37,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -123,9 +127,10 @@ class SeriesRatesTests {
                 "Should return an empty map when rates map is empty.");
     }
 
-    @Test
-    void getRateForNullDate() {
-        assertTrue(seriesRates.getRatesFor(null).isEmpty(),
+    @ParameterizedTest
+    @NullSource
+    void getRateForNullDate(LocalDate input) {
+        assertTrue(seriesRates.getRatesFor(input).isEmpty(),
                 "Should return an empty map when a null date is provided.");
     }
 
@@ -172,16 +177,12 @@ class SeriesRatesTests {
                     "Should return a correct rate when explicitly asking for the base currency.");
         }
 
-        @Test
-        void getRateForBlankCurrencySymbol() {
-            assertNull(seriesRates.getRateFor(startDate, "   "),
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void getRateForBlankCurrencySymbol(String input) {
+            assertNull(seriesRates.getRateFor(startDate, input),
                     "Should return null for blank currency symbol.");
-        }
-
-        @Test
-        void getRateForDateAndNullCurrency() {
-            assertNull(seriesRates.getRateFor(startDate, null),
-                    "Should return null when currency symbol is null");
         }
 
         @Test
@@ -208,9 +209,10 @@ class SeriesRatesTests {
                     "Should return null for a date not present in the rates map.");
         }
 
-        @Test
-        void getRateForNullDate() {
-            assertNull(seriesRates.getRateFor(null, "USD"),
+        @ParameterizedTest
+        @NullSource
+        void getRateForNullDate(LocalDate input) {
+            assertNull(seriesRates.getRateFor(input, "USD"),
                     "Should return null when date is null.");
         }
 
@@ -270,9 +272,11 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("Has Symbol For Tests")
     class HasSymbolForTests {
-        @Test
-        void hasSymbolForBlankSymbolWithDate() {
-            assertFalse(seriesRates.hasSymbolFor(startDate, " "),
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = {" ", "   "})
+        void hasSymbolForBlankSymbolWithDate(String input) {
+            assertFalse(seriesRates.hasSymbolFor(startDate, input),
                     "Should return false for a blank symbol with valid LocalDate.");
         }
 
@@ -283,12 +287,6 @@ class SeriesRatesTests {
                     "Should return false when rates map is empty.");
         }
 
-
-        @Test
-        void hasSymbolForEmptySymbolWithDate() {
-            assertFalse(seriesRates.hasSymbolFor(startDate, ""),
-                    "Should return false for a empty symbol with valid LocalDate.");
-        }
 
         @Test
         void hasSymbolForExistingSymbolAndDateWithDate() {
@@ -309,21 +307,17 @@ class SeriesRatesTests {
                     "Should return false for a non-existing symbol with valid LocalDate.");
         }
 
-        @Test
-        void hasSymbolForNullDateWithDate() {
-            assertFalse(seriesRates.hasSymbolFor(null, "USD"),
+        @ParameterizedTest
+        @NullSource
+        void hasSymbolForNullDateWithDate(LocalDate input) {
+            assertFalse(seriesRates.hasSymbolFor(input, "USD"),
                     "Should return false for a null LocalDate.");
         }
 
-        @Test
-        void hasSymbolForNullDateWithString() {
-            assertFalse(seriesRates.hasSymbolFor(null, "USD"),
-                    "Should return false for a null date string.");
-        }
-
-        @Test
-        void hasSymbolForNullSymbolWithDate() {
-            assertFalse(seriesRates.hasSymbolFor(startDate, null),
+        @ParameterizedTest
+        @NullSource
+        void hasSymbolForNullSymbolWithDate(String input) {
+            assertFalse(seriesRates.hasSymbolFor(startDate, input),
                     "Should return false for a null symbol with valid LocalDate.");
         }
     }
@@ -331,13 +325,12 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("toString Tests")
     class ToStringTests {
-
         @Test
         void toStringMatchesExpectedFormat() {
             var expected = Pattern.compile("SeriesRates\\{amount=1\\.0, base='EUR', " +
                     "startDate='2023-01-01', endDate='2023-01-05', rates=.*2023-01-02=\\{USD=1\\.15}.*");
             assertTrue(expected.matcher(seriesRates.toString()).matches(),
-                    "The output should match the expected format: " + seriesRates.toString());
+                    "toString() output should match the expected format: " + seriesRates.toString());
         }
 
         @Test
@@ -345,7 +338,7 @@ class SeriesRatesTests {
             var expected = "SeriesRates{amount=1.5, base='USD', startDate='2020-01-01', endDate='2020-01-01', " +
                     "rates={}}";
             assertEquals(expected, emptySeriesRates.toString(),
-                    "The toString output should work for empty series rates.");
+                    "toString() should handle empty series rates.");
         }
     }
 }
