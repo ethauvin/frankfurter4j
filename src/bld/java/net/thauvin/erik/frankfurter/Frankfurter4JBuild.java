@@ -74,14 +74,14 @@ public class Frankfurter4JBuild extends Project {
 
         var gson = version(2, 13, 1);
         scope(compile)
-                .include(dependency("com.uwyn","urlencoder", version(1, 3, 5)))
+                .include(dependency("com.uwyn", "urlencoder", version(1, 3, 5)))
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(test)
                 .include(dependency("org.mockito", "mockito-core", version(5, 18, 0)))
                 .include(dependency("org.junit.jupiter",
-                        "junit-jupiter", version(5, 13, 3)))
+                        "junit-jupiter", version(5, 13, 4)))
                 .include(dependency("org.junit.platform",
-                        "junit-platform-console-standalone", version(1, 13, 3)));
+                        "junit-platform-console-standalone", version(1, 13, 4)));
 
         publishOperation()
                 .repository(version.isSnapshot() ? repository(CENTRAL_SNAPSHOTS.location())
