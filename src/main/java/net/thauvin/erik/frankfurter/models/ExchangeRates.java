@@ -39,35 +39,21 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Represents the latest exchange rates for a base currency.
+ * Represents the exchange rates for a base currency.
+ *
+ * @param amount the amount of the base currency
+ * @param base   the base currency
+ * @param date   the date of the exchange rates
+ * @param rates  the exchange rates
  */
-public class ExchangeRates {
-    private final Double amount;
-    private final String base;
-    private final LocalDate date;
-    private final Map<String, Double> rates;
-
-    /**
-     * Constructs an instance of the ExchangeRates class.
-     *
-     * @param amount the amount of the base currency
-     * @param base   the base currency
-     * @param date   the date of the exchange rates
-     * @param rates  the exchange rates
-     */
-    ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
-        this.amount = amount;
-        this.base = base;
-        this.date = date;
-        this.rates = rates;
-    }
-
+public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
     /**
      * Retrieves the amount of the base currency.
      *
      * @return the amount of the base currency
      */
-    public Double getAmount() {
+    @Override
+    public Double amount() {
         return amount;
     }
 
@@ -76,7 +62,8 @@ public class ExchangeRates {
      *
      * @return the base currency
      */
-    public String getBase() {
+    @Override
+    public String base() {
         return base;
     }
 
@@ -85,39 +72,9 @@ public class ExchangeRates {
      *
      * @return the date of the exchange rates
      */
-    public LocalDate getDate() {
+    @Override
+    public LocalDate date() {
         return date;
-    }
-
-    /**
-     * Retrieves the exchange rate for the specified currency symbol.
-     *
-     * @param symbol the currency symbol
-     */
-    public Double getRateFor(String symbol) {
-        if (symbol == null || symbol.isBlank()) {
-            return null;
-        }
-        return rates.get(FrankfurterUtils.normalizeSymbol(symbol));
-    }
-
-    /**
-     * Retrieves the exchange rates for various currencies.
-     *
-     * @return a map where the keys are currency symbols (e.g., "USD", "EUR") and the values are
-     * the corresponding exchange rates against the base currency.
-     */
-    public Map<String, Double> getRates() {
-        return rates;
-    }
-
-    /**
-     * Retrieves the set of all currency symbols available in the exchange rates.
-     *
-     * @return a set of strings representing the currency symbols
-     */
-    public Set<String> getSymbols() {
-        return rates.keySet();
     }
 
     /**
@@ -130,13 +87,35 @@ public class ExchangeRates {
         return rates.containsKey(symbol);
     }
 
+    /**
+     * Retrieves the exchange rate for the specified currency symbol.
+     *
+     * @param symbol the currency symbol
+     */
+    public Double rateFor(String symbol) {
+        if (symbol == null || symbol.isBlank()) {
+            return null;
+        }
+        return rates.get(FrankfurterUtils.normalizeSymbol(symbol));
+    }
+
+    /**
+     * Retrieves the exchange rates for various currencies.
+     *
+     * @return a map where the keys are currency symbols (e.g., "USD", "EUR") and the values are
+     * the corresponding exchange rates against the base currency.
+     */
     @Override
-    public String toString() {
-        return "ExchangeRates{" +
-                "amount=" + amount +
-                ", base='" + base + '\'' +
-                ", date='" + date + '\'' +
-                ", rates=" + rates +
-                '}';
+    public Map<String, Double> rates() {
+        return rates;
+    }
+
+    /**
+     * Retrieves the set of all currency symbols available in the exchange rates.
+     *
+     * @return a set of strings representing the currency symbols
+     */
+    public Set<String> symbols() {
+        return rates.keySet();
     }
 }

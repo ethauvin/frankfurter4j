@@ -44,11 +44,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"PMD.LinguisticNaming", "PMD.AvoidDuplicateLiterals"})
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class ExchangeRatesTests {
     @Test
     void recordCreationAndAccessors() {
@@ -61,10 +60,10 @@ class ExchangeRatesTests {
 
         var exchangeRates = new ExchangeRates(amount, base, date, ratesMap);
 
-        assertEquals(amount, exchangeRates.getAmount(), "Amount should match provided value");
-        assertEquals(base, exchangeRates.getBase(), "Base currency should match provided value");
-        assertEquals(date, exchangeRates.getDate(), "Date string should match provided value");
-        assertEquals(ratesMap, exchangeRates.getRates(), "Rates map should match");
+        assertEquals(amount, exchangeRates.amount(), "Amount should match provided value");
+        assertEquals(base, exchangeRates.base(), "Base currency should match provided value");
+        assertEquals(date, exchangeRates.date(), "Date string should match provided value");
+        assertEquals(ratesMap, exchangeRates.rates(), "Rates map should match");
     }
 
     @Test
@@ -76,10 +75,10 @@ class ExchangeRatesTests {
 
         var exchangeRates = new ExchangeRates(amount, base, date, rates);
 
-        assertEquals(amount, exchangeRates.getAmount());
-        assertEquals(base, exchangeRates.getBase());
-        assertEquals(date, exchangeRates.getDate());
-        assertTrue(exchangeRates.getRates().isEmpty(), "Rates map should be empty");
+        assertEquals(amount, exchangeRates.amount());
+        assertEquals(base, exchangeRates.base());
+        assertEquals(date, exchangeRates.date());
+        assertTrue(exchangeRates.rates().isEmpty(), "Rates map should be empty");
     }
 
     @Test
@@ -90,119 +89,104 @@ class ExchangeRatesTests {
 
         var exchangeRates = new ExchangeRates(amount, base, date, null);
 
-        assertEquals(amount, exchangeRates.getAmount());
-        assertEquals(base, exchangeRates.getBase());
-        assertEquals(date, exchangeRates.getDate());
-        assertNull(exchangeRates.getRates(), "Rates map should be null");
-    }
-
-    @Test
-    void toStringVerification() {
-        var amount = 25.5;
-        var base = "USD";
-        var date = LocalDate.of(2025, 3, 15);
-        var rates = Map.of("EUR", 0.91, "GBP", 0.78);
-
-        var exchangeRates = new ExchangeRates(amount, base, date, rates);
-        var pattern = Pattern.compile("ExchangeRates\\{amount=25.5, base='USD', date='2025-03-15'," +
-                " rates=\\{[A-Z]{3}=0.\\d{2}, [A-Z]{3}=0.\\d{2}}}");
-
-        assertTrue(pattern.matcher(exchangeRates.toString()).matches(),
-                "toString() should match expected pattern");
+        assertEquals(amount, exchangeRates.amount());
+        assertEquals(base, exchangeRates.base());
+        assertEquals(date, exchangeRates.date());
+        assertNull(exchangeRates.rates(), "Rates map should be null");
     }
 
     @Nested
-    @DisplayName("Get Date Tests")
-    class GetDateTests {
+    @DisplayName("Date Tests")
+    class DateTests {
         @Test
-        void getDateWithAnotherValidDate() {
+        void dateWithAnotherValidDate() {
             var date = LocalDate.of(2025, 2, 28);
             var exchangeRates = new ExchangeRates(1.0, "EUR", date, Collections.singletonMap("USD", 1.08));
             var expectedDate = LocalDate.of(2025, 2, 28);
 
-            assertEquals(expectedDate, exchangeRates.getDate(),
+            assertEquals(expectedDate, exchangeRates.date(),
                     "Parsed LocalDate should match for another valid date");
         }
 
         @Test
-        void getDateWithValidDate() {
+        void dateWithValidDate() {
             var date = LocalDate.of(2023, 11, 1);
             var exchangeRates = new ExchangeRates(1.0, "USD", date, Collections.emptyMap());
             var expectedDate = LocalDate.of(2023, 11, 1);
 
-            assertEquals(expectedDate, exchangeRates.getDate(), "Parsed LocalDate should match");
+            assertEquals(expectedDate, exchangeRates.date(), "Parsed LocalDate should match");
         }
     }
 
     @Nested
-    @DisplayName("Get Rate For Symbol Tests")
-    class GetRateForSymbolTests {
-        @ParameterizedTest
+    @DisplayName("Rate For Symbol Tests")
+    class RateForSymbolTests {
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
-        void getRateForBlankSymbol(String input) {
+        void rateForBlankSymbol(String input) {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), ratesMap);
 
-            assertNull(exchangeRates.getRateFor(input),
+            assertNull(exchangeRates.rateFor(input),
                     "Should return null when the symbol is a blank string");
         }
 
         @Test
-        void getRateForInvalidSymbol() {
+        void rateForInvalidSymbol() {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), ratesMap);
 
-            assertNull(exchangeRates.getRateFor("JPY"),
+            assertNull(exchangeRates.rateFor("JPY"),
                     "Should return null for non-existent currency symbol");
         }
 
         @Test
-        void getRateForValidSymbol() {
+        void rateForValidSymbol() {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), ratesMap);
 
-            assertEquals(1.08, exchangeRates.getRateFor("USD"),
+            assertEquals(1.08, exchangeRates.rateFor("USD"),
                     "Should retrieve correct rate for USD");
-            assertEquals(0.96, exchangeRates.getRateFor("EUR"),
+            assertEquals(0.96, exchangeRates.rateFor("EUR"),
                     "Should retrieve correct rate for EUR");
         }
     }
 
     @Nested
-    @DisplayName("Get Symbols Tests")
-    class GetSymbolsTests {
+    @DisplayName("Symbols Tests")
+    class SymbolsTests {
         @Test
-        void getSymbolsFromEmptyRates() {
+        void symbolsFromEmptyRates() {
             var ratesMap = new HashMap<String, Double>();
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), ratesMap);
 
-            var symbols = exchangeRates.getSymbols();
+            var symbols = exchangeRates.symbols();
 
             assertTrue(symbols.isEmpty(), "Symbols should be empty when rates map is empty");
         }
 
         @Test
-        void getSymbolsFromNonEmptyRates() {
+        void symbolsFromNonEmptyRates() {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96, "JPY", 151.0);
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), ratesMap);
 
-            var symbols = exchangeRates.getSymbols();
+            var symbols = exchangeRates.symbols();
 
             assertEquals(ratesMap.keySet(), symbols, "Symbols should match the key set of the rates map");
         }
 
         @Test
-        void getSymbolsFromNullRates() {
+        void symbolsFromNullRates() {
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), null);
 
-            assertThrows(NullPointerException.class, exchangeRates::getSymbols,
+            assertThrows(NullPointerException.class, exchangeRates::symbols,
                     "Should throw NullPointerException when rates map is null");
         }
     }

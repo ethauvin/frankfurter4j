@@ -41,43 +41,26 @@ import java.util.Set;
 
 /**
  * Represents exchange rates over a series of dates for multiple currencies.
+ *
+ * @param amount    the amount to be converted or used in calculations
+ * @param base      the base currency for the time series of exchange rates
+ * @param startDate the start date of the time series, formatted as a string
+ * @param endDate   the end date of the time series, formatted as a string
+ * @param rates     a map where the keys are dates ({@link LocalDate}) and the values are maps of currency codes
+ *                  to their respective exchange rates as doubles
  */
-public class SeriesRates {
-    private final Double amount;
-    private final String base;
-    private final String endDate;
-    private final Map<LocalDate, Map<String, Double>> rates;
-    private final String startDate;
-
-    /**
-     * Constructs a {@link SeriesRates} object which represents a time series of exchange rates for a specific base
-     * currency within a defined date range.
-     *
-     * @param amount    the amount to be converted or used in calculations
-     * @param base      the base currency for the time series of exchange rates
-     * @param startDate the start date of the time series, formatted as a string
-     * @param endDate   the end date of the time series, formatted as a string
-     * @param rates     a map where the keys are dates ({@link LocalDate}) and the values are maps of currency codes
-     *                  to their respective exchange rates as doubles
-     */
-    SeriesRates(Double amount,
-                String base,
-                String startDate,
-                String endDate,
-                Map<LocalDate, Map<String, Double>> rates) {
-        this.amount = amount;
-        this.base = base;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.rates = rates;
-    }
-
+public record SeriesRates(Double amount,
+                          String base,
+                          String startDate,
+                          String endDate,
+                          Map<LocalDate, Map<String, Double>> rates) {
     /**
      * Retrieves the amount of the time series.
      *
      * @return the amount
      */
-    public Double getAmount() {
+    @Override
+    public Double amount() {
         return amount;
     }
 
@@ -86,7 +69,8 @@ public class SeriesRates {
      *
      * @return the base currency
      */
-    public String getBase() {
+    @Override
+    public String base() {
         return base;
     }
 
@@ -95,65 +79,17 @@ public class SeriesRates {
      *
      * @return the set of dates
      */
-    public Set<LocalDate> getDates() {
+    public Set<LocalDate> dates() {
         return rates.keySet();
     }
 
     /**
      * Retrieves the end date of the time series.
      *
-     * @return the end date
+     * @return the end date as a {@link LocalDate}
      */
-    public LocalDate getEndDate() {
+    public LocalDate endLocalDate() {
         return LocalDate.parse(endDate);
-    }
-
-    /**
-     * Retrieves the exchange rate for a specific date and currency symbol from the time series.
-     *
-     * @param date           the date for which the exchange rate is to be retrieved, formatted as a string
-     * @param currencySymbol the currency symbol for which the exchange rate is to be retrieved
-     * @return The exchange rate for the specified date and currency symbol, or null if no rate is available
-     */
-    public Double getRateFor(LocalDate date, String currencySymbol) {
-        if (date == null || currencySymbol == null || currencySymbol.isBlank() ||
-                !rates.containsKey(date)) {
-            return null;
-        }
-        return rates.get(date).get(FrankfurterUtils.normalizeSymbol(currencySymbol));
-    }
-
-    /**
-     * Retrieves the exchange rates mapped by date and currency symbol.
-     *
-     * @return a map where the keys are {@link LocalDate} objects representing the dates, and the values
-     * are maps with currency symbols as keys and exchange rates as double values.
-     */
-    public Map<LocalDate, Map<String, Double>> getRates() {
-        return rates;
-    }
-
-    /**
-     * Retrieves the exchange rates for all currencies on the specified date.
-     *
-     * @param date the date for which the exchange rates are to be retrieved as a {@link LocalDate}
-     * @return a map of currency symbols to their respective exchange rates on the specified date,
-     * or null if no rates are available for the date
-     */
-    public Map<String, Double> getRatesFor(LocalDate date) {
-        if (date == null || !rates.containsKey(date)) {
-            return Collections.emptyMap();
-        }
-        return rates.get(date);
-    }
-
-    /**
-     * Retrieves the start date of the time series.
-     *
-     * @return the start date
-     */
-    public LocalDate getStartDate() {
-        return LocalDate.parse(startDate);
     }
 
     /**
@@ -180,14 +116,52 @@ public class SeriesRates {
         return rates.get(date).containsKey(FrankfurterUtils.normalizeSymbol(symbol));
     }
 
+    /**
+     * Retrieves the exchange rate for a specific date and currency symbol from the time series.
+     *
+     * @param date           the date for which the exchange rate is to be retrieved, formatted as a string
+     * @param currencySymbol the currency symbol for which the exchange rate is to be retrieved
+     * @return The exchange rate for the specified date and currency symbol, or null if no rate is available
+     */
+    public Double rateFor(LocalDate date, String currencySymbol) {
+        if (date == null || currencySymbol == null || currencySymbol.isBlank() ||
+                !rates.containsKey(date)) {
+            return null;
+        }
+        return rates.get(date).get(FrankfurterUtils.normalizeSymbol(currencySymbol));
+    }
+
+    /**
+     * Retrieves the exchange rates mapped by date and currency symbol.
+     *
+     * @return a map where the keys are {@link LocalDate} objects representing the dates, and the values
+     * are maps with currency symbols as keys and exchange rates as double values.
+     */
     @Override
-    public String toString() {
-        return "SeriesRates{" +
-                "amount=" + amount +
-                ", base='" + base + '\'' +
-                ", startDate='" + startDate + '\'' +
-                ", endDate='" + endDate + '\'' +
-                ", rates=" + rates +
-                '}';
+    public Map<LocalDate, Map<String, Double>> rates() {
+        return rates;
+    }
+
+    /**
+     * Retrieves the exchange rates for all currencies on the specified date.
+     *
+     * @param date the date for which the exchange rates are to be retrieved as a {@link LocalDate}
+     * @return a map of currency symbols to their respective exchange rates on the specified date,
+     * or null if no rates are available for the date
+     */
+    public Map<String, Double> ratesFor(LocalDate date) {
+        if (date == null || !rates.containsKey(date)) {
+            return Collections.emptyMap();
+        }
+        return rates.get(date);
+    }
+
+    /**
+     * Retrieves the start date of the time series.
+     *
+     * @return the start date as a {@link LocalDate}
+     */
+    public LocalDate startLocalDate() {
+        return LocalDate.parse(startDate);
     }
 }
