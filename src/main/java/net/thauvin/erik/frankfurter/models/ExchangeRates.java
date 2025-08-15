@@ -45,6 +45,8 @@ import java.util.Set;
  * @param base   the base currency
  * @param date   the date of the exchange rates
  * @param rates  the exchange rates
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
     /**

@@ -36,6 +36,8 @@ package net.thauvin.erik.frankfurter.models;
  * Represents error information returned by the application or service.
  *
  * @param message the error message providing details about the issue
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public record Error(String message) {
 }

@@ -48,6 +48,8 @@ import java.util.Set;
  * @param endDate   the end date of the time series, formatted as a string
  * @param rates     a map where the keys are dates ({@link LocalDate}) and the values are maps of currency codes
  *                  to their respective exchange rates as doubles
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public record SeriesRates(Double amount,
                           String base,

@@ -49,6 +49,9 @@ import static net.thauvin.erik.frankfurter.FrankfurterUtils.fetchUri;
 
 /**
  * Represents the latest exchange rates based on a specific base currency, date, and symbols.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 @SuppressWarnings("PMD.DataClass")
 public class LatestRates {

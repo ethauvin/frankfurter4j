@@ -40,6 +40,9 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a map of available currency symbols to their full names.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public class Currencies extends ConcurrentHashMap<String, String> {
     @Serial

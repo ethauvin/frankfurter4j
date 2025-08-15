@@ -51,6 +51,9 @@ import java.util.TreeMap;
  * <p>
  * This class provides functionality to retrieve historical exchange rates using a builder pattern for flexible
  * configuration of parameters.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 @SuppressWarnings("PMD.DataClass")
 public class TimeSeries {

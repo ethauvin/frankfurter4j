@@ -43,6 +43,9 @@ import java.util.Map;
 
 /**
  * Utility class that provides methods to retrieve information about available currencies.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public final class AvailableCurrencies {
     private AvailableCurrencies() {

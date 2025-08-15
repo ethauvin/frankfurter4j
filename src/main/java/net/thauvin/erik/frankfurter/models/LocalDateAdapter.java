@@ -40,6 +40,9 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Custom adapter for serializing and deserializing {@link LocalDate} objects using Gson.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;

@@ -38,6 +38,9 @@ import java.net.URI;
 
 /**
  * Exception representing HTTP errors with status codes.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public class HttpErrorException extends IOException {
     @Serial

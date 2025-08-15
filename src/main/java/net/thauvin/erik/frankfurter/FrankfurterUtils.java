@@ -59,6 +59,9 @@ import java.util.stream.IntStream;
 
 /**
  * Utility class for interacting with the Frankfurter API and performing related operations.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
  */
 public final class FrankfurterUtils {
     /**
