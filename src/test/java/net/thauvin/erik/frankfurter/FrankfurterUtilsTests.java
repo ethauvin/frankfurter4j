@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -48,7 +49,10 @@ import rife.bld.extension.testing.TestLogHandler;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.net.ConnectException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -58,9 +62,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
-@ExtendWith(BeforeAllTests.class)
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
 @ExtendWith(LoggingExtension.class)
 class FrankfurterUtilsTests {
     @RegisterExtension
@@ -82,36 +87,43 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Closing Days Tests")
     class ClosingDaysTests {
-        @Test
-        void closingDaysForLeapYear() {
-            var closingDays = FrankfurterUtils.closingDays(2024);
-
-            assertTrue(closingDays.contains(LocalDate.of(2024, 1, 1)),
-                    "Should include New Year's Day");
-            assertTrue(closingDays.contains(LocalDate.of(2024, 12, 25)),
-                    "Should include Christmas Day");
-            assertTrue(closingDays.contains(LocalDate.of(2024, 12, 26)),
-                    "Should include Boxing Day");
+        @ParameterizedTest
+        @CsvSource({
+                "2021, 2021-12-26",
+                "2024, 2024-12-26",
+                "2025, 2025-12-26"
+        })
+        void closingDaysVerifyBoxingDay(int year, String expectedDateStr) {
+            LocalDate boxingDay = LocalDate.parse(expectedDateStr);
+            var closingDays = FrankfurterUtils.closingDays(year);
+            assertTrue(closingDays.contains(boxingDay),
+                    "Should include Boxing Day " + expectedDateStr + " for year " + year);
         }
 
-        @Test
-        void closingDaysVerifyDefaultHolidays() {
-            var closingDays = FrankfurterUtils.closingDays(2025);
+        @ParameterizedTest
+        @CsvSource({
+                "2021, 2021-12-25",
+                "2024, 2024-12-25",
+                "2025, 2025-12-25"
+        })
+        void closingDaysVerifyChristmas(int year, String expectedDateStr) {
+            LocalDate christmasDay = LocalDate.parse(expectedDateStr);
+            var closingDays = FrankfurterUtils.closingDays(year);
+            assertTrue(closingDays.contains(christmasDay),
+                    "Should include Christmas Day " + expectedDateStr + " for year " + year);
+        }
 
-            assertTrue(closingDays.contains(LocalDate.of(2025, 1, 1)),
-                    "Should include New Year's Day");
-            assertTrue(closingDays.contains(LocalDate.of(2025, 12, 25)),
-                    "Should include Christmas Day");
-            assertTrue(closingDays.contains(LocalDate.of(2025, 12, 26)),
-                    "Should include Boxing Day");
-
-            // Validate calculated Easter-related holidays
-            assertEquals(LocalDate.of(2025, 4, 18),
-                    FrankfurterUtils.calculateGoodFriday(2025), "Good Friday should be 2025-04-18");
-            assertEquals(LocalDate.of(2025, 4, 20),
-                    FrankfurterUtils.calculateEasterSunday(2025), "Easter Sunday should be 2025-04-20");
-            assertEquals(LocalDate.of(2025, 4, 21),
-                    FrankfurterUtils.calculateEasterMonday(2025), "Easter Monday should be 2025-04-21");
+        @ParameterizedTest
+        @CsvSource({
+                "2021, 2021-01-01",
+                "2024, 2024-01-01",
+                "2025, 2025-01-01"
+        })
+        void closingDaysVerifyNewYear(int year, String expectedDateStr) {
+            LocalDate newYearDay = LocalDate.parse(expectedDateStr);
+            var closingDays = FrankfurterUtils.closingDays(year);
+            assertTrue(closingDays.contains(newYearDay),
+                    "Should include New Year's Day " + expectedDateStr + " for year " + year);
         }
 
         @Test
@@ -124,6 +136,75 @@ class FrankfurterUtilsTests {
                     "Should calculate Easter Monday for negative year");
             assertTrue(closingDays.contains(FrankfurterUtils.calculateGoodFriday(-44)),
                     "Should calculate Good Friday for negative year");
+        }
+
+        @Nested
+        @DisplayName("Calculate Easter Tests")
+        class CalculateEasterTests {
+            @ParameterizedTest
+            @CsvSource({
+                    "2021, 2021-04-05",
+                    "2024, 2024-04-01",
+                    "2025, 2025-04-21"
+            })
+            void easterMonday(int year, String expectedDateStr) {
+                LocalDate expectedDate = LocalDate.parse(expectedDateStr);
+                assertEquals(expectedDate,
+                        FrankfurterUtils.calculateEasterMonday(year),
+                        "Easter Monday should be " + expectedDateStr + " for year " + year);
+            }
+
+            @ParameterizedTest
+            @CsvSource({
+                    "2021, 2021-04-04",
+                    "2024, 2024-03-31",
+                    "2025, 2025-04-20"
+            })
+            void easterSunday(int year, String expectedDateStr) {
+                LocalDate expectedDate = LocalDate.parse(expectedDateStr);
+                assertEquals(expectedDate,
+                        FrankfurterUtils.calculateEasterSunday(year),
+                        "Easter Sunday should be " + expectedDateStr + " for year " + year);
+            }
+
+            @ParameterizedTest
+            @CsvSource({
+                    "2021, 2021-04-02",
+                    "2024, 2024-03-29",
+                    "2025, 2025-04-18"
+            })
+            void goodFriday(int year, String expectedDateStr) {
+                LocalDate expectedDate = LocalDate.parse(expectedDateStr);
+                assertEquals(expectedDate,
+                        FrankfurterUtils.calculateGoodFriday(year),
+                        "Good Friday should be " + expectedDateStr + " for year " + year);
+            }
+        }
+
+        @Nested
+        @DisplayName("Leap Year Tests")
+        class LeapYearTests {
+            @Test
+            void closingDaysForLeapYearBoxingDay() {
+                var closingDays = FrankfurterUtils.closingDays(2024);
+                assertTrue(closingDays.contains(LocalDate.of(2024, 12, 26)),
+                        "Should include Boxing Day");
+            }
+
+            @Test
+            void closingDaysForLeapYearChristmas() {
+                var closingDays = FrankfurterUtils.closingDays(2024);
+                assertTrue(closingDays.contains(LocalDate.of(2024, 12, 25)),
+                        "Should include Christmas Day");
+            }
+
+            @Test
+            void closingDaysForLeapYearNewYear() {
+                var closingDays = FrankfurterUtils.closingDays(2024);
+
+                assertTrue(closingDays.contains(LocalDate.of(2024, 1, 1)),
+                        "Should include New Year's Day");
+            }
         }
     }
 
@@ -209,6 +290,12 @@ class FrankfurterUtilsTests {
         }
 
         @Test
+        void fetchUriNoBody() throws URISyntaxException {
+            var uri = new URI("https://httpbin.org/status/404");
+            assertThrows(HttpErrorException.class, () -> FrankfurterUtils.fetchUri(uri));
+        }
+
+        @Test
         void fetchUriNoLogging() throws IOException, InterruptedException {
             var logger = Logger.getLogger(FrankfurterUtils.class.getName());
             var logHandler = new TestLogHandler();
@@ -225,14 +312,18 @@ class FrankfurterUtilsTests {
 
             logger.removeHandler(logHandler);
         }
+
+        @Test
+        void fetchUriWithEmptyUrl() {
+            var uri = URI.create("");
+
+            assertThrows(IllegalArgumentException.class, () -> FrankfurterUtils.fetchUri(uri));
+        }
+
         @Test
         void fetchUriWithMalformedUrl() {
             var uri = URI.create("htt://invalid-url");
-            try {
-                FrankfurterUtils.fetchUri(uri);
-            } catch (IllegalArgumentException | IOException | InterruptedException e) {
-                assertEquals("java.lang.IllegalArgumentException", e.getClass().getName());
-            }
+            assertThrows(IllegalArgumentException.class, () -> FrankfurterUtils.fetchUri(uri));
         }
 
         @Test
@@ -243,24 +334,35 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUriWithEmptyUrl() throws InterruptedException {
-            var uri = URI.create("");
-            try {
-                FrankfurterUtils.fetchUri(uri);
-            } catch (IllegalArgumentException | IOException e) {
-                assertEquals("java.lang.IllegalArgumentException", e.getClass().getName());
-            }
+        @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+        void fetchUriWithNullResponseBody() throws Exception {
+            var uri = new URI("https://httpbin.org/status/404");
+            int statusCode = 404;
+
+            var mockResponse = mock(HttpResponse.class);
+            when(mockResponse.statusCode()).thenReturn(statusCode);
+            when(mockResponse.body()).thenReturn(null);
+
+            var handleErrorResponseMethod = FrankfurterUtils.class.getDeclaredMethod(
+                    "handleErrorResponse", HttpResponse.class, URI.class);
+            handleErrorResponseMethod.setAccessible(true);
+
+            var invocationException = assertThrows(InvocationTargetException.class,
+                    () -> handleErrorResponseMethod.invoke(null, mockResponse, uri));
+
+            var actualException = invocationException.getCause();
+            assertInstanceOf(HttpErrorException.class, actualException);
+
+            var httpErrorException = (HttpErrorException) actualException;
+            assertEquals(statusCode, httpErrorException.getStatusCode());
+            assertEquals(uri, httpErrorException.getUri());
         }
 
         @Test
-        void fetchUriWithUnknownHost() throws InterruptedException {
+        void fetchUriWithUnknownHost() {
             var uri = URI.create("https://fake.unknown.host");
-            try {
-                FrankfurterUtils.fetchUri(uri);
-            } catch (IOException e) {
-                assertEquals("java.net.ConnectException", e.getClass().getName(),
-                        "Expected ConnectException for unknown host");
-            }
+
+            assertThrows(ConnectException.class, () -> FrankfurterUtils.fetchUri(uri));
         }
     }
 
@@ -479,7 +581,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Normalize Symbol Tests")
     class NormalizeSymbolTests {
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         void normalizeSymbolWithEmptyString(String input) {
             try {
@@ -544,7 +646,7 @@ class FrankfurterUtilsTests {
                     "Should be invalid if it contains special characters");
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void validateSymbolWithEmptyString(String input) {
@@ -606,7 +708,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("URI Builder Tests")
     class UriBuilderTests {
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void uriBuilderWithEmptyPath(String input) throws Exception {
@@ -617,7 +719,7 @@ class FrankfurterUtilsTests {
             assertEquals(expected, result, "URI with empty path should only include the query.");
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void uriBuilderWithEmptyPathAndQuery(String input) throws Exception {

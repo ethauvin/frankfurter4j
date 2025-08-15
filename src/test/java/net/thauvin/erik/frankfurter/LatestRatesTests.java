@@ -73,16 +73,16 @@ class LatestRatesTests {
         var ratesData = builder.getExchangeRates();
 
         // Compare fields of Rates
-        assertEquals(1.0, ratesData.getAmount());
-        assertEquals(FrankfurterUtils.EUR, ratesData.getBase());
-        assertNotNull(ratesData.getDate());
+        assertEquals(1.0, ratesData.amount());
+        assertEquals(FrankfurterUtils.EUR, ratesData.base());
+        assertNotNull(ratesData.date());
 
         var currencies = AvailableCurrencies.getCurrencies();
         assertFalse(currencies.isEmpty(), "AvailableCurrencies should not be empty");
         currencies.forEach((key, value) -> {
             if (!FrankfurterUtils.EUR.equals(key)) {
-                assertTrue(ratesData.getRates().containsKey(key), "Rates should contain key: " + key);
-                assertTrue(ratesData.getRates().get(key) > 0,
+                assertTrue(ratesData.rates().containsKey(key), "Rates should contain key: " + key);
+                assertTrue(ratesData.rates().get(key) > 0,
                         "Rates should contain value > 0 for key: " + key);
             }
         });
@@ -96,10 +96,10 @@ class LatestRatesTests {
                 .base("USD")
                 .build();
         var exchangeRates = latestRates.getExchangeRates();
-        assertNotNull(exchangeRates.getRates(), "rates() should not return null");
-        assertEquals("USD", exchangeRates.getBase(), "base() should return 'USD");
-        assertEquals(date, exchangeRates.getDate(), "date() should return '2010-01-04");
-        assertEquals(0.69498, exchangeRates.getRates().get("EUR"), "EUR rate should match");
+        assertNotNull(exchangeRates.rates(), "rates() should not return null");
+        assertEquals("USD", exchangeRates.base(), "base() should return 'USD");
+        assertEquals(date, exchangeRates.date(), "date() should return '2010-01-04");
+        assertEquals(0.69498, exchangeRates.rates().get("EUR"), "EUR rate should match");
     }
 
     @Test
@@ -111,11 +111,11 @@ class LatestRatesTests {
                 .base("USD")
                 .build();
         var exchangeRates = latestRates.getExchangeRates();
-        assertNotNull(exchangeRates.getRates(), "rates() should not return null");
-        assertEquals("USD", exchangeRates.getBase(), "base() should return 'USD");
-        assertEquals(date.minusDays(1), exchangeRates.getDate(),
+        assertNotNull(exchangeRates.rates(), "rates() should not return null");
+        assertEquals("USD", exchangeRates.base(), "base() should return 'USD");
+        assertEquals(date.minusDays(1), exchangeRates.date(),
                 "date() should return '2010-01-01");
-        assertEquals(6.9416, exchangeRates.getRates().get("EUR"), "EUR rate should match");
+        assertEquals(6.9416, exchangeRates.rates().get("EUR"), "EUR rate should match");
     }
 
     @Test
@@ -131,12 +131,12 @@ class LatestRatesTests {
         var ratesData = builder.getExchangeRates();
 
         // Compare fields of Rates
-        assertEquals(10.0, ratesData.getAmount());
-        assertEquals("USD", ratesData.getBase());
-        assertEquals(testDate, ratesData.getDate());
-        assertTrue(ratesData.getRates().containsKey("EUR"), "Rates should contain key: EUR");
-        assertEquals(8.0443, ratesData.getRates().get("GBP"));
-        assertEquals(9.6126, ratesData.getRateFor("EUR"));
+        assertEquals(10.0, ratesData.amount());
+        assertEquals("USD", ratesData.base());
+        assertEquals(testDate, ratesData.date());
+        assertTrue(ratesData.rates().containsKey("EUR"), "Rates should contain key: EUR");
+        assertEquals(8.0443, ratesData.rates().get("GBP"));
+        assertEquals(9.6126, ratesData.rateFor("EUR"));
 
     }
 
@@ -145,7 +145,7 @@ class LatestRatesTests {
         var builder = new LatestRates.Builder().amount(10).build();
         var ratesData = builder.getExchangeRates();
 
-        assertEquals(10.0, ratesData.getAmount());
+        assertEquals(10.0, ratesData.amount());
     }
 
     @Test
@@ -161,7 +161,7 @@ class LatestRatesTests {
         var ratesData = builder.getExchangeRates();
 
         assertNull(builder.getAmount());
-        assertEquals(1.0, ratesData.getAmount());
+        assertEquals(1.0, ratesData.amount());
     }
 
     @Test
@@ -176,10 +176,10 @@ class LatestRatesTests {
         var latestRates = new LatestRates.Builder().base("USD").symbols("EUR", "GBP").build();
         var exchangeRates = latestRates.getExchangeRates();
         assertNotNull(exchangeRates);
-        assertEquals("USD", exchangeRates.getBase(), "base() should return 'USD'");
-        assertTrue(exchangeRates.getRates().containsKey("EUR"), "rates() should contain 'EUR'");
-        assertTrue(exchangeRates.getRates().get("EUR") > 0, "EUR rate should be greater than 0");
-        assertTrue(exchangeRates.getRates().containsKey("GBP"), "rates() should contain 'GBP");
-        assertTrue(exchangeRates.getRates().get("GBP") > 0, "GPB rate should be greater than 0");
+        assertEquals("USD", exchangeRates.base(), "base() should return 'USD'");
+        assertTrue(exchangeRates.rates().containsKey("EUR"), "rates() should contain 'EUR'");
+        assertTrue(exchangeRates.rates().get("EUR") > 0, "EUR rate should be greater than 0");
+        assertTrue(exchangeRates.rates().containsKey("GBP"), "rates() should contain 'GBP");
+        assertTrue(exchangeRates.rates().get("GBP") > 0, "GPB rate should be greater than 0");
     }
 }

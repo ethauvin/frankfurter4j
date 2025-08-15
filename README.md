@@ -73,7 +73,9 @@ var latestRates = new LatestRates.Builder().build();
 var exchangeRates = latestRates.getExchangeRates();
 ```
 
-The latest exchange rates will be stored in the `ExchangeRates` class:
+The latest exchange rates will be stored in the
+[ExchangeRates](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/ExchangeRates.html)
+class:
 
 ```java
 if (exchangeRates.hasRateFor("JPY")) {
@@ -81,7 +83,9 @@ if (exchangeRates.hasRateFor("JPY")) {
 }
 ```
 
-To change the base currency use the builder's `base` method. The default is `EUR`.
+To change the base currency use the builder's
+[base](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/LatestRates.Builder.html#base(java.lang.String))
+method. The default is `EUR`.
 
 ```java
 var latestRates = new LatestRates.Builder()
@@ -134,7 +138,8 @@ var periodicRates = timeSeries.getPeriodicRates();
 
 ```
 
-The periodic rates will be stored in the `TimeSeriesData` class.
+The periodic rates will be stored in the 
+[TimeSeries](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/TimeSeries.html) class.
 
 ```java
 var firstMarketDay = LocalDate.of(2000, 1, 4);
@@ -187,7 +192,10 @@ To get the supported currency symbols and their full names.
 var currencies = AvailableCurrencies.getCurrencies();
 ```
 
-The currencies are stored in a `Currencies` class that extends `Hashmap`.
+The currencies are stored in the
+[Currencies](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/Currencies.html)
+class that extends
+[ConcurrentHashMap](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html).
 
 ```java
 currencies.get("USD"); // returns "United States Dollar"

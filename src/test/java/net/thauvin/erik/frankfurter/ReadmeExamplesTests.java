@@ -51,13 +51,12 @@ class ReadmeExamplesTests {
     static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
 
     @Test
-    void currenciesExample() throws IOException, InterruptedException {
+    void currenciesExamples() throws IOException, InterruptedException {
         var currencies = AvailableCurrencies.getCurrencies();
 
         assertEquals(currencies.get("USD"), currencies.getFullNameFor("usd"));
         assertEquals("EUR", currencies.getSymbolFor("euro"));
         assertEquals("JPY", currencies.getSymbolFor(Pattern.compile(".*Japan.*")));
-
     }
 
     @Test
@@ -69,18 +68,18 @@ class ReadmeExamplesTests {
                 .symbols("EUR")
                 .build();
         var exchangeRates = latestRates.getExchangeRates();
-        var euro = exchangeRates.getRateFor("EUR");
+        var euro = exchangeRates.rateFor("EUR");
 
         System.out.println("$10 = €" + euro);
 
-        System.out.println(FrankfurterUtils.formatCurrency(exchangeRates.getBase(), exchangeRates.getAmount())
+        System.out.println(FrankfurterUtils.formatCurrency(exchangeRates.base(), exchangeRates.amount())
                 + " = " + FrankfurterUtils.formatCurrency("EUR", euro));
 
         assertTrue(euro > 0);
     }
 
     @Test
-    void formatCurrency() {
+    void formatCurrencyExamples() {
         assertEquals(FormatCurrencyUtils.toDollar(100.0)
                 , FrankfurterUtils.formatCurrency("USD", 100.0));
         assertEquals(FormatCurrencyUtils.toEur(1234.567),
@@ -90,17 +89,17 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void historicalRatesExamples() throws IOException, URISyntaxException, InterruptedException {
+    void historicalRatesExample() throws IOException, URISyntaxException, InterruptedException {
         var date = LocalDate.of(1999, 1, 4);
         var latestRates = new LatestRates.Builder()
                 .date(date)
                 .build();
         var ratesDate = latestRates.getExchangeRates();
-        assertEquals(date, ratesDate.getDate());
+        assertEquals(date, ratesDate.date());
     }
 
     @Test
-    void historicalRatesExamplesWithBaseAndCurrencies() throws IOException, URISyntaxException, InterruptedException {
+    void historicalRatesExampleWithBaseAndCurrencies() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder()
                 .base("USD")
                 .date(LocalDate.of(1999, 1, 4))
@@ -117,7 +116,7 @@ class ReadmeExamplesTests {
         var exchangeRates = latestRates.getExchangeRates();
 
         if (exchangeRates.hasRateFor("JPY")) {
-            var jpy = exchangeRates.getRateFor("JPY");
+            var jpy = exchangeRates.rateFor("JPY");
             assertTrue(jpy > 0);
         } else {
             fail("JPY not found");
@@ -145,8 +144,8 @@ class ReadmeExamplesTests {
 
         var firstMarketDay = LocalDate.of(2000, 1, 4);
         if (periodicRates.hasRatesFor(firstMarketDay)) {
-            var rates = periodicRates.getRatesFor(firstMarketDay);
-            var yen = periodicRates.getRateFor(firstMarketDay, "JPY");
+            var rates = periodicRates.ratesFor(firstMarketDay);
+            var yen = periodicRates.rateFor(firstMarketDay, "JPY");
             assertTrue(yen > 0);
             if (rates.containsKey("USD")) {
                 var usd = rates.get("USD");
@@ -158,9 +157,9 @@ class ReadmeExamplesTests {
             fail("2000-01-04 not found");
         }
 
-        periodicRates.getDates().forEach(date -> {
+        periodicRates.dates().forEach(date -> {
             System.out.println("Rates for " + date);
-            periodicRates.getRatesFor(date).forEach((symbol, rate) -> {
+            periodicRates.ratesFor(date).forEach((symbol, rate) -> {
                 System.out.println("    " + symbol + ": " + rate);
                 assertTrue(rate > 0,
                         "Value should be greater than 0 for date: " + date + ", key: " + symbol);
@@ -187,7 +186,7 @@ class ReadmeExamplesTests {
                 .build();
 
         var periodicRates = timeSeries.getPeriodicRates();
-        assertTrue(periodicRates.getRatesFor(LocalDate.of(2025, 1, 3)).containsKey("USD"));
+        assertTrue(periodicRates.ratesFor(LocalDate.of(2025, 1, 3)).containsKey("USD"));
     }
 
     @Test
@@ -198,15 +197,15 @@ class ReadmeExamplesTests {
                 .symbols("EUR", "GBP")
                 .build();
         var exchangeRates = latestRates.getExchangeRates();
-        var euro = exchangeRates.getRateFor("EUR");
-        var britishPound = exchangeRates.getRateFor("GBP");
+        var euro = exchangeRates.rateFor("EUR");
+        var britishPound = exchangeRates.rateFor("GBP");
 
         assertTrue(euro > 0);
         assertTrue(britishPound > 0);
     }
 
     @Test
-    void workingDaysExamples() {
+    void workingDaysExample() {
         var workingDays = FrankfurterUtils.workingDays(LocalDate.of(2021, 1, 1),
                 LocalDate.of(2021, 1, 31));
 

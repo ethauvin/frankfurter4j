@@ -38,6 +38,8 @@ import net.thauvin.erik.frankfurter.LatestRates;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import rife.bld.extension.testing.LoggingExtension;
 
 import java.net.URI;
@@ -49,13 +51,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class HttpErrorExceptionTests {
     @RegisterExtension
     static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
+
+    @ParameterizedTest
+    @CsvSource({
+            "201, Created",
+            "400, Bad Request",
+            "500, Internal Server Error"
+    })
+    void fetchUriEmptyResponse(int code, String message) {
+        var uri = URI.create("https://httpbin.org/status/" + code);
+        var exception = assertThrows(HttpErrorException.class, () -> FrankfurterUtils.fetchUri(uri));
+        assertEquals(code, exception.getStatusCode(), "HTTP status code should be " + code);
+        assertEquals(message, exception.getMessage(), "HTTP error message should be set for " + code);
+        assertNull(exception.getCause(), "HTTP error cause should be null for " + code);
+
+    }
+
     @Test
     void fetchUriNoJson() {
         var uri = URI.create("https://www.google.com/404");
         var exception = assertThrows(HttpErrorException.class,
                 () -> FrankfurterUtils.fetchUri(uri));
         assertEquals(404, exception.getStatusCode(), "HTTP status code should be 404");
-        assertEquals("Unable to parse error message", exception.getMessage(),
+        assertEquals("Not Found", exception.getMessage(),
                 "HTTP error message should be present");
         assertEquals(uri, exception.getUri(), "HTTP error URI should be set");
         assertNotNull(exception.getCause(), "HTTP error cause should be set");

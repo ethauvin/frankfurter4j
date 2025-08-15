@@ -70,7 +70,7 @@ class CurrenciesTests {
             assertEquals(0, emptyData.size(), "Size of a new Currencies should be 0.");
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @EmptySource
         @ValueSource(strings = {" ", "   "})
         void getCurrencyNameWithEmptyOrBlankSymbol(String input) {
@@ -105,7 +105,7 @@ class CurrenciesTests {
                     "Should return null for a non-existing currency symbol.");
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         void getCurrencyNameWithNullOrEmptySymbol(String input) {
             assertNull(currencies.getFullNameFor(input),
@@ -116,7 +116,7 @@ class CurrenciesTests {
     @Nested
     @DisplayName("Currency Symbol Tests")
     class CurrencySymbolTests {
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] ''{0}''")
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void getCurrencySymbolWithBlankName(String input) {

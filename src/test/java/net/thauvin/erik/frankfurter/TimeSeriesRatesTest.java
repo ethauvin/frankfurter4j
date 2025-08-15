@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import rife.bld.extension.testing.LoggingExtension;
@@ -225,11 +226,12 @@ class TimeSeriesRatesTest {
             assertEquals("Invalid currency symbol: EUROPE", ex.getMessage());
         }
 
-        @Test
-        void builderSymbolsListWithNull() {
+        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @NullAndEmptySource
+        void builderSymbolsListWithNullAndEmpty(String input) {
             var builder = new TimeSeries.Builder();
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols("USD", null));
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols(Arrays.asList("USD", null))); // Collection with null
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols("USD", input));
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols(Arrays.asList("USD", input))); // Collection with null
         }
 
         @Test
@@ -297,14 +299,14 @@ class TimeSeriesRatesTest {
 
             var data = timeSeries.getPeriodicRates();
             assertNotNull(data);
-            assertEquals(timeSeries.getAmount(), data.getAmount());
-            assertEquals(timeSeries.getBase(), data.getBase());
-            assertEquals(timeSeries.getStartDate(), data.getStartDate());
-            assertEquals(timeSeries.getEndDate(), data.getEndDate());
-            assertEquals(timeSeries.getStartDate(), data.getStartDate());
+            assertEquals(timeSeries.getAmount(), data.amount());
+            assertEquals(timeSeries.getBase(), data.base());
+            assertEquals(timeSeries.getStartDate(), data.startLocalDate());
+            assertEquals(timeSeries.getEndDate(), data.endLocalDate());
+            assertEquals(timeSeries.getStartDate(), data.startLocalDate());
             VALID_DATES.forEach(date -> {
-                assertTrue(data.getRatesFor(date).get("EUR") > 0, "getPeriodicRates(date).get(EUR)");
-                assertTrue(data.getRatesFor(date).get("GBP") > 0, "getPeriodicRates(date).get(GBP)");
+                assertTrue(data.ratesFor(date).get("EUR") > 0, "getPeriodicRates(date).get(EUR)");
+                assertTrue(data.ratesFor(date).get("GBP") > 0, "getPeriodicRates(date).get(GBP)");
             });
         }
 
@@ -319,8 +321,8 @@ class TimeSeriesRatesTest {
             var data = timeSeries.getPeriodicRates();
 
             assertNotNull(data);
-            assertTrue(data.getEndDate().isBefore(now) || data.getEndDate().isEqual(now));
-            assertFalse(data.getDates().isEmpty());
+            assertTrue(data.endLocalDate().isBefore(now) || data.endLocalDate().isEqual(now));
+            assertFalse(data.dates().isEmpty());
         }
 
         @Test
@@ -346,7 +348,7 @@ class TimeSeriesRatesTest {
             assertEquals(startDate, timeSeries.getStartDate(), "startDate()");
             assertEquals(endDate, timeSeries.getEndDate(), "getEndDate()");
             assertEquals(Double.valueOf("0.9689"),
-                    timeSeries.getPeriodicRates().getRatesFor(startDate).get("EUR"),
+                    timeSeries.getPeriodicRates().ratesFor(startDate).get("EUR"),
                     "getPeriodicRates(2025-01-02).get(EUR)");
         }
 
@@ -359,8 +361,8 @@ class TimeSeriesRatesTest {
             var data = timeSeries.getPeriodicRates();
 
             assertNotNull(data);
-            assertEquals(timeSeries.getBase(), data.getBase());
-            assertEquals(timeSeries.getStartDate(), data.getStartDate());
+            assertEquals(timeSeries.getBase(), data.base());
+            assertEquals(timeSeries.getStartDate(), data.startLocalDate());
             assertNull(timeSeries.getEndDate());
         }
 
@@ -384,7 +386,7 @@ class TimeSeriesRatesTest {
             var data = timeSeries.getPeriodicRates();
 
             assertNotNull(data);
-            assertEquals(timeSeries.getAmount(), data.getAmount());
+            assertEquals(timeSeries.getAmount(), data.amount());
         }
 
         @Test
@@ -400,7 +402,7 @@ class TimeSeriesRatesTest {
             var data = timeSeries.getPeriodicRates();
 
             assertNotNull(data);
-            assertEquals(1.0, data.getAmount());
+            assertEquals(1.0, data.amount());
         }
     }
 }
