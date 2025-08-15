@@ -112,7 +112,10 @@ public class Frankfurter4JBuild extends Project {
                 .signKey(property("sign.key"))
                 .signPassphrase(property("sign.passphrase"));
 
-        javadocOperation().javadocOptions().link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson);
+        javadocOperation()
+                .javadocOptions()
+                .author()
+                .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson);
     }
 
     public static void main(String[] args) {

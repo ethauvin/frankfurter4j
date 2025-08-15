@@ -1,5 +1,5 @@
 /*
- * BeforeAllTests.java
+ * package-info.java
  *
  * Copyright 2025 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,29 +30,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * Retrieve reference exchange rates from <a href="https://frankfurter.dev/">Frankfurter.dev</a>, a free, open-source
+ * currency data API.
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 0.9.0
+ */
 package net.thauvin.erik.frankfurter;
-
-import org.junit.jupiter.api.extension.BeforeAllCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Level;
-
-@SuppressWarnings("PMD.TestClassWithoutTestCases")
-public class BeforeAllTests implements BeforeAllCallback {
-    private static final AtomicBoolean FIRST_TIME = new AtomicBoolean(true);
-
-    @Override
-    public void beforeAll(ExtensionContext context) {
-        if (FIRST_TIME.getAndSet(false)) {
-            var consoleHandler = new ConsoleHandler();
-            var logger = FrankfurterUtils.LOGGER;
-
-            consoleHandler.setLevel(Level.ALL);
-            logger.addHandler(consoleHandler);
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
-        }
-    }
-}
