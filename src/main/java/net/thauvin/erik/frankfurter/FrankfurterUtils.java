@@ -37,6 +37,7 @@ import com.google.gson.JsonSyntaxException;
 import com.uwyn.urlencoder.UrlEncoder;
 import net.thauvin.erik.frankfurter.exceptions.HttpErrorException;
 import net.thauvin.erik.frankfurter.models.Error;
+import net.thauvin.erik.httpstatus.Reasons;
 
 import java.io.IOException;
 import java.net.URI;
@@ -300,15 +301,17 @@ public final class FrankfurterUtils {
     @SuppressWarnings("PMD.ExceptionAsFlowControl")
     private static void handleErrorResponse(HttpResponse<String> response, URI uri) throws IOException {
         try {
-            String errorBody = response.body();
+            var errorBody = response.body();
             if (errorBody != null && !errorBody.isEmpty()) {
                 var error = GSON.fromJson(errorBody, Error.class);
                 throw new HttpErrorException(response.statusCode(), error.message(), uri);
             } else {
-                throw new HttpErrorException(response.statusCode(), "No error message provided", uri);
+                throw new HttpErrorException(response.statusCode(),
+                        reasonPhrase(response.statusCode(), "No error message provided"), uri);
             }
-        } catch (JsonSyntaxException | NullPointerException e) {
-            throw new HttpErrorException(response.statusCode(), "Unable to parse error message", uri, e);
+        } catch (JsonSyntaxException e) {
+            throw new HttpErrorException(response.statusCode(),
+                    reasonPhrase(response.statusCode(), "Unable to parse error message"), uri, e);
         }
     }
 
@@ -364,6 +367,10 @@ public final class FrankfurterUtils {
         } else {
             throw new IllegalArgumentException(String.format("Invalid currency symbol: %s", symbol));
         }
+    }
+
+    private static String reasonPhrase(int statusCode, String defaultReason) {
+        return Reasons.getReasonPhrase(statusCode, defaultReason);
     }
 
     /**
