@@ -37,10 +37,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import rife.bld.extension.testing.LoggingExtension;
+import rife.bld.extension.testing.TestLogHandler;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -51,12 +54,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @ExtendWith(BeforeAllTests.class)
+@ExtendWith(LoggingExtension.class)
 class FrankfurterUtilsTests {
+    @RegisterExtension
+    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER, Level.FINEST);
+
     @Test
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     void privateConstructor() throws Exception {
@@ -199,6 +208,23 @@ class FrankfurterUtilsTests {
                     response);
         }
 
+        @Test
+        void fetchUriNoLogging() throws IOException, InterruptedException {
+            var logger = Logger.getLogger(FrankfurterUtils.class.getName());
+            var logHandler = new TestLogHandler();
+
+            logger.addHandler(logHandler);
+            logger.setLevel(Level.OFF);
+            logHandler.setLevel(Level.OFF);
+
+            var uri = URI.create(FrankfurterUtils.API_BASE_URL + "2025-01-02?symbols=USD");
+            var response = FrankfurterUtils.fetchUri(uri);
+
+            assertFalse(response.isEmpty());
+            assertTrue(logHandler.isEmpty());
+
+            logger.removeHandler(logHandler);
+        }
         @Test
         void fetchUriWithMalformedUrl() {
             var uri = URI.create("htt://invalid-url");

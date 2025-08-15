@@ -35,7 +35,9 @@ package net.thauvin.erik.frankfurter;
 import com.google.gson.JsonSyntaxException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
+import rife.bld.extension.testing.LoggingExtension;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -45,8 +47,11 @@ import java.net.URI;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("PMD.LinguisticNaming")
-@ExtendWith(BeforeAllTests.class)
+@ExtendWith(LoggingExtension.class)
 class AvailableCurrenciesTests {
+    @RegisterExtension
+    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
+
     @Test
     void getCurrencies() throws IOException, InterruptedException {
         var currencies = AvailableCurrencies.getCurrencies();

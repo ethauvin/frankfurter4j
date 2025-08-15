@@ -70,18 +70,25 @@ public class Frankfurter4JBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_CENTRAL, RIFE2_RELEASES);
+        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES);
 
         var gson = version(2, 13, 1);
         scope(compile)
-                .include(dependency("com.uwyn", "urlencoder", version(1, 3, 5)))
+                .include(dependency("com.uwyn", "urlencoder",
+                        version(1, 3, 5)))
+                .include(dependency("net.thauvin.erik.httpstatus", "httpstatus",
+                        version(2, 0, 0, "SNAPSHOT")))
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(test)
-                .include(dependency("org.mockito", "mockito-core", version(5, 18, 0)))
+                .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
+                        version(0, 9, 0, "SNAPSHOT")))
+                .include(dependency("org.mockito", "mockito-core",
+                        version(5, 18, 0)))
                 .include(dependency("org.junit.jupiter",
                         "junit-jupiter", version(5, 13, 4)))
                 .include(dependency("org.junit.platform",
-                        "junit-platform-console-standalone", version(1, 13, 4)));
+                        "junit-platform-console-standalone",
+                        version(1, 13, 4)));
 
         publishOperation()
                 .repository(version.isSnapshot() ? repository(CENTRAL_SNAPSHOTS.location())

@@ -34,6 +34,8 @@ package net.thauvin.erik.frankfurter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import rife.bld.extension.testing.LoggingExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,8 +45,11 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-@ExtendWith(BeforeAllTests.class)
+@ExtendWith(LoggingExtension.class)
 class ReadmeExamplesTests {
+    @RegisterExtension
+    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
+
     @Test
     void currenciesExample() throws IOException, InterruptedException {
         var currencies = AvailableCurrencies.getCurrencies();

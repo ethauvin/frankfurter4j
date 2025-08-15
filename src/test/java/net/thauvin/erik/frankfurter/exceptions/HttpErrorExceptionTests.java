@@ -33,19 +33,22 @@
 package net.thauvin.erik.frankfurter.exceptions;
 
 import com.google.gson.JsonSyntaxException;
-import net.thauvin.erik.frankfurter.BeforeAllTests;
 import net.thauvin.erik.frankfurter.FrankfurterUtils;
 import net.thauvin.erik.frankfurter.LatestRates;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import rife.bld.extension.testing.LoggingExtension;
 
 import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(BeforeAllTests.class)
+@ExtendWith(LoggingExtension.class)
 @SuppressWarnings("PMD.LinguisticNaming")
 class HttpErrorExceptionTests {
+    @RegisterExtension
+    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
     @Test
     void fetchUriNoJson() {
         var uri = URI.create("https://www.google.com/404");

@@ -36,9 +36,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import rife.bld.extension.testing.LoggingExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,8 +52,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
-@ExtendWith(BeforeAllTests.class)
+@ExtendWith(LoggingExtension.class)
 class TimeSeriesRatesTest {
+    @RegisterExtension
+    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
     private static final String VALID_BASE_CURRENCY = "USD";
     private static final List<LocalDate> VALID_DATES = FrankfurterUtils.workingDays(
             LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 31));
