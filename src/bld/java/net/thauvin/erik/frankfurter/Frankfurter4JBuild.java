@@ -83,7 +83,7 @@ public class Frankfurter4JBuild extends Project {
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
                         version(0, 9, 0, "SNAPSHOT")))
                 .include(dependency("org.mockito", "mockito-core",
-                        version(5, 18, 0)))
+                        version(5, 19, 0)))
                 .include(dependency("org.junit.jupiter",
                         "junit-jupiter", version(5, 13, 4)))
                 .include(dependency("org.junit.platform",
