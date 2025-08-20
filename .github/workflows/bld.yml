@@ -35,6 +35,10 @@ jobs:
       - name: Run tests
         run: ./bld jacoco
 
+      - name: Run reporter on failure
+        if: failure()
+        run: ./bld reporter
+
       - name: Remove pom.xml
         if: success() && matrix.java-version == env.COVERAGE_JDK && matrix.os == 'ubuntu-latest'
         run: rm -rf pom.xml
