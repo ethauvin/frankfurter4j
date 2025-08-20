@@ -71,7 +71,7 @@ public class Frankfurter4JBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_LOCAL, CENTRAL_SNAPSHOTS, MAVEN_CENTRAL, RIFE2_RELEASES);
+        repositories = List.of(MAVEN_LOCAL, CENTRAL_SNAPSHOTS, MAVEN_CENTRAL, RIFE2_SNAPSHOTS, RIFE2_RELEASES);
 
         var gson = version(2, 13, 1);
         scope(compile)
