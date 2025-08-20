@@ -32,21 +32,22 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import rife.bld.extension.testing.RandomString;
+import rife.bld.extension.testing.RandomStringResolver;
 
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"PMD.LinguisticNaming", "PMD.AvoidDuplicateLiterals"})
+@ExtendWith(RandomStringResolver.class)
+@SuppressWarnings({"PMD.LinguisticNaming", "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases"})
 class CurrenciesTests {
     private Currencies currencies;
 
@@ -87,6 +88,13 @@ class CurrenciesTests {
                     "Should return the full name for an existing currency symbol.");
         }
 
+        @RepeatedTest(3)
+        @RandomString
+        void getCurrencyNameWithInvalidSymbol(String input) {
+            assertThrows(IllegalArgumentException.class, () -> currencies.getFullNameFor(input),
+                    "Should return null for a non-existing currency symbol: " + input);
+        }
+
         @Test
         void getCurrencyNameWithLowercaseSymbol() {
             assertEquals("Euro", currencies.getFullNameFor("eur"),
@@ -123,9 +131,10 @@ class CurrenciesTests {
             assertNull(currencies.getSymbolFor(input));
         }
 
-        @Test
-        void getCurrencySymbolWithInvalidName() {
-            assertNull(currencies.getSymbolFor("FOO"));
+        @RepeatedTest(3)
+        @RandomString
+        void getCurrencySymbolWithInvalidName(String input) {
+            assertNull(currencies.getSymbolFor(input), "Should return null for invalid name: " + input);
         }
 
         @Test

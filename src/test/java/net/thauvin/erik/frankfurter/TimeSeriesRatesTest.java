@@ -34,6 +34,7 @@ package net.thauvin.erik.frankfurter;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -41,7 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import rife.bld.extension.testing.LoggingExtension;
+import rife.bld.extension.testing.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -53,7 +54,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
-@ExtendWith(LoggingExtension.class)
+@ExtendWith({LoggingExtension.class, RandomStringResolver.class, RandomRangeResolver.class})
 class TimeSeriesRatesTest {
     @RegisterExtension
     @SuppressWarnings("unused")
@@ -153,11 +154,13 @@ class TimeSeriesRatesTest {
             assertEquals(VALID_END_DATE, timeSeries.getEndDate());
         }
 
-        @Test
-        void builderEndDateIsBeforeMinDate() {
+        @RepeatedTest(3)
+        @RandomRange(min = 1, max = 10)
+        void builderEndDateIsBeforeMinDate(int dayToSubtract) {
             var builder = new TimeSeries.Builder();
-            var invalidDate = FrankfurterUtils.MIN_DATE.minusDays(1);
-            assertThrows(IllegalArgumentException.class, () -> builder.endDate(invalidDate));
+            var invalidDate = FrankfurterUtils.MIN_DATE.minusDays(dayToSubtract);
+            assertThrows(IllegalArgumentException.class, () -> builder.endDate(invalidDate),
+                    "The end date (" + invalidDate + ") must be before " + FrankfurterUtils.MIN_DATE);
         }
 
         @Test
@@ -258,6 +261,14 @@ class TimeSeriesRatesTest {
             builder = builder.symbols(); // Empty varargs
             var timeSeries = builder.build();
             assertTrue(timeSeries.getSymbols().isEmpty());
+        }
+
+        @RepeatedTest(3)
+        @RandomString
+        void builderSymbolsWithInvalidRandomSymbol(String input) {
+            var builder = new TimeSeries.Builder();
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols(input),
+                    "Currency symbol should be invalid: " + input);
         }
 
         @ParameterizedTest
