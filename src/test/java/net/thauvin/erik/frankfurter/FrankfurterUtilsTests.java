@@ -69,7 +69,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(LoggingExtension.class)
 class FrankfurterUtilsTests {
     @RegisterExtension
-    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER, Level.FINEST);
+    @SuppressWarnings({"unused"})
+    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
 
     @Test
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
@@ -302,7 +303,6 @@ class FrankfurterUtilsTests {
 
             logger.addHandler(logHandler);
             logger.setLevel(Level.OFF);
-            logHandler.setLevel(Level.OFF);
 
             var uri = URI.create(FrankfurterUtils.API_BASE_URL + "2025-01-02?symbols=USD");
             var response = FrankfurterUtils.fetchUri(uri);
@@ -316,7 +316,6 @@ class FrankfurterUtilsTests {
         @Test
         void fetchUriWithEmptyUrl() {
             var uri = URI.create("");
-
             assertThrows(IllegalArgumentException.class, () -> FrankfurterUtils.fetchUri(uri));
         }
 

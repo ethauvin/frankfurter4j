@@ -56,7 +56,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(LoggingExtension.class)
 class TimeSeriesRatesTest {
     @RegisterExtension
-    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings("unused")
+    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
     private static final String VALID_BASE_CURRENCY = "USD";
     private static final List<LocalDate> VALID_DATES = FrankfurterUtils.workingDays(
             LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 31));

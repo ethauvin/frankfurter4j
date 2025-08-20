@@ -48,7 +48,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(LoggingExtension.class)
 class LatestRatesTests {
     @RegisterExtension
-    static final LoggingExtension extension = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings("unused")
+    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
 
     @Test
     void constructorAndGetters() {
