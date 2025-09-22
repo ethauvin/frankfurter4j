@@ -50,36 +50,6 @@ import java.util.Set;
  */
 public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
     /**
-     * Retrieves the amount of the base currency.
-     *
-     * @return the amount of the base currency
-     */
-    @Override
-    public Double amount() {
-        return amount;
-    }
-
-    /**
-     * Retrieves the base currency.
-     *
-     * @return the base currency
-     */
-    @Override
-    public String base() {
-        return base;
-    }
-
-    /**
-     * Retrieves the date of the exchange rates.
-     *
-     * @return the date of the exchange rates
-     */
-    @Override
-    public LocalDate date() {
-        return date;
-    }
-
-    /**
      * Checks if the exchange rates contain the specified currency symbol.
      *
      * @param symbol the currency symbol to check for
@@ -99,17 +69,6 @@ public record ExchangeRates(Double amount, String base, LocalDate date, Map<Stri
             return null;
         }
         return rates.get(FrankfurterUtils.normalizeSymbol(symbol));
-    }
-
-    /**
-     * Retrieves the exchange rates for various currencies.
-     *
-     * @return a map where the keys are currency symbols (e.g., "USD", "EUR") and the values are
-     * the corresponding exchange rates against the base currency.
-     */
-    @Override
-    public Map<String, Double> rates() {
-        return rates;
     }
 
     /**

@@ -57,26 +57,6 @@ public record SeriesRates(Double amount,
                           String endDate,
                           Map<LocalDate, Map<String, Double>> rates) {
     /**
-     * Retrieves the amount of the time series.
-     *
-     * @return the amount
-     */
-    @Override
-    public Double amount() {
-        return amount;
-    }
-
-    /**
-     * Retrieves the base currency of the time series.
-     *
-     * @return the base currency
-     */
-    @Override
-    public String base() {
-        return base;
-    }
-
-    /**
      * Retrieves the set of dates for which exchange rates are available in the time series.
      *
      * @return the set of dates
@@ -131,17 +111,6 @@ public record SeriesRates(Double amount,
             return null;
         }
         return rates.get(date).get(FrankfurterUtils.normalizeSymbol(currencySymbol));
-    }
-
-    /**
-     * Retrieves the exchange rates mapped by date and currency symbol.
-     *
-     * @return a map where the keys are {@link LocalDate} objects representing the dates, and the values
-     * are maps with currency symbols as keys and exchange rates as double values.
-     */
-    @Override
-    public Map<LocalDate, Map<String, Double>> rates() {
-        return rates;
     }
 
     /**
