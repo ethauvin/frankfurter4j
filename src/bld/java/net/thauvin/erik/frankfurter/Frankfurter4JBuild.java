@@ -82,7 +82,7 @@ public class Frankfurter4JBuild extends Project {
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(0, 9, 0, "SNAPSHOT")))
+                        version(0, 9, 3, "SNAPSHOT")))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 20, 0)))
                 .include(dependency("org.junit.jupiter",
