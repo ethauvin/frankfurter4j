@@ -12,7 +12,8 @@
 [![GitHub CI](https://github.com/ethauvin/frankfurter4j/actions/workflows/bld.yml/badge.svg)](https://github.com/ethauvin/frankfurter4j/actions/workflows/bld.yml)
 [![CircleCI](https://circleci.com/gh/ethauvin/frankfurter4j/tree/main.svg?style=shield)](https://circleci.com/gh/ethauvin/frankfurter4j/tree/main)
 
-Retrieve reference exchange rates from [Frankfurter.dev](https://frankfurter.dev/), a free, open-source currency data
+Retrieve reference exchange rates from
+[Frankfurter.dev](https://frankfurter.dev/), a free, open-source currency data
 API.
 
 ## Examples (TL;DR)
@@ -28,13 +29,13 @@ var euro = exchangeRates.getRateFor("EUR");
 var britishPound = exchangeRates.getRateFor("GBP");
 ```
 
-To get the latest exchange rates for the United States Dollar in Euro and British Pound.
+To get the latest exchange rates for the United States Dollar in Euro
+and British Pound.
 
 ## bld
 
-To use with [bld](https://rife2.com/bld), include the following dependency in
-your [build](https://github.com/ethauvin/frankfurter4j/blob/master/examples/src/bld/java/com/example/Frankfurter4jExample.java)
-file:
+To use with [bld](https://rife2.com/bld), include the following dependency
+in your build file:
 
 ```java
 repositories = List.of(MAVEN_CENTRAL, CENTRAL_SNAPSHOTS);
@@ -43,9 +44,10 @@ scope(compile)
     .include(dependency("net.thauvin.erik:frankfurter4j:0.9.0"));
 ```
 
-## Gradle, Maven, etc.
+## Gradle, Maven, etc
 
-To use with [Gradle](https://gradle.org/), include the following dependency in your build file:
+To use with [Gradle](https://gradle.org/), include the following dependency
+in your build file:
 
 ```gradle
 repositories {
@@ -121,9 +123,10 @@ var latestRates = new LatestRates.Builder()
         .build();
 ```
 
-**Note**: As mentioned on the website, Frankfurter stores dates in UTC. If you use a different time zone, be aware that
-you may be querying with a different calendar date than intended. Also, data returned for today is not stable and will
-update if new rates are published.
+**Note**: As mentioned on the website, Frankfurter stores dates in UTC.
+If you use a different time zone, be aware that you may be querying
+with a different calendar date than intended. Also, data returned
+for today is not stable and will update if new rates are published.
 
 ## Time Series Data
 
@@ -138,8 +141,9 @@ var periodicRates = timeSeries.getPeriodicRates();
 
 ```
 
-The periodic rates will be stored in the 
-[TimeSeries](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/TimeSeries.html) class.
+The periodic rates will be stored in the
+[TimeSeries](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/TimeSeries.html)
+class.
 
 ```java
 var firstMarketDay = LocalDate.of(2000, 1, 4);
@@ -209,7 +213,8 @@ currencies.getSymbolFor(Pattern.compile(".*Japan.*")); // returns "JPY"
 
 ## Currency Conversion
 
-You can perform currency conversion by fetching the exchange rate with a specified amount.
+You can perform currency conversion by fetching the exchange rate with a
+specified amount.
 
 ```java
 var latestRates = new LatestRates.Builder()
@@ -236,6 +241,7 @@ var workingDays = FrankfurterUtils.workingDays(
 var firstWorkingDay = workingDays.get(0); // 2021-01-04
 var lastWorkingDay = workingDays.get(workingDays.size() - 1); // 2025-01-29
 ```
+
 ## Currency Format
 
 You can also format amounts for specific currencies.
@@ -262,9 +268,11 @@ cd frankfurter4j
 ./bld compile
 ```
 
-The project has an [IntelliJ IDEA](https://www.jetbrains.com/idea/) project structure. You can just open it after all
-the dependencies were downloaded and peruse the code.
+The project has an [IntelliJ IDEA](https://www.jetbrains.com/idea/) project structure.
+You can just open it after all the dependencies were downloaded and peruse
+the code.
 
 ## More…
 
-If all else fails, there's always more [Documentation](https://ethauvin.github.io/frankfurter4j/).
+If all else fails, there's always more
+[Documentation](https://ethauvin.github.io/frankfurter4j/).

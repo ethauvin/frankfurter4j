@@ -63,7 +63,8 @@ public class Frankfurter4JBuild extends Project {
 
     public Frankfurter4JBuild() {
         pkg = "net.thauvin.erik";
-        name = "frankfurter4j";
+        name = "Frankfurter4J";
+        archiveBaseName = "frankfurter4j";
         version = version(0, 9, 0, "SNAPSHOT");
 
         javaRelease = 17;
@@ -71,7 +72,7 @@ public class Frankfurter4JBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_LOCAL, CENTRAL_SNAPSHOTS, MAVEN_CENTRAL, RIFE2_SNAPSHOTS, RIFE2_RELEASES);
+        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS, RIFE2_RELEASES);
 
         var junit = version(6, 0, 0);
         var gson = version(2, 13, 2);
@@ -97,9 +98,9 @@ public class Frankfurter4JBuild extends Project {
                 .repository(repository("github"))
                 .info()
                 .groupId(pkg)
-                .artifactId(name)
+                .artifactId(archiveBaseName)
                 .description("Retrieve reference exchange rates from Frankfurter.dev")
-                .url("https://github.com/ethauvin/" + name)
+                .url("https://github.com/ethauvin/" + archiveBaseName)
                 .developer(new PublishDeveloper()
                         .id("ethauvin")
                         .name("Erik C. Thauvin")
@@ -111,9 +112,9 @@ public class Frankfurter4JBuild extends Project {
                         .url("https://opensource.org/licenses/BSD-3-Clause")
                 )
                 .scm(new PublishScm()
-                        .connection("scm:git:https://github.com/ethauvin/" + name + ".git")
-                        .developerConnection("scm:git:git@github.com:ethauvin/" + name + ".git")
-                        .url("https://github.com/ethauvin/" + name)
+                        .connection("scm:git:https://github.com/ethauvin/" + archiveBaseName + ".git")
+                        .developerConnection("scm:git:git@github.com:ethauvin/" + archiveBaseName + ".git")
+                        .url("https://github.com/ethauvin/" + archiveBaseName)
                 )
                 .signKey(property("sign.key"))
                 .signPassphrase(property("sign.passphrase"));
