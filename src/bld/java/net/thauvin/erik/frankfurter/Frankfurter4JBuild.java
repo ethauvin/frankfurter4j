@@ -79,7 +79,7 @@ public class Frankfurter4JBuild extends Project {
                 .include(dependency("com.uwyn", "urlencoder",
                         version(1, 3, 5)))
                 .include(dependency("net.thauvin.erik.httpstatus", "httpstatus",
-                        version(2, 0, 0, "SNAPSHOT")))
+                        version(2, 0, 0)))
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
