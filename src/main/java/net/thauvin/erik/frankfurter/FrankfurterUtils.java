@@ -51,7 +51,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -81,10 +80,6 @@ public final class FrankfurterUtils {
      */
     public static final LocalDate MIN_DATE = LocalDate.of(1994, 1, 4);
     /**
-     * Map currency codes to their respective locales for proper formatting
-     */
-    private static final Map<String, Locale> CURRENCY_LOCALES = new ConcurrentHashMap<>();
-    /**
      * Gson instance for parsing JSON responses.
      */
     private static final Gson GSON = new Gson();
@@ -95,40 +90,6 @@ public final class FrankfurterUtils {
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
-
-    static {
-        CURRENCY_LOCALES.put("AUD", new Locale("en", "AU"));
-        CURRENCY_LOCALES.put("BGN", new Locale("bg", "BG"));
-        CURRENCY_LOCALES.put("BRL", new Locale("pt", "BR"));
-        CURRENCY_LOCALES.put("CAD", Locale.CANADA);
-        CURRENCY_LOCALES.put("CHF", new Locale("de", "CH"));
-        CURRENCY_LOCALES.put("CNY", Locale.CHINA);
-        CURRENCY_LOCALES.put("CZK", new Locale("cs", "CZ"));
-        CURRENCY_LOCALES.put("DKK", new Locale("da", "DK"));
-        CURRENCY_LOCALES.put("EUR", Locale.GERMANY);
-        CURRENCY_LOCALES.put("GBP", Locale.UK);
-        CURRENCY_LOCALES.put("HKD", new Locale("zh", "HK"));
-        CURRENCY_LOCALES.put("HUF", new Locale("hu", "HU"));
-        CURRENCY_LOCALES.put("IDR", new Locale("id", "ID"));
-        CURRENCY_LOCALES.put("ILS", new Locale("he", "IL"));
-        CURRENCY_LOCALES.put("INR", new Locale("hi", "IN"));
-        CURRENCY_LOCALES.put("ISK", new Locale("is", "IS"));
-        CURRENCY_LOCALES.put("JPY", Locale.JAPAN);
-        CURRENCY_LOCALES.put("KRW", Locale.KOREA);
-        CURRENCY_LOCALES.put("MXN", new Locale("es", "MX"));
-        CURRENCY_LOCALES.put("MYR", new Locale("ms", "MY"));
-        CURRENCY_LOCALES.put("NOK", new Locale("no", "NO"));
-        CURRENCY_LOCALES.put("NZD", new Locale("en", "NZ"));
-        CURRENCY_LOCALES.put("PHP", new Locale("fil", "PH"));
-        CURRENCY_LOCALES.put("PLN", new Locale("pl", "PL"));
-        CURRENCY_LOCALES.put("RON", new Locale("ro", "RO"));
-        CURRENCY_LOCALES.put("SEK", new Locale("sv", "SE"));
-        CURRENCY_LOCALES.put("SGD", new Locale("en", "SG"));
-        CURRENCY_LOCALES.put("THB", new Locale("th", "TH"));
-        CURRENCY_LOCALES.put("TRY", new Locale("tr", "TR"));
-        CURRENCY_LOCALES.put("USD", Locale.US);
-        CURRENCY_LOCALES.put("ZAR", new Locale("en", "ZA"));
-    }
 
     private FrankfurterUtils() {
         throw new IllegalStateException("Utility class");
@@ -285,7 +246,7 @@ public final class FrankfurterUtils {
         var normalizedSymbol = normalizeSymbol(symbol);
 
         try {
-            var locale = CURRENCY_LOCALES.getOrDefault(normalizedSymbol, Locale.getDefault());
+            var locale = CurrencyRegistry.getInstance().findBySymbol(normalizedSymbol).orElseThrow().locale();
             var currencyFormatter = NumberFormat.getCurrencyInstance(locale);
             if (!rounded) {
                 currencyFormatter.setMaximumFractionDigits(99); // prevent rounding
@@ -295,8 +256,7 @@ public final class FrankfurterUtils {
             currencyFormatter.setCurrency(currency);
 
             return currencyFormatter.format(amount);
-
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException | IllegalArgumentException e) {
             throw new IllegalArgumentException("Unknown currency symbol: " + normalizedSymbol, e);
         }
     }
@@ -377,7 +337,7 @@ public final class FrankfurterUtils {
     }
 
     /**
-     * Builds a URI by combining the {@code aPI_BASE_URL base url}, a specified path, and query parameters.
+     * Builds a URI by combining the {@code API_BASE_URL base url}, a specified path, and query parameters.
      * <p>
      * The path is appended to the base URL, and query parameters are appended as a query string.
      *

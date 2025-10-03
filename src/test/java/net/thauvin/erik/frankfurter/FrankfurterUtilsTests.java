@@ -65,7 +65,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports", "PMD.UnitTestShouldIncludeAssert"})
 @ExtendWith(LoggingExtension.class)
 class FrankfurterUtilsTests {
     @RegisterExtension
@@ -443,11 +443,11 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void formatCurrencyWithAllSymbols() throws IOException, InterruptedException {
-            var currencies = AvailableCurrencies.getCurrencies();
-            for (var key : Collections.list(currencies.keys())) {
-                assertDoesNotThrow(() -> FrankfurterUtils.formatCurrency(key, 10.0), key);
-            }
+        void formatCurrencyWithAllSymbols() {
+            var registry = CurrencyRegistry.getInstance();
+            registry.getAllCurrencies().forEach(currency ->
+                    assertDoesNotThrow(() -> FrankfurterUtils.formatCurrency(currency.symbol(), 10.0))
+            );
         }
 
         @Test

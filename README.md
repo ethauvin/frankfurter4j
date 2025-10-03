@@ -190,25 +190,72 @@ var timeSeries = new TimeSeries.Builder()
 
 ## Available currencies
 
-To get the supported currency symbols and their full names.
+The currencies are stored in a
+[CurrencyRegistry](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/CurrencyRegistry.html)
+which contains [Currency](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/Currency.html)
+records.
 
 ```java
-var currencies = AvailableCurrencies.getCurrencies();
+var currencies = CurrencyRegistry.getInstance();
+var usd = currencies.findBySymbol("USD"); // case-insensitive
+if (usd.isPresent()) {
+    var name = usd.get().name(); // United States Dollar
+    var symbol = usd.get().symbol(); // USD
+    var locale = usd.get().locale(); // Locale.US
+}
+
+currencies.findBySymbol("usd"); // case-insensitive
+currencies.findBySymbol("EUR"); // the record for Euro
+
+currencies.findByName("euro"); // the record for EUR
+currencies.findByName(".*Japan.*"); // the record for JPY
+
+currencies.search(".*Dollar$"); //  list of matching currencies
+
+currencies.contains("JPY"); // true
 ```
 
-The currencies are stored in the
-[Currencies](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/Currencies.html)
-class that extends
-[ConcurrentHashMap](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html).
+The currently supported currencies are:
+
+| Symbol  |  Name                 |
+|:--------|:----------------------|
+| `AUD`   | Australian Dollar     |
+| `BGN`   | Bulgarian Lev         |
+| `BRL`   | Brazilian Real        |
+| `CAD`   | Canadian Dollar       |
+| `CHF`   | Swiss Franc           |
+| `CNY`   | Chinese Renminbi Yuan |
+| `CZK`   | Czech Koruna          |
+| `DKK`   | Danish Krone          |
+| `EUR`   | Euro                  |
+| `GBP`   | British Pound         |
+| `HKD`   | Hong Kong Dollar      |
+| `HUF`   | Hungarian Forint      |
+| `IDR`   | Indonesian Rupiah     |
+| `ILS`   | Israeli New Sheqel    |
+| `INR`   | Indian Rupee          |
+| `ISK`   | Icelandic Króna       |
+| `JPY`   | Japanese Yen          |
+| `KRW`   | South Korean Won      |
+| `MXN`   | Mexican Peso          |
+| `MYR`   | Malaysian Ringgit     |
+| `NOK`   | Norwegian Krone       |
+| `NZD`   | New Zealand Dollar    |
+| `PHP`   | Philippine Peso       |
+| `PLN`   | Polish Złoty          |
+| `RON`   | Romanian Leu          |
+| `SEK`   | Swedish Krona         |
+| `SGD`   | Singapore Dollar      |
+| `THB`   | Thai Baht             |
+| `TRY`   | Turkish Lira          |
+| `USD`   | United States Dollar  |
+| `ZAR`   | South African Rand    |
+
+This list is maintained internally as it is unlikely to change.
+Although, to fully implement the API, the list could be refreshed using:
 
 ```java
-currencies.get("USD"); // returns "United States Dollar"
-currencies.getFullNameFor("usd"); // case-insensitive
-
-currencies.getFullNameFor("EUR"); // returns "Euro"
-
-currencies.getSymbolFor("euro"); // returns "EUR"
-currencies.getSymbolFor(Pattern.compile(".*Japan.*")); // returns "JPY"
+currencies.refresh();
 ```
 
 ## Currency Conversion
