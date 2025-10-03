@@ -95,7 +95,7 @@ class HttpErrorExceptionTests {
     @Test
     void getRatesWithSameBaseAndSymbol() {
         var latestRates = new LatestRates.Builder().base("USD").symbols("USD").build();
-        var exception = assertThrows(HttpErrorException.class, latestRates::getExchangeRates);
+        var exception = assertThrows(HttpErrorException.class, latestRates::exchangeRates);
         assertEquals(422, exception.getStatusCode(), "HTTP status code should be 422");
         assertEquals("bad currency pair", exception.getMessage(), "HTTP error message should be set");
         assertEquals("https://api.frankfurter.dev/v1/latest?base=USD&symbols=USD",

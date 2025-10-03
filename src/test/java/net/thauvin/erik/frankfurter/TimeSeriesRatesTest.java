@@ -75,10 +75,10 @@ class TimeSeriesRatesTest {
                 .symbols(VALID_SYMBOLS_LIST);
         var timeSeries = builder.build();
 
-        assertEquals(VALID_BASE_CURRENCY, timeSeries.getBase());
-        assertEquals(VALID_END_DATE, timeSeries.getEndDate());
-        assertEquals(VALID_START_DATE, timeSeries.getStartDate());
-        assertEquals(VALID_SYMBOLS_LIST, timeSeries.getSymbols());
+        assertEquals(VALID_BASE_CURRENCY, timeSeries.base());
+        assertEquals(VALID_END_DATE, timeSeries.endDate());
+        assertEquals(VALID_START_DATE, timeSeries.startDate());
+        assertEquals(VALID_SYMBOLS_LIST, timeSeries.symbols());
     }
 
     @Nested
@@ -94,18 +94,18 @@ class TimeSeriesRatesTest {
                     .symbols(VALID_SYMBOLS_LIST);
             var timeSeries = builder.build();
 
-            assertEquals(4.25, timeSeries.getAmount());
-            assertEquals("GBP", timeSeries.getBase());
-            assertEquals(VALID_START_DATE, timeSeries.getStartDate());
-            assertEquals(VALID_END_DATE, timeSeries.getEndDate());
-            assertTrue(timeSeries.getSymbols().containsAll(VALID_SYMBOLS_LIST));
+            assertEquals(4.25, timeSeries.amount());
+            assertEquals("GBP", timeSeries.base());
+            assertEquals(VALID_START_DATE, timeSeries.startDate());
+            assertEquals(VALID_END_DATE, timeSeries.endDate());
+            assertTrue(timeSeries.symbols().containsAll(VALID_SYMBOLS_LIST));
         }
 
         @Test
         void builderBaseDefault() {
             var builder = new TimeSeries.Builder();
             var timeSeries = builder.build();
-            assertEquals(FrankfurterUtils.EUR, timeSeries.getBase());
+            assertEquals(FrankfurterUtils.EUR, timeSeries.base());
         }
 
         @Test
@@ -127,7 +127,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.base("usd"); // Test lowercase
             var timeSeries = builder.build();
-            assertEquals("USD", timeSeries.getBase());
+            assertEquals("USD", timeSeries.base());
         }
 
         @Test
@@ -140,10 +140,10 @@ class TimeSeriesRatesTest {
             var timeSeries = builder.build();
 
             assertNotNull(timeSeries);
-            assertEquals(VALID_START_DATE, timeSeries.getStartDate());
-            assertEquals(VALID_END_DATE, timeSeries.getEndDate());
-            assertEquals(VALID_BASE_CURRENCY, timeSeries.getBase());
-            assertEquals(VALID_SYMBOLS_LIST, timeSeries.getSymbols());
+            assertEquals(VALID_START_DATE, timeSeries.startDate());
+            assertEquals(VALID_END_DATE, timeSeries.endDate());
+            assertEquals(VALID_BASE_CURRENCY, timeSeries.base());
+            assertEquals(VALID_SYMBOLS_LIST, timeSeries.symbols());
         }
 
         @Test
@@ -151,7 +151,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.endDate(VALID_END_DATE);
             var timeSeries = builder.build();
-            assertEquals(VALID_END_DATE, timeSeries.getEndDate());
+            assertEquals(VALID_END_DATE, timeSeries.endDate());
         }
 
         @RepeatedTest(3)
@@ -168,7 +168,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.endDate(VALID_END_DATE);
             var timeSeries = builder.startDate(VALID_START_DATE).build();
-            assertEquals(VALID_END_DATE, timeSeries.getEndDate());
+            assertEquals(VALID_END_DATE, timeSeries.endDate());
         }
 
         @Test
@@ -182,7 +182,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.startDate(VALID_START_DATE);
             var timeSeries = builder.build();
-            assertEquals(VALID_START_DATE, timeSeries.getStartDate());
+            assertEquals(VALID_START_DATE, timeSeries.startDate());
         }
 
         @Test
@@ -197,7 +197,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.startDate(VALID_START_DATE);
             var timeSeries = builder.build();
-            assertEquals(VALID_START_DATE, timeSeries.getStartDate());
+            assertEquals(VALID_START_DATE, timeSeries.startDate());
         }
 
         @Test
@@ -205,7 +205,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             assertThrows(IllegalArgumentException.class, () -> builder.startDate(null));
             var timeSeries = builder.build();
-            assertNull(timeSeries.getStartDate());
+            assertNull(timeSeries.startDate());
         }
 
         @Test
@@ -213,8 +213,8 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.startDate(VALID_START_DATE).endDate(VALID_START_DATE);
             var timeSeries = builder.build();
-            assertEquals(VALID_START_DATE, timeSeries.getStartDate());
-            assertEquals(VALID_START_DATE, timeSeries.getEndDate());
+            assertEquals(VALID_START_DATE, timeSeries.startDate());
+            assertEquals(VALID_START_DATE, timeSeries.endDate());
         }
 
         @Test
@@ -243,8 +243,8 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.symbols(Arrays.asList("jpy", "cad"));
             var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().containsAll(Arrays.asList("JPY", "CAD")));
-            assertEquals(2, timeSeries.getSymbols().size());
+            assertTrue(timeSeries.symbols().containsAll(Arrays.asList("JPY", "CAD")));
+            assertEquals(2, timeSeries.symbols().size());
         }
 
         @Test
@@ -252,7 +252,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.symbols(Collections.emptyList()); // Empty collection
             var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().isEmpty());
+            assertTrue(timeSeries.symbols().isEmpty());
         }
 
         @Test
@@ -260,7 +260,7 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder = builder.symbols(); // Empty varargs
             var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().isEmpty());
+            assertTrue(timeSeries.symbols().isEmpty());
         }
 
         @RepeatedTest(3)
@@ -291,8 +291,8 @@ class TimeSeriesRatesTest {
             var builder = new TimeSeries.Builder();
             builder.symbols("eur", "gbp");
             var timeSeries = builder.build();
-            assertTrue(timeSeries.getSymbols().containsAll(VALID_SYMBOLS_LIST));
-            assertEquals(2, timeSeries.getSymbols().size());
+            assertTrue(timeSeries.symbols().containsAll(VALID_SYMBOLS_LIST));
+            assertEquals(2, timeSeries.symbols().size());
         }
     }
 
@@ -309,13 +309,13 @@ class TimeSeriesRatesTest {
                     .symbols(VALID_SYMBOLS_LIST)
                     .build();
 
-            var data = timeSeries.getPeriodicRates();
+            var data = timeSeries.periodicRates();
             assertNotNull(data);
-            assertEquals(timeSeries.getAmount(), data.amount());
-            assertEquals(timeSeries.getBase(), data.base());
-            assertEquals(timeSeries.getStartDate(), data.startLocalDate());
-            assertEquals(timeSeries.getEndDate(), data.endLocalDate());
-            assertEquals(timeSeries.getStartDate(), data.startLocalDate());
+            assertEquals(timeSeries.amount(), data.amount());
+            assertEquals(timeSeries.base(), data.base());
+            assertEquals(timeSeries.startDate(), data.startLocalDate());
+            assertEquals(timeSeries.endDate(), data.endLocalDate());
+            assertEquals(timeSeries.startDate(), data.startLocalDate());
             VALID_DATES.forEach(date -> {
                 assertTrue(data.ratesFor(date).get("EUR") > 0, "getPeriodicRates(date).get(EUR)");
                 assertTrue(data.ratesFor(date).get("GBP") > 0, "getPeriodicRates(date).get(GBP)");
@@ -330,7 +330,7 @@ class TimeSeriesRatesTest {
                     .endDate(now)
                     .build();
 
-            var data = timeSeries.getPeriodicRates();
+            var data = timeSeries.periodicRates();
 
             assertNotNull(data);
             assertTrue(data.endLocalDate().isBefore(now) || data.endLocalDate().isEqual(now));
@@ -343,7 +343,7 @@ class TimeSeriesRatesTest {
                     .startDate(VALID_END_DATE)
                     .endDate(VALID_START_DATE)
                     .build(); // startDate is null
-            var exception = assertThrows(IllegalArgumentException.class, timeSeries::getPeriodicRates);
+            var exception = assertThrows(IllegalArgumentException.class, timeSeries::periodicRates);
             assertEquals("The end date must be on or after the start date.", exception.getMessage());
         }
 
@@ -356,11 +356,11 @@ class TimeSeriesRatesTest {
                             .startDate(startDate)
                             .endDate(endDate)
                             .base("USD").build();
-            assertEquals("USD", timeSeries.getBase(), "base()");
-            assertEquals(startDate, timeSeries.getStartDate(), "startDate()");
-            assertEquals(endDate, timeSeries.getEndDate(), "getEndDate()");
+            assertEquals("USD", timeSeries.base(), "base()");
+            assertEquals(startDate, timeSeries.startDate(), "startDate()");
+            assertEquals(endDate, timeSeries.endDate(), "getEndDate()");
             assertEquals(Double.valueOf("0.9689"),
-                    timeSeries.getPeriodicRates().ratesFor(startDate).get("EUR"),
+                    timeSeries.periodicRates().ratesFor(startDate).get("EUR"),
                     "getPeriodicRates(2025-01-02).get(EUR)");
         }
 
@@ -370,18 +370,18 @@ class TimeSeriesRatesTest {
                     .startDate(VALID_START_DATE) // Default base EUR, no end date, no symbols
                     .build();
 
-            var data = timeSeries.getPeriodicRates();
+            var data = timeSeries.periodicRates();
 
             assertNotNull(data);
-            assertEquals(timeSeries.getBase(), data.base());
-            assertEquals(timeSeries.getStartDate(), data.startLocalDate());
-            assertNull(timeSeries.getEndDate());
+            assertEquals(timeSeries.base(), data.base());
+            assertEquals(timeSeries.startDate(), data.startLocalDate());
+            assertNull(timeSeries.endDate());
         }
 
         @Test
         void periodicRatesStartDateNull() {
             var timeSeries = new TimeSeries.Builder().build(); // startDate is null
-            var exception = assertThrows(IllegalArgumentException.class, timeSeries::getPeriodicRates);
+            var exception = assertThrows(IllegalArgumentException.class, timeSeries::periodicRates);
             assertEquals("The start date is required.", exception.getMessage());
         }
 
@@ -393,12 +393,12 @@ class TimeSeriesRatesTest {
                     .amount(10)
                     .build();
 
-            assertEquals(10.0, timeSeries.getAmount());
+            assertEquals(10.0, timeSeries.amount());
 
-            var data = timeSeries.getPeriodicRates();
+            var data = timeSeries.periodicRates();
 
             assertNotNull(data);
-            assertEquals(timeSeries.getAmount(), data.amount());
+            assertEquals(timeSeries.amount(), data.amount());
         }
 
         @Test
@@ -409,9 +409,9 @@ class TimeSeriesRatesTest {
                     .endDate(VALID_START_DATE)
                     .build();
 
-            assertNull(timeSeries.getAmount());
+            assertNull(timeSeries.amount());
 
-            var data = timeSeries.getPeriodicRates();
+            var data = timeSeries.periodicRates();
 
             assertNotNull(data);
             assertEquals(1.0, data.amount());

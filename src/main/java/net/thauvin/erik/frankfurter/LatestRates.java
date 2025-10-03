@@ -78,7 +78,7 @@ public class LatestRates {
      *
      * @return a {@code Double} representing the amount
      */
-    public Double getAmount() {
+    public Double amount() {
         return amount;
     }
 
@@ -87,7 +87,7 @@ public class LatestRates {
      *
      * @return a string representing the base currency
      */
-    public String getBase() {
+    public String base() {
         return base;
     }
 
@@ -96,7 +96,7 @@ public class LatestRates {
      *
      * @return a {@link LocalDate} representing the date
      */
-    public LocalDate getDate() {
+    public LocalDate date() {
         return date;
     }
 
@@ -107,11 +107,11 @@ public class LatestRates {
      * into a {@link ExchangeRates} object.
      *
      * @return an instance of {@link ExchangeRates} containing the base currency, date, and exchange rates
-     * @throws IOException         if an error occurs during the aPI request or response handling
+     * @throws IOException         if an error occurs during the API request or response handling
      * @throws URISyntaxException  if the URI syntax is invalid
-     * @throws JsonSyntaxException if the JSON response from the aPI does not match the expected format
+     * @throws JsonSyntaxException if the JSON response from the API does not match the expected format
      */
-    public ExchangeRates getExchangeRates()
+    public ExchangeRates exchangeRates()
             throws IOException, URISyntaxException, JsonSyntaxException, InterruptedException {
         var gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -148,7 +148,7 @@ public class LatestRates {
      *
      * @return a collection of strings representing the currency symbols
      */
-    public Collection<String> getSymbols() {
+    public Collection<String> symbols() {
         return symbols;
     }
 

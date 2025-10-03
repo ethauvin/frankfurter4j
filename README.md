@@ -24,9 +24,9 @@ var latestRates = new LatestRates.Builder()
         .base("USD")
         .symbols("EUR", "GBP")
         .build();
-var exchangeRates = latestRates.getExchangeRates();
-var euro = exchangeRates.getRateFor("EUR");
-var britishPound = exchangeRates.getRateFor("GBP");
+var exchangeRates = latestRates.exchangeRates();
+var euro = exchangeRates.rateFor("EUR");
+var britishPound = exchangeRates.rateFor("GBP");
 ```
 
 To get the latest exchange rates for the United States Dollar in Euro
@@ -72,7 +72,7 @@ To fetch the latest working day's rates:
 
 ```java
 var latestRates = new LatestRates.Builder().build();
-var exchangeRates = latestRates.getExchangeRates();
+var exchangeRates = latestRates.exchangeRates();
 ```
 
 The latest exchange rates will be stored in the
@@ -81,7 +81,7 @@ class:
 
 ```java
 if (exchangeRates.hasRateFor("JPY")) {
-    var jpy = exchangeRates.getRateFor("JPY");
+    var jpy = exchangeRates.rateFor("JPY");
 }
 ```
 
@@ -137,7 +137,7 @@ var timeSeries = new TimeSeries.Builder()
         .startDate(LocalDate.of(2000, 1, 1))
         .endDate(LocalDate.of(2000, 12, 31))
         .build();
-var periodicRates = timeSeries.getPeriodicRates();
+var periodicRates = timeSeries.periodicRates();
 
 ```
 
@@ -149,21 +149,21 @@ class.
 var firstMarketDay = LocalDate.of(2000, 1, 4);
 if (periodicRates.hasRatesFor(firstMarketDay)) {
     // Get the Yen rate directly
-    var yen = periodicRates.getRateFor(firstMarketDay, "JPY");
+    var yen = periodicRates.rateFor(firstMarketDay, "JPY");
 
     // Get the Dollar rate if available
-    var rates = periodicRates.getRatesFor(firstMarketDay);
+    var rates = periodicRates.rateFor(firstMarketDay);
     if (rates.containsKey("USD")) {
         var usd = rates.get("USD");
     }
 }
 
 // Loop through all dates
-periodicRates.getDates().forEach(date -> {
+periodicRates.dates().forEach(date -> {
     // Print the date
     System.out.println("Rates for " + date);
     // Loop through all rates
-    periodicRates.getRatesFor(date).forEach((symbol, rate) -> {
+    periodicRates.ratesFor(date).forEach((symbol, rate) -> {
         // Print the symbol and rate, e.g., USD: 0.9059
         System.out.println("    " + symbol + ": " + rate); 
     });
@@ -222,8 +222,8 @@ var latestRates = new LatestRates.Builder()
         .base("USD")
         .symbols("EUR")
         .build();
-var exchangeRates = latestRates.getExchangeRates();
-var euro = exchangeRates.getRateFor("EUR");
+var exchangeRates = latestRates.exchangeRates();
+var euro = exchangeRates.rateFor("EUR");
 
 System.out.println("$10 = €" + euro); // $10 = €8.8059
 

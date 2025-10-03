@@ -81,7 +81,7 @@ public class TimeSeries {
      *
      * @return a {@code Double} representing the value of the amount field
      */
-    public Double getAmount() {
+    public Double amount() {
         return amount;
     }
 
@@ -90,7 +90,7 @@ public class TimeSeries {
      *
      * @return a string representing the base currency
      */
-    public String getBase() {
+    public String base() {
         return base;
     }
 
@@ -99,7 +99,7 @@ public class TimeSeries {
      *
      * @return The end date as a {@link LocalDate} object
      */
-    public LocalDate getEndDate() {
+    public LocalDate endDate() {
         return endDate;
     }
 
@@ -115,9 +115,9 @@ public class TimeSeries {
      * @throws URISyntaxException       if the generated URI for the data request is invalid
      * @throws IllegalArgumentException if required parameters such as the start date are not set, or
      *                                  if the end date is before the start date
-     * @throws JsonSyntaxException      if the JSON response from the aPI does not match the expected format
+     * @throws JsonSyntaxException      if the JSON response from the API does not match the expected format
      */
-    public SeriesRates getPeriodicRates()
+    public SeriesRates periodicRates()
             throws IOException, URISyntaxException, JsonSyntaxException, InterruptedException {
         var gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -167,7 +167,7 @@ public class TimeSeries {
      *
      * @return The start date as a {@link LocalDate} object
      */
-    public LocalDate getStartDate() {
+    public LocalDate startDate() {
         return startDate;
     }
 
@@ -176,7 +176,7 @@ public class TimeSeries {
      *
      * @return a collection containing the currency symbols
      */
-    public Collection<String> getSymbols() {
+    public Collection<String> symbols() {
         return symbols;
     }
 
@@ -297,6 +297,4 @@ public class TimeSeries {
             return this;
         }
     }
-
-
 }

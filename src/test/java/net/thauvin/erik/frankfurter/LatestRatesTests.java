@@ -44,7 +44,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"PMD.LinguisticNaming", "PMD.AvoidDuplicateLiterals"})
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 @ExtendWith(LoggingExtension.class)
 class LatestRatesTests {
     @RegisterExtension
@@ -62,41 +62,43 @@ class LatestRatesTests {
                 .symbols(symbols);
         var latestRates = new LatestRates(builder);
 
-        assertEquals(123.45, latestRates.getAmount());
-        assertEquals("GBP", latestRates.getBase());
-        assertEquals(date, latestRates.getDate());
-        assertEquals(symbols, latestRates.getSymbols()); // Builder stores formatted symbols
+        assertEquals(123.45, latestRates.amount());
+        assertEquals("GBP", latestRates.base());
+        assertEquals(date, latestRates.date());
+        assertEquals(symbols, latestRates.symbols()); // Builder stores formatted symbols
     }
 
     @Test
-    void getExchangeRates() throws IOException, URISyntaxException, InterruptedException {
-        var builder = new LatestRates.Builder().build();
-        var ratesData = builder.getExchangeRates();
+    void exchangeRates() throws IOException, URISyntaxException, InterruptedException {
+        {
+            var builder = new LatestRates.Builder().build();
+            var ratesData = builder.exchangeRates();
 
-        // Compare fields of Rates
-        assertEquals(1.0, ratesData.amount());
-        assertEquals(FrankfurterUtils.EUR, ratesData.base());
-        assertNotNull(ratesData.date());
+            // Compare fields of Rates
+            assertEquals(1.0, ratesData.amount());
+            assertEquals(FrankfurterUtils.EUR, ratesData.base());
+            assertNotNull(ratesData.date());
 
-        var currencies = AvailableCurrencies.getCurrencies();
-        assertFalse(currencies.isEmpty(), "AvailableCurrencies should not be empty");
-        currencies.forEach((key, value) -> {
-            if (!FrankfurterUtils.EUR.equals(key)) {
-                assertTrue(ratesData.rates().containsKey(key), "Rates should contain key: " + key);
-                assertTrue(ratesData.rates().get(key) > 0,
-                        "Rates should contain value > 0 for key: " + key);
-            }
-        });
+            var currencies = CurrencyRegistry.availableCurrencies();
+            assertFalse(currencies.isEmpty(), "AvailableCurrencies should not be empty");
+            currencies.forEach((key, value) -> {
+                if (!FrankfurterUtils.EUR.equals(key)) {
+                    assertTrue(ratesData.rates().containsKey(key), "Rates should contain key: " + key);
+                    assertTrue(ratesData.rates().get(key) > 0,
+                            "Rates should contain value > 0 for key: " + key);
+                }
+            });
+        }
     }
 
     @Test
-    void getExchangeRatesForHistoricalDate() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesForHistoricalDate() throws IOException, URISyntaxException, InterruptedException {
         var date = LocalDate.of(2010, 1, 4);
         var latestRates = new LatestRates.Builder()
                 .date(date)
                 .base("USD")
                 .build();
-        var exchangeRates = latestRates.getExchangeRates();
+        var exchangeRates = latestRates.exchangeRates();
         assertNotNull(exchangeRates.rates(), "rates() should not return null");
         assertEquals("USD", exchangeRates.base(), "base() should return 'USD");
         assertEquals(date, exchangeRates.date(), "date() should return '2010-01-04");
@@ -104,14 +106,14 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesForHistoricalDateWithAmount() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesForHistoricalDateWithAmount() throws IOException, URISyntaxException, InterruptedException {
         var date = LocalDate.of(2010, 1, 1);
         var latestRates = new LatestRates.Builder()
                 .amount(10.0)
                 .date(date)
                 .base("USD")
                 .build();
-        var exchangeRates = latestRates.getExchangeRates();
+        var exchangeRates = latestRates.exchangeRates();
         assertNotNull(exchangeRates.rates(), "rates() should not return null");
         assertEquals("USD", exchangeRates.base(), "base() should return 'USD");
         assertEquals(date.minusDays(1), exchangeRates.date(),
@@ -120,7 +122,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesWithAllParameters() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithAllParameters() throws IOException, URISyntaxException, InterruptedException {
         var testDate = LocalDate.of(2025, 1, 30);
         var builder = new LatestRates.Builder()
                 .amount(10.0)
@@ -129,7 +131,7 @@ class LatestRatesTests {
                 .symbols("EUR", "GBP")
                 .build();
 
-        var ratesData = builder.getExchangeRates();
+        var ratesData = builder.exchangeRates();
 
         // Compare fields of Rates
         assertEquals(10.0, ratesData.amount());
@@ -142,40 +144,40 @@ class LatestRatesTests {
     }
 
     @Test
-    void getExchangeRatesWithIntAmount() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithIntAmount() throws IOException, URISyntaxException, InterruptedException {
         var builder = new LatestRates.Builder().amount(10).build();
-        var ratesData = builder.getExchangeRates();
+        var ratesData = builder.exchangeRates();
 
         assertEquals(10.0, ratesData.amount());
     }
 
     @Test
-    void getExchangeRatesWithInvalidSymbol() {
+    void exchangeRatesWithInvalidSymbol() {
         assertThrows(IllegalArgumentException.class, () -> new LatestRates.Builder().symbols("INVALID").build());
     }
 
     @Test
-    void getExchangeRatesWithNullAmount() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithNullAmount() throws IOException, URISyntaxException, InterruptedException {
         var builder = new LatestRates.Builder()
                 .amount(null) // not set
                 .build();
-        var ratesData = builder.getExchangeRates();
+        var ratesData = builder.exchangeRates();
 
-        assertNull(builder.getAmount());
+        assertNull(builder.amount());
         assertEquals(1.0, ratesData.amount());
     }
 
     @Test
-    void getExchangeRatesWithOutOfBoundsDate() {
+    void exchangeRatesWithOutOfBoundsDate() {
         assertThrows(IllegalArgumentException.class, () -> new LatestRates.Builder()
                 .date(LocalDate.of(1993, 12, 31))
                 .build());
     }
 
     @Test
-    void getExchangeRatesWithValidBaseAndSymbols() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithValidBaseAndSymbols() throws IOException, URISyntaxException, InterruptedException {
         var latestRates = new LatestRates.Builder().base("USD").symbols("EUR", "GBP").build();
-        var exchangeRates = latestRates.getExchangeRates();
+        var exchangeRates = latestRates.exchangeRates();
         assertNotNull(exchangeRates);
         assertEquals("USD", exchangeRates.base(), "base() should return 'USD'");
         assertTrue(exchangeRates.rates().containsKey("EUR"), "rates() should contain 'EUR'");
