@@ -33,8 +33,12 @@
 package net.thauvin.erik.frankfurter.exceptions;
 
 import com.google.gson.JsonSyntaxException;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 import net.thauvin.erik.frankfurter.FrankfurterUtils;
 import net.thauvin.erik.frankfurter.LatestRates;
+import okhttp3.Headers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -42,6 +46,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import rife.bld.extension.testing.LoggingExtension;
 
+import java.io.IOException;
 import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,6 +57,12 @@ class HttpErrorExceptionTests {
     @RegisterExtension
     @SuppressWarnings("unused")
     private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
+    private static final MockWebServer MOCK_WEB_SERVER = new MockWebServer();
+
+    @BeforeEach
+    void beforeEach() throws IOException {
+        MOCK_WEB_SERVER.start();
+    }
 
     @ParameterizedTest
     @CsvSource({
@@ -60,7 +71,10 @@ class HttpErrorExceptionTests {
             "500, Internal Server Error"
     })
     void fetchUriEmptyResponse(int code, String message) {
-        var uri = URI.create("https://httpbin.org/status/" + code);
+        MOCK_WEB_SERVER.enqueue(
+                new MockResponse.Builder().code(code).build()
+        );
+        var uri = MOCK_WEB_SERVER.url("/" + code).uri();
         var exception = assertThrows(HttpErrorException.class, () -> FrankfurterUtils.fetchUri(uri));
         assertEquals(code, exception.getStatusCode(), "HTTP status code should be " + code);
         assertEquals(message, exception.getMessage(), "HTTP error message should be set for " + code);
@@ -70,7 +84,11 @@ class HttpErrorExceptionTests {
 
     @Test
     void fetchUriNoJson() {
-        var uri = URI.create("https://www.google.com/404");
+        int code = 404;
+        MOCK_WEB_SERVER.enqueue(
+                new MockResponse(code, Headers.EMPTY, "Not Found")
+        );
+        var uri = MOCK_WEB_SERVER.url("/" + code).uri();
         var exception = assertThrows(HttpErrorException.class,
                 () -> FrankfurterUtils.fetchUri(uri));
         assertEquals(404, exception.getStatusCode(), "HTTP status code should be 404");

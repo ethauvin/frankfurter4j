@@ -32,7 +32,10 @@
 
 package net.thauvin.erik.frankfurter;
 
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
 import net.thauvin.erik.frankfurter.exceptions.HttpErrorException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,7 +54,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.ConnectException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -281,6 +283,13 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Fetch URI Tests")
     class FetchUriTests {
+        private static final MockWebServer MOCK_WEB_SERVER = new MockWebServer();
+
+        @BeforeEach
+        void beforeEach() throws IOException {
+            MOCK_WEB_SERVER.start();
+        }
+
         @Test
         void fetchUri() throws IOException, InterruptedException {
             var uri = URI.create(FrankfurterUtils.API_BASE_URL + "2025-01-02?symbols=USD");
@@ -291,9 +300,12 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUriNoBody() throws URISyntaxException {
-            var uri = new URI("https://httpbin.org/status/404");
-            assertThrows(HttpErrorException.class, () -> FrankfurterUtils.fetchUri(uri));
+        void fetchUriNoBody() throws IOException, InterruptedException {
+            MOCK_WEB_SERVER.enqueue(
+                    new MockResponse.Builder().code(200).body("").build()
+            );
+            var uri = MOCK_WEB_SERVER.url("/200").uri();
+            assertTrue(FrankfurterUtils.fetchUri(uri).isEmpty());
         }
 
         @Test
@@ -327,15 +339,17 @@ class FrankfurterUtilsTests {
 
         @Test
         void fetchUriWithNoErrorStream() {
-            var uri = URI.create("https://apichallenges.herokuapp.com/secret/note");
-
+            MOCK_WEB_SERVER.enqueue(
+                    new MockResponse.Builder().code(404).build()
+            );
+            var uri = MOCK_WEB_SERVER.url("/404").uri();
             assertThrows(HttpErrorException.class, () -> FrankfurterUtils.fetchUri(uri));
         }
 
         @Test
         @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
         void fetchUriWithNullResponseBody() throws Exception {
-            var uri = new URI("https://httpbin.org/status/404");
+            var uri = new URI("https://example.com/");
             int statusCode = 404;
 
             var mockResponse = mock(HttpResponse.class);
