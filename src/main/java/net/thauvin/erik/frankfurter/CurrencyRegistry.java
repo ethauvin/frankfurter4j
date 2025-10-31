@@ -51,7 +51,11 @@ import java.util.regex.PatternSyntaxException;
  * Thread safety: All public methods are thread-safe.
  */
 public class CurrencyRegistry {
+    /**
+     * Default number of currencies available in the registry.
+     */
     protected static final int DEFAULT_CURRENCY_COUNT = 31;
+
     private static final CurrencyRegistry INSTANCE = new CurrencyRegistry();
     private static final int PATTERN_CACHE_SIZE = 50;
 
