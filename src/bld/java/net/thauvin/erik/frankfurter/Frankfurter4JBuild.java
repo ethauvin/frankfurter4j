@@ -84,7 +84,8 @@ public class Frankfurter4JBuild extends Project {
                         version(0, 9, 4)))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 20, 0)))
-                .include(dependency("com.squareup.okhttp3", "mockwebserver", "5.2.1"))
+                .include(dependency("com.squareup.okhttp3", "mockwebserver",
+                        version(5, 3, 0)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit));
 
