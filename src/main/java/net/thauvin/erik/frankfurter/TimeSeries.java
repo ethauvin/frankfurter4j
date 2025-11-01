@@ -70,7 +70,7 @@ public class TimeSeries {
      */
     public TimeSeries(Builder builder) {
         this.amount = builder.amount;
-        this.symbols = builder.symbols;
+        this.symbols = new ArrayList<>(builder.symbols);
         this.base = builder.base;
         this.endDate = builder.endDate;
         this.startDate = builder.startDate;
@@ -177,7 +177,7 @@ public class TimeSeries {
      * @return a collection containing the currency symbols
      */
     public Collection<String> symbols() {
-        return symbols;
+        return new ArrayList<>(symbols);
     }
 
     /**

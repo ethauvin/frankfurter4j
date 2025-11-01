@@ -50,6 +50,20 @@ import java.util.Set;
  */
 public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
     /**
+     * Constructs a new instance of the ExchangeRates record.
+     *
+     * @param amount the amount of the base currency
+     * @param base   the base currency
+     * @param date   the date of the exchange rates
+     * @param rates  the exchange rates map, where keys are currency symbols and values are their respective rates
+     */
+    public ExchangeRates {
+        if (rates != null) {
+            rates = Map.copyOf(rates);
+        }
+    }
+
+    /**
      * Checks if the exchange rates contain the specified currency symbol.
      *
      * @param symbol the currency symbol to check for

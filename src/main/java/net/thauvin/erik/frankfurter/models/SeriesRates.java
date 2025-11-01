@@ -57,6 +57,22 @@ public record SeriesRates(Double amount,
                           String endDate,
                           Map<LocalDate, Map<String, Double>> rates) {
     /**
+     * Constructs an instance of {@code SeriesRates} using the provided exchange rate time series.
+     *
+     * @param amount    the amount to be converted or used in calculations
+     * @param base      the base currency for the time series of exchange rates
+     * @param startDate the start date of the time series, formatted as a string
+     * @param endDate   the end date of the time series, formatted as a string
+     * @param rates     a map where the keys are dates ({@link LocalDate}) and the values are maps of currency codes
+     *                  to their respective exchange rates as doubles
+     */
+    public SeriesRates {
+        if (rates != null) {
+            rates = Map.copyOf(rates);
+        }
+    }
+
+    /**
      * Retrieves the set of dates for which exchange rates are available in the time series.
      *
      * @return the set of dates

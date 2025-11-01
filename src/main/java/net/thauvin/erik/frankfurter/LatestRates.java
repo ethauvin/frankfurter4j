@@ -70,7 +70,7 @@ public class LatestRates {
         this.amount = builder.amount;
         this.base = builder.base;
         this.date = builder.date;
-        this.symbols = builder.symbols;
+        this.symbols = new ArrayList<>(builder.symbols);
     }
 
     /**
@@ -149,7 +149,7 @@ public class LatestRates {
      * @return a collection of strings representing the currency symbols
      */
     public Collection<String> symbols() {
-        return symbols;
+        return new ArrayList<>(symbols);
     }
 
     /**
