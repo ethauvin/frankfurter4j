@@ -50,13 +50,12 @@ import java.util.regex.PatternSyntaxException;
  * <p>
  * Thread safety: All public methods are thread-safe.
  */
-public class CurrencyRegistry {
+public final class CurrencyRegistry {
     /**
      * Default number of currencies available in the registry.
      */
-    protected static final int DEFAULT_CURRENCY_COUNT = 31;
+    static final int DEFAULT_CURRENCY_COUNT = 31;
 
-    private static final CurrencyRegistry INSTANCE = new CurrencyRegistry();
     private static final int PATTERN_CACHE_SIZE = 50;
 
     // Use ConcurrentHashMap for thread-safe O(1) lookups by symbol
@@ -68,10 +67,15 @@ public class CurrencyRegistry {
     /**
      * Constructs a CurrencyRegistry with default currencies.
      */
-    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
-    protected CurrencyRegistry() {
+    private CurrencyRegistry() {
         this.currencyBySymbol = new ConcurrentHashMap<>(DEFAULT_CURRENCY_COUNT);
         initializeDefaultCurrencies();
+    }
+
+
+    // Initialization-on-demand holder idiom for lazy singleton instantiation.
+    private static final class Holder {
+        static final CurrencyRegistry INSTANCE = new CurrencyRegistry();
     }
 
     /**
@@ -92,7 +96,6 @@ public class CurrencyRegistry {
 
         var json = FrankfurterUtils.fetchUri(URI.create("https://api.frankfurter.dev/v1/currencies"));
         return gson.fromJson(json, mapType);
-
     }
 
     /**
@@ -101,7 +104,7 @@ public class CurrencyRegistry {
      * @return The default currency registry
      */
     public static CurrencyRegistry getInstance() {
-        return INSTANCE;
+        return Holder.INSTANCE;
     }
 
     /**
@@ -274,6 +277,15 @@ public class CurrencyRegistry {
         var currencyMap = availableCurrencies();
 
         currencyMap.forEach(this::add);
+    }
+
+    /**
+     * Resets the registry to its original default state.
+     */
+    public void reset() {
+        currencyBySymbol.clear();
+        clearPatternCache();
+        initializeDefaultCurrencies();
     }
 
     /**

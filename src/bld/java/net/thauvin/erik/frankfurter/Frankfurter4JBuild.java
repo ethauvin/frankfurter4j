@@ -62,7 +62,7 @@ public class Frankfurter4JBuild extends Project {
         pkg = "net.thauvin.erik";
         name = "Frankfurter4J";
         archiveBaseName = "frankfurter4j";
-        version = version(0, 9, 0, "SNAPSHOT");
+        version = version(0, 9, 1, "SNAPSHOT");
 
         javaRelease = 17;
 

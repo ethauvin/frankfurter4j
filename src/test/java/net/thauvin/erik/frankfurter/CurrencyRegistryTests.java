@@ -60,10 +60,14 @@ class CurrencyRegistryTests {
     class AddCurrencyTests {
         @Test
         void addCurrency() {
-            var registry = new CurrencyRegistry();
+            var registry = CurrencyRegistry.getInstance();
+            registry.reset();
+
             var size = registry.size();
+
             registry.add(new Currency("FMD", "Fake Money Dollar", Locale.CANADA));
             assertEquals(size + 1, registry.size(), "size should increase by 1");
+
             var fmd = registry.findBySymbol("FMD").orElseThrow(() ->
                     new AssertionError("FMD not found"));
             assertEquals("FMD", fmd.symbol(), "symbol should be FMD");
@@ -92,20 +96,20 @@ class CurrencyRegistryTests {
 
         @Test
         void addCurrencyWithNullSymbol() {
-            var registry = new CurrencyRegistry();
+            var registry = CurrencyRegistry.getInstance();
             assertThrows(IllegalArgumentException.class, () -> registry.add(null, null));
         }
 
         @Test
         void addCurrencyWithNulls() {
-            var registry = new CurrencyRegistry();
+            var registry = CurrencyRegistry.getInstance();
             assertThrows(IllegalArgumentException.class, () -> registry.add(
                     new Currency(null, null, null)));
         }
 
         @Test
         void addCurrencyWithSymbolAndName() {
-            var registry = new CurrencyRegistry();
+            var registry = CurrencyRegistry.getInstance();
             var size = registry.size();
             registry.add("FMD", "Fake Money Dollar");
             assertEquals(size + 1, registry.size(), "size should increase by 1");
@@ -118,7 +122,7 @@ class CurrencyRegistryTests {
 
         @Test
         void addNullCurrency() {
-            var registry = new CurrencyRegistry();
+            var registry = CurrencyRegistry.getInstance();
             assertThrows(IllegalArgumentException.class, () -> registry.add(null));
         }
     }
@@ -315,14 +319,20 @@ class CurrencyRegistryTests {
     class GetAllTests {
         @Test
         void allCurrencies() {
-            var currencies = CurrencyRegistry.getInstance().getAllCurrencies();
+            var registry = CurrencyRegistry.getInstance();
+            registry.reset();
+
+            var currencies = registry.getAllCurrencies();
 
             assertEquals(CurrencyRegistry.DEFAULT_CURRENCY_COUNT, currencies.size());
         }
 
         @Test
         void allSymbols() {
-            var symbols = CurrencyRegistry.getInstance().getAllSymbols();
+            var registry = CurrencyRegistry.getInstance();
+            registry.reset();
+
+            var symbols = registry.getAllSymbols();
 
             assertEquals(CurrencyRegistry.DEFAULT_CURRENCY_COUNT, symbols.size());
             assertTrue(symbols.contains("USD"));
@@ -371,6 +381,8 @@ class CurrencyRegistryTests {
         @Test
         void searchForName() {
             var registry = CurrencyRegistry.getInstance();
+            registry.reset();
+
             var results = registry.search("Dollar");
             assertEquals(6, results.size());
 
@@ -381,6 +393,8 @@ class CurrencyRegistryTests {
         @Test
         void searchForNameWithRegex() {
             var registry = CurrencyRegistry.getInstance();
+            registry.reset();
+
             var results = registry.search("^.*Dollar$");
             assertEquals(6, results.size());
 
@@ -400,6 +414,8 @@ class CurrencyRegistryTests {
         @Test
         void searchForSymbolWithRegex() {
             var registry = CurrencyRegistry.getInstance();
+            registry.reset();
+
             var results = registry.search("^[A-Z]{2}D$");
 
             var symbols = results.stream().map(Currency::symbol).toList();
