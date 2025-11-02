@@ -47,8 +47,7 @@ import java.io.File;
 import java.util.List;
 
 import static rife.bld.dependencies.Repository.*;
-import static rife.bld.dependencies.Scope.compile;
-import static rife.bld.dependencies.Scope.test;
+import static rife.bld.dependencies.Scope.*;
 
 public class Frankfurter4JBuild extends Project {
     static final String TEST_RESULTS_DIR = "build/test-results/test/";
@@ -79,6 +78,9 @@ public class Frankfurter4JBuild extends Project {
                 .include(dependency("net.thauvin.erik.httpstatus", "httpstatus",
                         version(2, 0, 0)))
                 .include(dependency("com.google.code.gson", "gson", gson));
+        scope(provided)
+                .include(dependency("com.github.spotbugs", "spotbugs-annotations",
+                        version(4, 9, 8)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
                         version(0, 9, 4)))

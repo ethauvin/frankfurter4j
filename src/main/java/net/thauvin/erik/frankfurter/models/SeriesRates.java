@@ -32,6 +32,7 @@
 
 package net.thauvin.erik.frankfurter.models;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.FrankfurterUtils;
 
 import java.time.LocalDate;
@@ -51,6 +52,7 @@ import java.util.Set;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 0.9.0
  */
+@SuppressFBWarnings("EI_EXPOSE_REP")
 public record SeriesRates(Double amount,
                           String base,
                           String startDate,

@@ -32,6 +32,7 @@
 
 package net.thauvin.erik.frankfurter.models;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.FrankfurterUtils;
 
 import java.time.LocalDate;
@@ -48,6 +49,7 @@ import java.util.Set;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 0.9.0
  */
+@SuppressFBWarnings("EI_EXPOSE_REP")
 public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
     /**
      * Constructs a new instance of the ExchangeRates record.

@@ -72,12 +72,6 @@ public final class CurrencyRegistry {
         initializeDefaultCurrencies();
     }
 
-
-    // Initialization-on-demand holder idiom for lazy singleton instantiation.
-    private static final class Holder {
-        static final CurrencyRegistry INSTANCE = new CurrencyRegistry();
-    }
-
     /**
      * Fetches the collection of available currencies and their corresponding full names
      * from the Frankfurter API.
@@ -316,6 +310,11 @@ public final class CurrencyRegistry {
         return currencyBySymbol.size();
     }
 
+    // Initialization-on-demand holder idiom for lazy singleton instantiation.
+    private static final class Holder {
+        static final CurrencyRegistry INSTANCE = new CurrencyRegistry();
+    }
+
     /**
      * Private static PatternCache subclass for thread-safe LRU regex pattern caching.
      */
@@ -327,7 +326,8 @@ public final class CurrencyRegistry {
             this.cache = new LinkedHashMap<>(PATTERN_CACHE_SIZE, 0.75f, true) {
                 @Override
                 protected boolean removeEldestEntry(Map.Entry<String, Pattern> eldest) {
-                    return size() > PATTERN_CACHE_SIZE;
+                    // Explicitly call the inherited size() method to avoid ambiguity
+                    return super.size() > PATTERN_CACHE_SIZE;
                 }
             };
         }
