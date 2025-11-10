@@ -146,17 +146,6 @@ public final class CurrencyRegistry {
     }
 
     /**
-     * Compiles a regex pattern with a case-insensitive flag, with LRU caching.
-     * Returns null if the pattern is invalid.
-     *
-     * @param pattern The pattern string
-     * @return Compiled Pattern, or null if invalid
-     */
-    private Pattern compilePattern(String pattern) {
-        return patternCache.getOrCompile(pattern);
-    }
-
-    /**
      * Checks if any currency matches the given symbol pattern using regular expression (case-insensitive).
      *
      * @param pattern The regular expression pattern to match against currency symbols
@@ -220,40 +209,6 @@ public final class CurrencyRegistry {
         return List.copyOf(currencyBySymbol.keySet());
     }
 
-    private void initializeDefaultCurrencies() {
-        add(new Currency("AUD", "Australian Dollar", new Locale("en", "AU")));
-        add(new Currency("BGN", "Bulgarian Lev", new Locale("bg", "BG")));
-        add(new Currency("BRL", "Brazilian Real", new Locale("pt", "BR")));
-        add(new Currency("CAD", "Canadian Dollar", Locale.CANADA));
-        add(new Currency("CHF", "Swiss Franc", new Locale("de", "CH")));
-        add(new Currency("CNY", "Chinese Renminbi Yuan", Locale.CHINA));
-        add(new Currency("CZK", "Czech Koruna", new Locale("cs", "CZ")));
-        add(new Currency("DKK", "Danish Krone", new Locale("da", "DK")));
-        add(new Currency("EUR", "Euro", Locale.GERMANY));
-        add(new Currency("GBP", "British Pound", Locale.UK));
-        add(new Currency("HKD", "Hong Kong Dollar", new Locale("zh", "HK")));
-        add(new Currency("HUF", "Hungarian Forint", new Locale("hu", "HU")));
-        add(new Currency("IDR", "Indonesian Rupiah", new Locale("id", "ID")));
-        add(new Currency("ILS", "Israeli New Sheqel", new Locale("he", "IL")));
-        add(new Currency("INR", "Indian Rupee", new Locale("hi", "IN")));
-        add(new Currency("ISK", "Icelandic Króna", new Locale("is", "IS")));
-        add(new Currency("JPY", "Japanese Yen", Locale.JAPAN));
-        add(new Currency("KRW", "South Korean Won", Locale.KOREA));
-        add(new Currency("MXN", "Mexican Peso", new Locale("es", "MX")));
-        add(new Currency("MYR", "Malaysian Ringgit", new Locale("ms", "MY")));
-        add(new Currency("NOK", "Norwegian Krone", new Locale("no", "NO")));
-        add(new Currency("NZD", "New Zealand Dollar", new Locale("en", "NZ")));
-        add(new Currency("PHP", "Philippine Peso", new Locale("fil", "PH")));
-        add(new Currency("PLN", "Polish Złoty", new Locale("pl", "PL")));
-        add(new Currency("RON", "Romanian Leu", new Locale("ro", "RO")));
-        add(new Currency("SEK", "Swedish Krona", new Locale("sv", "SE")));
-        add(new Currency("SGD", "Singapore Dollar", new Locale("en", "SG")));
-        add(new Currency("THB", "Thai Baht", new Locale("th", "TH")));
-        add(new Currency("TRY", "Turkish Lira", new Locale("tr", "TR")));
-        add(new Currency("USD", "United States Dollar", Locale.US));
-        add(new Currency("ZAR", "South African Rand", new Locale("en", "ZA")));
-    }
-
     /**
      * Returns the current size of the pattern cache.
      */
@@ -308,6 +263,51 @@ public final class CurrencyRegistry {
      */
     public int size() {
         return currencyBySymbol.size();
+    }
+
+    /**
+     * Compiles a regex pattern with a case-insensitive flag, with LRU caching.
+     * Returns null if the pattern is invalid.
+     *
+     * @param pattern The pattern string
+     * @return Compiled Pattern, or null if invalid
+     */
+    private Pattern compilePattern(String pattern) {
+        return patternCache.getOrCompile(pattern);
+    }
+
+    private void initializeDefaultCurrencies() {
+        add(new Currency("AUD", "Australian Dollar", new Locale("en", "AU")));
+        add(new Currency("BGN", "Bulgarian Lev", new Locale("bg", "BG")));
+        add(new Currency("BRL", "Brazilian Real", new Locale("pt", "BR")));
+        add(new Currency("CAD", "Canadian Dollar", Locale.CANADA));
+        add(new Currency("CHF", "Swiss Franc", new Locale("de", "CH")));
+        add(new Currency("CNY", "Chinese Renminbi Yuan", Locale.CHINA));
+        add(new Currency("CZK", "Czech Koruna", new Locale("cs", "CZ")));
+        add(new Currency("DKK", "Danish Krone", new Locale("da", "DK")));
+        add(new Currency("EUR", "Euro", Locale.GERMANY));
+        add(new Currency("GBP", "British Pound", Locale.UK));
+        add(new Currency("HKD", "Hong Kong Dollar", new Locale("zh", "HK")));
+        add(new Currency("HUF", "Hungarian Forint", new Locale("hu", "HU")));
+        add(new Currency("IDR", "Indonesian Rupiah", new Locale("id", "ID")));
+        add(new Currency("ILS", "Israeli New Sheqel", new Locale("he", "IL")));
+        add(new Currency("INR", "Indian Rupee", new Locale("hi", "IN")));
+        add(new Currency("ISK", "Icelandic Króna", new Locale("is", "IS")));
+        add(new Currency("JPY", "Japanese Yen", Locale.JAPAN));
+        add(new Currency("KRW", "South Korean Won", Locale.KOREA));
+        add(new Currency("MXN", "Mexican Peso", new Locale("es", "MX")));
+        add(new Currency("MYR", "Malaysian Ringgit", new Locale("ms", "MY")));
+        add(new Currency("NOK", "Norwegian Krone", new Locale("no", "NO")));
+        add(new Currency("NZD", "New Zealand Dollar", new Locale("en", "NZ")));
+        add(new Currency("PHP", "Philippine Peso", new Locale("fil", "PH")));
+        add(new Currency("PLN", "Polish Złoty", new Locale("pl", "PL")));
+        add(new Currency("RON", "Romanian Leu", new Locale("ro", "RO")));
+        add(new Currency("SEK", "Swedish Krona", new Locale("sv", "SE")));
+        add(new Currency("SGD", "Singapore Dollar", new Locale("en", "SG")));
+        add(new Currency("THB", "Thai Baht", new Locale("th", "TH")));
+        add(new Currency("TRY", "Turkish Lira", new Locale("tr", "TR")));
+        add(new Currency("USD", "United States Dollar", Locale.US));
+        add(new Currency("ZAR", "South African Rand", new Locale("en", "ZA")));
     }
 
     // Initialization-on-demand holder idiom for lazy singleton instantiation.

@@ -41,7 +41,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -161,9 +160,8 @@ class ExchangeRatesTests {
     class SymbolsTests {
         @Test
         void symbolsFromEmptyRates() {
-            var ratesMap = new HashMap<String, Double>();
             var exchangeRates = new ExchangeRates(1.0, "AUD",
-                    LocalDate.of(2025, 2, 28), ratesMap);
+                    LocalDate.of(2025, 2, 28), Collections.emptyMap());
 
             var symbols = exchangeRates.symbols();
 
