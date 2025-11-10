@@ -37,6 +37,7 @@ import rife.bld.Project;
 import rife.bld.extension.JUnitReporterOperation;
 import rife.bld.extension.JacocoReportOperation;
 import rife.bld.extension.PmdOperation;
+import rife.bld.extension.SpotBugsOperation;
 import rife.bld.publish.PomBuilder;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
@@ -126,6 +127,25 @@ public class Frankfurter4JBuild extends Project {
                 .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson);
     }
 
+    @Override
+    public void test() throws Exception {
+        var op = testOperation().fromProject(this);
+        op.testToolOptions().reportsDir(new File(TEST_RESULTS_DIR));
+        op.execute();
+    }
+
+    @Override
+    public void publish() throws Exception {
+        super.publish();
+        pomRoot();
+    }
+
+    @Override
+    public void publishLocal() throws Exception {
+        super.publishLocal();
+        pomRoot();
+    }
+
     public static void main(String[] args) {
         new Frankfurter4JBuild().start(args);
     }
@@ -147,11 +167,6 @@ public class Frankfurter4JBuild extends Project {
         pmdOp.includeLineNumber(false).execute();
     }
 
-    private void pomRoot() throws FileUtilsErrorException {
-        PomBuilder.generateInto(publishOperation().fromProject(this).info(), dependencies(),
-                new File(workDirectory, "pom.xml"));
-    }
-
     @BuildCommand(summary = "Runs the JUnit reporter")
     public void reporter() throws Exception {
         new JUnitReporterOperation()
@@ -160,22 +175,17 @@ public class Frankfurter4JBuild extends Project {
                 .execute();
     }
 
-    @Override
-    public void test() throws Exception {
-        var op = testOperation().fromProject(this);
-        op.testToolOptions().reportsDir(new File(TEST_RESULTS_DIR));
-        op.execute();
+    @BuildCommand(summary = "Runs SpotBugs on this project")
+    public void spotbugs() throws Exception {
+        new SpotBugsOperation()
+                .fromProject(this)
+                .home("/opt/spotbugs")
+                .sourcePath(new File(srcMainDirectory(), "kotlin"))
+                .execute();
     }
 
-    @Override
-    public void publish() throws Exception {
-        super.publish();
-        pomRoot();
-    }
-
-    @Override
-    public void publishLocal() throws Exception {
-        super.publishLocal();
-        pomRoot();
+    private void pomRoot() throws FileUtilsErrorException {
+        PomBuilder.generateInto(publishOperation().fromProject(this).info(), dependencies(),
+                new File("pom.xml"));
     }
 }
