@@ -41,7 +41,7 @@ in your build file:
 repositories = List.of(MAVEN_CENTRAL, CENTRAL_SNAPSHOTS);
 
 scope(compile)
-    .include(dependency("net.thauvin.erik:frankfurter4j:0.9.0.1"));
+    .include(dependency("net.thauvin.erik:frankfurter4j:0.9.1"));
 ```
 
 ## Gradle, Maven, etc
