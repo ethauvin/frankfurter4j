@@ -64,7 +64,7 @@ dependencies {
 ```
 
 Instructions for using with Maven, Ivy, etc. can be found
-on [Maven Central](https://search.maven.org/search?q=g:%22net.thauvin.erik%22%20AND%20a:%22frankfurter4j%22).
+on [Maven Central](https://central.sonatype.com/artifact/net.thauvin.erik/frankfurter4j).
 
 ## Latest Rates
 
