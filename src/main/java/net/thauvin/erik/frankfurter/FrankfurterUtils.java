@@ -46,7 +46,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -219,46 +218,6 @@ public final class FrankfurterUtils {
         }
 
         return response.body();
-    }
-
-    /**
-     * Formats a currency amount based on the provided ISO currency symbol and amount.
-     *
-     * @param symbol the 3-letter ISO currency symbol (e.g., "USD", "EUR")
-     * @param amount the monetary amount to format
-     * @return a formatted currency string
-     * @throws IllegalArgumentException if the currency symbol is unknown or invalid
-     */
-    public static String formatCurrency(String symbol, Double amount) {
-        return formatCurrency(symbol, amount, false);
-    }
-
-    /**
-     * Formats a currency amount based on the provided ISO currency symbol, amount, and rounding preference.
-     *
-     * @param symbol  the 3-letter ISO currency symbol (e.g., "USD", "EUR")
-     * @param amount  the monetary amount to format
-     * @param rounded Whether to round the amount
-     * @return a formatted currency string
-     * @throws IllegalArgumentException if the currency symbol is unknown or invalid
-     */
-    public static String formatCurrency(String symbol, Double amount, boolean rounded) {
-        var normalizedSymbol = normalizeSymbol(symbol);
-
-        try {
-            var locale = CurrencyRegistry.getInstance().findBySymbol(normalizedSymbol).orElseThrow().locale();
-            var currencyFormatter = NumberFormat.getCurrencyInstance(locale);
-            if (!rounded) {
-                currencyFormatter.setMaximumFractionDigits(99); // prevent rounding
-            }
-
-            var currency = Currency.getInstance(normalizedSymbol);
-            currencyFormatter.setCurrency(currency);
-
-            return currencyFormatter.format(amount);
-        } catch (NoSuchElementException | IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unknown currency symbol: " + normalizedSymbol, e);
-        }
     }
 
     @SuppressWarnings("PMD.ExceptionAsFlowControl")

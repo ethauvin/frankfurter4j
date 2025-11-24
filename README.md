@@ -294,9 +294,9 @@ var lastWorkingDay = workingDays.get(workingDays.size() - 1); // 2025-01-29
 You can also format amounts for specific currencies.
 
 ```java
-FrankfurterUtils.formatCurrency("USD", 100.0); // $100.00
-FrankfurterUtils.fomartCurrency("EUR", 1234.567); // 1.234,567 €
-FrankfurterUtils.fomartCurrency("EUR", 1234.567, true); // 1.234,57 € rounded
+CurrencyFormatter.formatCurrency("USD", 100.0); // $100.00
+CurrencyFormatter.fomartCurrency("EUR", 1234.567); // 1.234,567 €
+CurrencyFormatter.fomartCurrency("EUR", 1234.567, true); // 1.234,57 € rounded
 ```
 
 ## Contributing

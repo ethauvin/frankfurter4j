@@ -95,8 +95,8 @@ class ReadmeExamplesTests {
 
         System.out.println("$10 = €" + euro);
 
-        System.out.println(FrankfurterUtils.formatCurrency(exchangeRates.base(), exchangeRates.amount())
-                + " = " + FrankfurterUtils.formatCurrency("EUR", euro));
+        System.out.println(CurrencyFormatter.format(exchangeRates.base(), exchangeRates.amount())
+                + " = " + CurrencyFormatter.format("EUR", euro));
 
         assertTrue(euro > 0);
     }
@@ -104,11 +104,11 @@ class ReadmeExamplesTests {
     @Test
     void formatCurrencyExamples() {
         assertEquals(FormatCurrencyUtils.toDollar(100.0)
-                , FrankfurterUtils.formatCurrency("USD", 100.0));
+                , CurrencyFormatter.format("USD", 100.0));
         assertEquals(FormatCurrencyUtils.toEur(1234.567),
-                FrankfurterUtils.formatCurrency("EUR", 1234.567));
+                CurrencyFormatter.format("EUR", 1234.567));
         assertEquals(FormatCurrencyUtils.toEur(1234.57),
-                FrankfurterUtils.formatCurrency("EUR", 1234.567, true));
+                CurrencyFormatter.format("EUR", 1234.567, true));
     }
 
     @Test
