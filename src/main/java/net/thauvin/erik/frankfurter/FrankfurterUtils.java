@@ -35,6 +35,7 @@ package net.thauvin.erik.frankfurter;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.uwyn.urlencoder.UrlEncoder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.exceptions.HttpErrorException;
 import net.thauvin.erik.frankfurter.models.Error;
 import net.thauvin.erik.httpstatus.Reasons;
@@ -198,6 +199,7 @@ public final class FrankfurterUtils {
      * @throws HttpErrorException if the response status code is not 200
      * @throws IOException        if an I/O error occurs during the request
      */
+    @SuppressFBWarnings("DRE_DECLARED_RUNTIME_EXCEPTION")
     public static String fetchUri(URI uri) throws IOException, InterruptedException, IllegalArgumentException {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest(uri.toString());
@@ -272,7 +274,7 @@ public final class FrankfurterUtils {
      * @see #isWeekend(LocalDate)
      * @see #closingDays(int)
      */
-    public static boolean isWorkingDay(LocalDate date, List<LocalDate> closingDays) {
+    public static boolean isWorkingDay(LocalDate date, Collection<LocalDate> closingDays) {
         return !isWeekend(date) && !closingDays.contains(date);
     }
 

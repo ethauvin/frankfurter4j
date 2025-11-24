@@ -62,7 +62,7 @@ public class Frankfurter4JBuild extends Project {
         pkg = "net.thauvin.erik";
         name = "Frankfurter4J";
         archiveBaseName = "frankfurter4j";
-        version = version(0, 9, 1);
+        version = version(1, 0, 0, "SNAPSHOT");
 
         javaRelease = 17;
 
@@ -180,7 +180,6 @@ public class Frankfurter4JBuild extends Project {
         new SpotBugsOperation()
                 .fromProject(this)
                 .home("/opt/spotbugs")
-                .sourcePath(new File(srcMainDirectory(), "kotlin"))
                 .execute();
     }
 

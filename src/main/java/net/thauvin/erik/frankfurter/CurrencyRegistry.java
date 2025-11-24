@@ -152,10 +152,9 @@ public final class CurrencyRegistry {
      * @return {@code true} if at least one currency matches, {@code false} otherwise or if the pattern is invalid
      */
     public boolean contains(String pattern) {
-        return Optional.ofNullable(compilePattern(pattern))
-                .map(regex -> currencyBySymbol.keySet().stream().anyMatch(symbol ->
-                        regex.matcher(symbol).find()))
-                .orElse(false);
+        var regex = compilePattern(pattern);
+        return regex != null &&
+                currencyBySymbol.keySet().stream().anyMatch(symbol -> regex.matcher(symbol).find());
     }
 
     /**
