@@ -41,10 +41,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Represents a time series of currency exchange rate data for a specified base currency over a defined date range.
@@ -61,7 +58,7 @@ public class TimeSeries {
     private final String base;
     private final LocalDate endDate;
     private final LocalDate startDate;
-    private final Collection<String> symbols;
+    private final List<String> symbols;
 
     /**
      * Constructs a new instance of the TimeSeries class using the specified builder object.
@@ -172,11 +169,11 @@ public class TimeSeries {
     }
 
     /**
-     * Retrieves the collection of currency symbols associated with the time series.
+     * Retrieves the list of currency symbols associated with the time series.
      *
-     * @return a collection containing the currency symbols
+     * @return a list containing the currency symbols
      */
-    public Collection<String> symbols() {
+    public List<String> symbols() {
         return new ArrayList<>(symbols);
     }
 

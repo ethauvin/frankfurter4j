@@ -144,11 +144,11 @@ public class LatestRates {
     }
 
     /**
-     * Retrieves the collection of currency symbols associated with the rates.
+     * Retrieves the list of currency symbols associated with the rates.
      *
-     * @return a collection of strings representing the currency symbols
+     * @return a list of strings representing the currency symbols
      */
-    public Collection<String> symbols() {
+    public List<String> symbols() {
         return new ArrayList<>(symbols);
     }
 
