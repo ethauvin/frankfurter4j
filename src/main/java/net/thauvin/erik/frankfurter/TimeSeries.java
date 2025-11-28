@@ -183,7 +183,7 @@ public class TimeSeries {
      * This class allows incremental configuration of the {@link TimeSeries} object via method chaining.
      */
     public static class Builder {
-        private final Collection<String> symbols = new ArrayList<>();
+        private final List<String> symbols = new ArrayList<>();
         private Double amount = 1.0;
         private String base = FrankfurterUtils.EUR;
         private LocalDate endDate;

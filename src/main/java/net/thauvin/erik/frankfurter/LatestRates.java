@@ -58,7 +58,7 @@ public class LatestRates {
     private final Double amount;
     private final String base;
     private final LocalDate date;
-    private final Collection<String> symbols;
+    private final List<String> symbols;
 
     /**
      * Constructs a new {@link LatestRates} instance using the specified Builder.
@@ -158,7 +158,7 @@ public class LatestRates {
      * This class allows incremental configuration of the {@link LatestRates} object via method chaining.
      */
     public static class Builder {
-        private final Collection<String> symbols = new ArrayList<>();
+        private final List<String> symbols = new ArrayList<>();
         private Double amount = 1.0;
         private String base = FrankfurterUtils.EUR;
         private LocalDate date;
