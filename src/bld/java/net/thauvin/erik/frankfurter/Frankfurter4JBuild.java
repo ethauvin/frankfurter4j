@@ -167,6 +167,11 @@ public class Frankfurter4JBuild extends Project {
         pmdOp.includeLineNumber(false).execute();
     }
 
+    @BuildCommand(value = "pom-root", summary = "Generates the POM file in the root directory")
+    public void pomRoot() throws FileUtilsErrorException {
+        PomBuilder.generateInto(publishOperation().fromProject(this).info(), dependencies(),
+                new File("pom.xml"));
+    }
     @BuildCommand(summary = "Runs the JUnit reporter")
     public void reporter() throws Exception {
         new JUnitReporterOperation()
@@ -181,10 +186,5 @@ public class Frankfurter4JBuild extends Project {
                 .fromProject(this)
                 .home("/opt/spotbugs")
                 .execute();
-    }
-
-    private void pomRoot() throws FileUtilsErrorException {
-        PomBuilder.generateInto(publishOperation().fromProject(this).info(), dependencies(),
-                new File("pom.xml"));
     }
 }
