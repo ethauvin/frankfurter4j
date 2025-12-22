@@ -230,7 +230,7 @@ class TimeSeriesRatesTest {
             assertEquals("Invalid currency symbol: EUROPE", ex.getMessage());
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         void builderSymbolsListWithNullAndEmpty(String input) {
             var builder = new TimeSeries.Builder();

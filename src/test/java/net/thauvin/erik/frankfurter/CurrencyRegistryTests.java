@@ -188,7 +188,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Currency Name Tests")
     class CurrencyNameTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @EmptySource
         @ValueSource(strings = {" ", "   "})
         void findNameWithEmptyOrBlankSymbol(String input) {
@@ -240,7 +240,7 @@ class CurrencyRegistryTests {
                     "Should return empty Optional for a non-existing currency symbol.");
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         void findNameWithNullOrEmptySymbol(String input) {
             var registry = CurrencyRegistry.getInstance();
@@ -251,7 +251,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Currency Symbol Tests")
     class CurrencySymbolTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void findSymbolWithBlankName(String input) {
@@ -428,7 +428,7 @@ class CurrencyRegistryTests {
             assertTrue(registry.search("(").isEmpty());
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         void searchWithNullOrEmpty(String pattern) {
             var registry = CurrencyRegistry.getInstance();

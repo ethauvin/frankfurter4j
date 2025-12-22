@@ -120,7 +120,7 @@ class ExchangeRatesTests {
     @Nested
     @DisplayName("Rate For Symbol Tests")
     class RateForSymbolTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void rateForBlankSymbol(String input) {

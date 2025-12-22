@@ -146,7 +146,7 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("Has Symbol For Tests")
     class HasSymbolForTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void hasSymbolForBlankSymbolWithDate(String input) {
@@ -229,7 +229,7 @@ class SeriesRatesTests {
                     "Should return a correct rate when explicitly asking for the base currency.");
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void rateForBlankCurrencySymbol(String input) {

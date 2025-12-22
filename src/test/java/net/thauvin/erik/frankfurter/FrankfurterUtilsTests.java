@@ -441,7 +441,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Normalize Symbol Tests")
     class NormalizeSymbolTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         void normalizeSymbolWithEmptyString(String input) {
             try {
@@ -506,7 +506,7 @@ class FrankfurterUtilsTests {
                     "Should be invalid if it contains special characters");
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void validateSymbolWithEmptyString(String input) {
@@ -568,7 +568,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("URI Builder Tests")
     class UriBuilderTests {
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void uriBuilderWithEmptyPath(String input) throws Exception {
@@ -579,7 +579,7 @@ class FrankfurterUtilsTests {
             assertEquals(expected, result, "URI with empty path should only include the query.");
         }
 
-        @ParameterizedTest(name = "[{index}] ''{0}''")
+        @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void uriBuilderWithEmptyPathAndQuery(String input) throws Exception {
