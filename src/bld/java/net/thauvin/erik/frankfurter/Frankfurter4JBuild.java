@@ -84,7 +84,7 @@ public class Frankfurter4JBuild extends Project {
                         version(4, 9, 8)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(0, 9, 4)))
+                        version(0, 9, 5)))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 21, 0)))
                 .include(dependency("com.squareup.okhttp3", "mockwebserver",
@@ -172,6 +172,7 @@ public class Frankfurter4JBuild extends Project {
         PomBuilder.generateInto(publishOperation().fromProject(this).info(), dependencies(),
                 new File("pom.xml"));
     }
+
     @BuildCommand(summary = "Runs the JUnit reporter")
     public void reporter() throws Exception {
         new JUnitReporterOperation()
