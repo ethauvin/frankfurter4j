@@ -217,39 +217,39 @@ currencies.contains("JPY"); // true
 
 The currently supported currencies are:
 
-| Symbol  |  Name                 |
-|:--------|:----------------------|
-| `AUD`   | Australian Dollar     |
-| `BGN`   | Bulgarian Lev         |
-| `BRL`   | Brazilian Real        |
-| `CAD`   | Canadian Dollar       |
-| `CHF`   | Swiss Franc           |
-| `CNY`   | Chinese Renminbi Yuan |
-| `CZK`   | Czech Koruna          |
-| `DKK`   | Danish Krone          |
-| `EUR`   | Euro                  |
-| `GBP`   | British Pound         |
-| `HKD`   | Hong Kong Dollar      |
-| `HUF`   | Hungarian Forint      |
-| `IDR`   | Indonesian Rupiah     |
-| `ILS`   | Israeli New Sheqel    |
-| `INR`   | Indian Rupee          |
-| `ISK`   | Icelandic Króna       |
-| `JPY`   | Japanese Yen          |
-| `KRW`   | South Korean Won      |
-| `MXN`   | Mexican Peso          |
-| `MYR`   | Malaysian Ringgit     |
-| `NOK`   | Norwegian Krone       |
-| `NZD`   | New Zealand Dollar    |
-| `PHP`   | Philippine Peso       |
-| `PLN`   | Polish Złoty          |
-| `RON`   | Romanian Leu          |
-| `SEK`   | Swedish Krona         |
-| `SGD`   | Singapore Dollar      |
-| `THB`   | Thai Baht             |
-| `TRY`   | Turkish Lira          |
-| `USD`   | United States Dollar  |
-| `ZAR`   | South African Rand    |
+| Symbol | Name                  |
+|:-------|:----------------------|
+| `AUD`  | Australian Dollar     |
+| `BGN`  | Bulgarian Lev         |
+| `BRL`  | Brazilian Real        |
+| `CAD`  | Canadian Dollar       |
+| `CHF`  | Swiss Franc           |
+| `CNY`  | Chinese Renminbi Yuan |
+| `CZK`  | Czech Koruna          |
+| `DKK`  | Danish Krone          |
+| `EUR`  | Euro                  |
+| `GBP`  | British Pound         |
+| `HKD`  | Hong Kong Dollar      |
+| `HUF`  | Hungarian Forint      |
+| `IDR`  | Indonesian Rupiah     |
+| `ILS`  | Israeli New Sheqel    |
+| `INR`  | Indian Rupee          |
+| `ISK`  | Icelandic Króna       |
+| `JPY`  | Japanese Yen          |
+| `KRW`  | South Korean Won      |
+| `MXN`  | Mexican Peso          |
+| `MYR`  | Malaysian Ringgit     |
+| `NOK`  | Norwegian Krone       |
+| `NZD`  | New Zealand Dollar    |
+| `PHP`  | Philippine Peso       |
+| `PLN`  | Polish Złoty          |
+| `RON`  | Romanian Leu          |
+| `SEK`  | Swedish Krona         |
+| `SGD`  | Singapore Dollar      |
+| `THB`  | Thai Baht             |
+| `TRY`  | Turkish Lira          |
+| `USD`  | United States Dollar  |
+| `ZAR`  | South African Rand    |
 
 This list is maintained internally as it is unlikely to change.
 Although, to fully implement the API, the list could be refreshed using:
@@ -278,7 +278,8 @@ System.out.println("$10 = €" + euro); // $10 = €8.8059
 
 ## Working Days
 
-You can retrieve a list of [working days](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html)
+You can retrieve a list
+of [working days](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html)
 (non-weekends, non-closing days) between two dates.
 
 ```java

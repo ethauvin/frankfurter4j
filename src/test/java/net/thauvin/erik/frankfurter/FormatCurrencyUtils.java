@@ -1,7 +1,7 @@
 /*
  * FormatCurrencyUtils.java
  *
- * Copyright 2025 Erik C. Thauvin (erik@thauvin.net)
+ * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
