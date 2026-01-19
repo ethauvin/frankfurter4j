@@ -38,6 +38,7 @@ import rife.bld.extension.JUnitReporterOperation;
 import rife.bld.extension.JacocoReportOperation;
 import rife.bld.extension.PmdOperation;
 import rife.bld.extension.SpotBugsOperation;
+import rife.bld.extension.tools.IOUtils;
 import rife.bld.publish.PomBuilder;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
@@ -51,12 +52,11 @@ import static rife.bld.dependencies.Repository.*;
 import static rife.bld.dependencies.Scope.*;
 
 public class Frankfurter4JBuild extends Project {
-    static final String TEST_RESULTS_DIR = "build/test-results/test/";
     final PmdOperation pmdOp = new PmdOperation()
             .fromProject(this)
             .failOnViolation(true)
             .ruleSets("config/pmd.xml");
-
+    final File testResultsDirectory = IOUtils.resolveFile(buildDirectory(), "test-results", "test");
 
     public Frankfurter4JBuild() {
         pkg = "net.thauvin.erik";
@@ -130,7 +130,7 @@ public class Frankfurter4JBuild extends Project {
     @Override
     public void test() throws Exception {
         var op = testOperation().fromProject(this);
-        op.testToolOptions().reportsDir(new File(TEST_RESULTS_DIR));
+        op.testToolOptions().reportsDir(testResultsDirectory);
         op.execute();
     }
 
