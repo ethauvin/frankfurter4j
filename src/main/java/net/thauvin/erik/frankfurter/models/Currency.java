@@ -35,4 +35,5 @@ package net.thauvin.erik.frankfurter.models;
 import java.util.Locale;
 
 public record Currency(String symbol, String name, Locale locale) {
+
 }

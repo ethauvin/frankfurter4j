@@ -54,6 +54,7 @@ import java.util.*;
  */
 @SuppressWarnings("PMD.DataClass")
 public class TimeSeries {
+
     private final Double amount;
     private final String base;
     private final LocalDate endDate;
@@ -183,6 +184,7 @@ public class TimeSeries {
      * This class allows incremental configuration of the {@link TimeSeries} object via method chaining.
      */
     public static class Builder {
+
         private final List<String> symbols = new ArrayList<>();
         private Double amount = 1.0;
         private String base = FrankfurterUtils.EUR;

@@ -56,6 +56,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 @ExtendWith({LoggingExtension.class, RandomStringResolver.class, RandomRangeResolver.class})
 class TimeSeriesRatesTest {
+
     @RegisterExtension
     @SuppressWarnings("unused")
     private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
@@ -84,6 +85,7 @@ class TimeSeriesRatesTest {
     @Nested
     @DisplayName("Builder Tests")
     class BuilderTests {
+
         @Test
         void builderAllParameters() {
             var builder = new TimeSeries.Builder()
@@ -299,6 +301,7 @@ class TimeSeriesRatesTest {
     @Nested
     @DisplayName("Periodic Rates Tests")
     class PeriodicRatesTests {
+
         @Test
         void periodicRatesAllParameters() throws IOException, URISyntaxException, InterruptedException {
             var timeSeries = new TimeSeries.Builder()

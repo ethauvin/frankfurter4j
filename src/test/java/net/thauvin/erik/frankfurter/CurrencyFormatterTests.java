@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class CurrencyFormatterTests {
+
     @Test
     void formatCurrencyRoundedWithInvalidSymbol() {
         assertThrows(IllegalArgumentException.class,

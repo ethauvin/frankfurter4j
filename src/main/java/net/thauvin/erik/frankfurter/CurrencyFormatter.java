@@ -40,6 +40,7 @@ import java.util.NoSuchElementException;
  * Utility class for formatting currency values.
  */
 public final class CurrencyFormatter {
+
     private CurrencyFormatter() {
         // no-op
     }

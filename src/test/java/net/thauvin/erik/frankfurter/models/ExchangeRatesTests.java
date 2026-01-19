@@ -48,6 +48,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class ExchangeRatesTests {
+
     @Test
     void recordCreationAndAccessors() {
         var amount = 10.0;
@@ -97,6 +98,7 @@ class ExchangeRatesTests {
     @Nested
     @DisplayName("Date Tests")
     class DateTests {
+
         @Test
         void dateWithAnotherValidDate() {
             var date = LocalDate.of(2025, 2, 28);
@@ -120,6 +122,7 @@ class ExchangeRatesTests {
     @Nested
     @DisplayName("Rate For Symbol Tests")
     class RateForSymbolTests {
+
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
@@ -158,6 +161,7 @@ class ExchangeRatesTests {
     @Nested
     @DisplayName("Symbols Tests")
     class SymbolsTests {
+
         @Test
         void symbolsFromEmptyRates() {
             var exchangeRates = new ExchangeRates(1.0, "AUD",

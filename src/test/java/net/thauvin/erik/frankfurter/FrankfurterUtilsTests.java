@@ -70,6 +70,7 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
 @ExtendWith(LoggingExtension.class)
 class FrankfurterUtilsTests {
+
     @RegisterExtension
     @SuppressWarnings({"unused"})
     private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
@@ -90,6 +91,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Closing Days Tests")
     class ClosingDaysTests {
+
         @ParameterizedTest
         @CsvSource({
                 "2021, 2021-12-26",
@@ -144,6 +146,7 @@ class FrankfurterUtilsTests {
         @Nested
         @DisplayName("Calculate Easter Tests")
         class CalculateEasterTests {
+
             @ParameterizedTest
             @CsvSource({
                     "2021, 2021-04-05",
@@ -187,6 +190,7 @@ class FrankfurterUtilsTests {
         @Nested
         @DisplayName("Leap Year Tests")
         class LeapYearTests {
+
             @Test
             void closingDaysForLeapYearBoxingDay() {
                 var closingDays = FrankfurterUtils.closingDays(2024);
@@ -214,6 +218,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Date Validation Tests")
     class DateValidationTests {
+
         @Test
         void validateDateWithExactBoundaryDate() {
             assertDoesNotThrow(() -> FrankfurterUtils.validateDate(LocalDate.of(1994, 1, 4)));
@@ -244,6 +249,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Easter Sunday Tests")
     class EasterSundayTests {
+
         @Test
         void calculateEasterSundayFor2026() {
             var easterSunday = FrankfurterUtils.calculateEasterSunday(2026);
@@ -283,6 +289,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Fetch URI Tests")
     class FetchUriTests {
+
         private static final MockWebServer MOCK_WEB_SERVER = new MockWebServer();
 
         @BeforeEach
@@ -382,6 +389,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Good Friday Tests")
     class GoodFridayTests {
+
         @Test
         void calculateGoodFridayForHistoricalYear() {
             var goodFriday = FrankfurterUtils.calculateGoodFriday(1900);
@@ -407,6 +415,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Is Weekend Tests")
     class IsWeekendTests {
+
         @Test
         void isWeekendOnFriday() {
             var date = LocalDate.of(2025, 5, 30); // Friday
@@ -441,6 +450,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Normalize Symbol Tests")
     class NormalizeSymbolTests {
+
         @ParameterizedTest
         @NullAndEmptySource
         void normalizeSymbolWithEmptyString(String input) {
@@ -488,6 +498,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Symbol Validation Tests")
     class SymbolValidationTests {
+
         @Test
         void validateSymbolWithContainsNumber() {
             assertFalse(FrankfurterUtils.isValidSymbol("A1C"),
@@ -568,6 +579,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("URI Builder Tests")
     class UriBuilderTests {
+
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
@@ -629,6 +641,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Working Days Tests")
     class WorkingDaysTests {
+
         @Test
         void workingDaysEmptyWhenSameDateIsWeekendOrHoliday() {
             var startDate = LocalDate.of(2025, 12, 25); // Christmas holiday
@@ -700,6 +713,7 @@ class FrankfurterUtilsTests {
         @Nested
         @DisplayName("Is Working Day Tests")
         class IsWorkingDayTests {
+
             @Test
             void isWorkingDayOnHoliday() {
                 var date = LocalDate.of(2025, 12, 25); // Christmas
@@ -745,6 +759,7 @@ class FrankfurterUtilsTests {
     @Nested
     @DisplayName("Years Between Tests")
     class YearsBetweenTests {
+
         @Test
         void yearsBetweenAscendingOrder() {
             var startDate = LocalDate.of(2000, 1, 1);

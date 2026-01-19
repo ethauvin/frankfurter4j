@@ -40,4 +40,5 @@ package net.thauvin.erik.frankfurter.models;
  * @since 0.9.0
  */
 public record Error(String message) {
+
 }

@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 @ExtendWith(LoggingExtension.class)
 class LatestRatesTests {
+
     @RegisterExtension
     @SuppressWarnings("unused")
     private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);

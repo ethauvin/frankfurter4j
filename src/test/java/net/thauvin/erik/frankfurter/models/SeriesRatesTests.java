@@ -53,6 +53,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class SeriesRatesTests {
+
     private final LocalDate endDate = LocalDate.of(2023, 1, 5);
     private final LocalDate fifth = LocalDate.of(2023, 1, 5);
     private final LocalDate first = LocalDate.of(2023, 1, 1);
@@ -146,6 +147,7 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("Has Symbol For Tests")
     class HasSymbolForTests {
+
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
@@ -199,6 +201,7 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("End/Start Local Date Tests")
     class LocalDateTests {
+
         @Test
         void endLocalDate() {
             assertEquals(endDate, seriesRates.endLocalDate());
@@ -223,6 +226,7 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("Rate For Tests")
     class RateForTests {
+
         @Test
         void rateForBaseCurrencyExplicitRequest() {
             assertEquals(0.9, seriesRates.rateFor(startDate, "EUR"),
@@ -290,6 +294,7 @@ class SeriesRatesTests {
     @Nested
     @DisplayName("Rates For Tests")
     class RatesForTests {
+
         @Test
         void ratesFor() {
             var expectedRates = new HashMap<>();

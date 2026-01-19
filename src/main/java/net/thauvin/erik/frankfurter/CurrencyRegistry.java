@@ -51,6 +51,7 @@ import java.util.regex.PatternSyntaxException;
  * Thread safety: All public methods are thread-safe.
  */
 public final class CurrencyRegistry {
+
     /**
      * Default number of currencies available in the registry.
      */
@@ -311,6 +312,7 @@ public final class CurrencyRegistry {
 
     // Initialization-on-demand holder idiom for lazy singleton instantiation.
     private static final class Holder {
+
         static final CurrencyRegistry INSTANCE = new CurrencyRegistry();
     }
 
@@ -318,6 +320,7 @@ public final class CurrencyRegistry {
      * Private static PatternCache subclass for thread-safe LRU regex pattern caching.
      */
     private static class PatternCache {
+
         private final Map<String, Pattern> cache;
         private final ReentrantLock lock = new ReentrantLock();
 

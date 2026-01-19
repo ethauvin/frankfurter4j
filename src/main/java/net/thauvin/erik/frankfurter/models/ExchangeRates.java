@@ -49,6 +49,7 @@ import java.util.Set;
  * @since 0.9.0
  */
 public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
+
     /**
      * Constructs a new instance of the ExchangeRates record.
      *

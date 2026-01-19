@@ -36,6 +36,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public final class FormatCurrencyUtils {
+
     private FormatCurrencyUtils() {
         // no-op
     }

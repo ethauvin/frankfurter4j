@@ -45,6 +45,7 @@ import java.time.format.DateTimeFormatter;
  * @since 0.9.0
  */
 public class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
+
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
     @Override

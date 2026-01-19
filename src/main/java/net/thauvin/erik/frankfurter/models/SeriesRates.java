@@ -56,6 +56,7 @@ public record SeriesRates(Double amount,
                           String startDate,
                           String endDate,
                           Map<LocalDate, Map<String, Double>> rates) {
+
     /**
      * Constructs an instance of {@code SeriesRates} using the provided exchange rate time series.
      *

@@ -63,6 +63,7 @@ import java.util.stream.IntStream;
  * @since 0.9.0
  */
 public final class FrankfurterUtils {
+
     /**
      * The base URL for the Frankfurter API.
      */

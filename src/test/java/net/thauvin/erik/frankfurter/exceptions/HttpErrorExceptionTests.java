@@ -54,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(LoggingExtension.class)
 @SuppressWarnings("PMD.LinguisticNaming")
 class HttpErrorExceptionTests {
+
     @RegisterExtension
     @SuppressWarnings("unused")
     private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);

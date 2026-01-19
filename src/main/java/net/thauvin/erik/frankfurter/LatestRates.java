@@ -55,6 +55,7 @@ import static net.thauvin.erik.frankfurter.FrankfurterUtils.fetchUri;
  */
 @SuppressWarnings("PMD.DataClass")
 public class LatestRates {
+
     private final Double amount;
     private final String base;
     private final LocalDate date;
@@ -158,6 +159,7 @@ public class LatestRates {
      * This class allows incremental configuration of the {@link LatestRates} object via method chaining.
      */
     public static class Builder {
+
         private final List<String> symbols = new ArrayList<>();
         private Double amount = 1.0;
         private String base = FrankfurterUtils.EUR;

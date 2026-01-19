@@ -43,6 +43,7 @@ import java.net.URI;
  * @since 0.9.0
  */
 public class HttpErrorException extends IOException {
+
     @Serial
     private static final long serialVersionUID = 1L;
 

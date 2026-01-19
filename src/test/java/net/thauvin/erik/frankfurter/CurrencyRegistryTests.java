@@ -55,9 +55,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(RandomStringResolver.class)
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class CurrencyRegistryTests {
+
     @Nested
     @DisplayName("Add Currency Tests")
     class AddCurrencyTests {
+
         @Test
         void addCurrency() {
             var registry = CurrencyRegistry.getInstance();
@@ -130,6 +132,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Available Currencies Tests")
     class AvailableCurrenciesTests {
+
         @Test
         void availableCurrencies() {
             var currencies = assertDoesNotThrow(CurrencyRegistry::availableCurrencies);
@@ -149,6 +152,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Contains Tests")
     class ContainsTests {
+
         @Test
         void containsInvalidRegex() {
             var registry = CurrencyRegistry.getInstance();
@@ -188,6 +192,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Currency Name Tests")
     class CurrencyNameTests {
+
         @ParameterizedTest
         @EmptySource
         @ValueSource(strings = {" ", "   "})
@@ -251,6 +256,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Currency Symbol Tests")
     class CurrencySymbolTests {
+
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
@@ -317,6 +323,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Get All Tests")
     class GetAllTests {
+
         @Test
         void allCurrencies() {
             var registry = CurrencyRegistry.getInstance();
@@ -342,6 +349,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Pattern Cache Tests")
     class PatternCacheTests {
+
         @Test
         void patternCacheClear() {
             var registry = CurrencyRegistry.getInstance();
@@ -376,6 +384,7 @@ class CurrencyRegistryTests {
     @Nested
     @DisplayName("Search Tests")
     class SearchTests {
+
         static final List<String> DOLLAR_SYMBOLS = List.of("AUD", "CAD", "HKD", "NZD", "SGD", "USD");
 
         @Test
