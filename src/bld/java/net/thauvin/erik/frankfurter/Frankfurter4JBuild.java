@@ -38,7 +38,7 @@ import rife.bld.extension.JUnitReporterOperation;
 import rife.bld.extension.JacocoReportOperation;
 import rife.bld.extension.PmdOperation;
 import rife.bld.extension.SpotBugsOperation;
-import rife.bld.extension.tools.IOUtils;
+import rife.bld.extension.tools.IOTools;
 import rife.bld.publish.PomBuilder;
 import rife.bld.publish.PublishDeveloper;
 import rife.bld.publish.PublishLicense;
@@ -57,7 +57,7 @@ public class Frankfurter4JBuild extends Project {
             .fromProject(this)
             .failOnViolation(true)
             .ruleSets("config/pmd.xml");
-    final File testResultsDirectory = IOUtils.resolveFile(buildDirectory(), "test-results", "test");
+    final File testResultsDirectory = IOTools.resolveFile(buildDirectory(), "test-results", "test");
 
     public Frankfurter4JBuild() {
         pkg = "net.thauvin.erik";
