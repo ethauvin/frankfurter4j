@@ -54,7 +54,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
-@ExtendWith({LoggingExtension.class, RandomStringResolver.class, RandomRangeResolver.class})
+@ExtendWith(LoggingExtension.class)
 class TimeSeriesRatesTest {
 
     @RegisterExtension
