@@ -363,11 +363,11 @@ public final class FrankfurterUtils {
 
         var closingDays = yearsBetween(startDate, endDate).stream()
                 .flatMap(year -> closingDays(year).stream())
-                .collect(Collectors.toList());
+                .toList();
 
         return startDate.datesUntil(endDate.plusDays(1))
                 .filter(date -> isWorkingDay(date, closingDays))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -386,6 +386,6 @@ public final class FrankfurterUtils {
         var endYear = endDate.getYear();
 
         // Add all years from start to end (inclusive)
-        return IntStream.rangeClosed(startYear, endYear).boxed().collect(Collectors.toList());
+        return IntStream.rangeClosed(startYear, endYear).boxed().toList();
     }
 }
