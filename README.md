@@ -296,13 +296,13 @@ You can also format amounts for specific currencies.
 
 ```java
 CurrencyFormatter.formatCurrency("USD", 100.0); // $100.00
-CurrencyFormatter.fomartCurrency("EUR", 1234.567); // 1.234,567 €
-CurrencyFormatter.fomartCurrency("EUR", 1234.567, true); // 1.234,57 € rounded
+CurrencyFormatter.formatCurrency("EUR", 1234.567); // 1.234,567 €
+CurrencyFormatter.formatCurrency("EUR", 1234.567, true); // 1.234,57 € rounded
 ```
 
 ## Contributing
 
-See [CONTIBUTING.md](https://github.com/ethauvin/frankfurter4j?tab=contributing-ov-file#readme) for information about
+See [CONTRIBUTING.md](https://github.com/ethauvin/frankfurter4j?tab=contributing-ov-file#readme) for information about
 contributing to this project.
 
 ## More…

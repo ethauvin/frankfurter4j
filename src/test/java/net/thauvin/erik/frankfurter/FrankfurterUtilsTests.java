@@ -234,7 +234,7 @@ class FrankfurterUtilsTests {
         @ParameterizedTest
         @NullSource
         void validateDateWithNullDate(LocalDate input) {
-            assertThrows(IllegalArgumentException.class, () -> FrankfurterUtils.validateDate(input));
+            assertThrows(NullPointerException.class, () -> FrankfurterUtils.validateDate(input));
         }
 
         @Test

@@ -32,12 +32,16 @@
 
 package net.thauvin.erik.frankfurter.models;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.FrankfurterUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents exchange rates over a series of dates for multiple currencies.
@@ -51,35 +55,54 @@ import java.util.Set;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 0.9.0
  */
-public record SeriesRates(Double amount,
-                          String base,
-                          String startDate,
-                          String endDate,
-                          Map<LocalDate, Map<String, Double>> rates) {
+@SuppressFBWarnings(value = "EI_EXPOSE_REP", justification = "outer map is unmodifiable; inner maps are Map.copyOf()")
+public record SeriesRates(@NotNull Double amount,
+                          @NotNull String base,
+                          @NotNull String startDate,
+                          @NotNull String endDate,
+                          @NotNull Map<LocalDate, Map<String, Double>> rates) {
+
+    private static final String DATE_MUST_NOT_BE_NULL = "date must not be null";
 
     /**
      * Constructs an instance of {@code SeriesRates} using the provided exchange rate time series.
+     *
+     * <p>The {@code rates} map and all inner currency maps are deep-copied into unmodifiable maps.
+     * Both {@code startDate} and {@code endDate} are validated as parseable {@link LocalDate} values
+     * at construction time.
      *
      * @param amount    the amount to be converted or used in calculations
      * @param base      the base currency for the time series of exchange rates
      * @param startDate the start date of the time series, formatted as a string
      * @param endDate   the end date of the time series, formatted as a string
      * @param rates     a map where the keys are dates ({@link LocalDate}) and the values are maps of currency codes
-     *                  to their respective exchange rates as doubles
+     *                  to their respective exchange rates as doubles; must not be {@code null}
+     * @throws NullPointerException                    if {@code rates} is {@code null}
+     * @throws java.time.format.DateTimeParseException if {@code startDate} or {@code endDate} cannot be parsed
      */
+    @SuppressFBWarnings(value = "STT_TOSTRING_STORED_IN_FIELD", justification = "fields are fully validated")
     public SeriesRates {
-        if (rates != null) {
-            rates = Map.copyOf(rates);
-        }
+        Objects.requireNonNull(amount, "amount must not be null");
+        Objects.requireNonNull(rates, "rates must not be null");
+        // Normalize and validate date strings ? throws DateTimeParseException if invalid
+        startDate = LocalDate.parse(startDate).toString();
+        endDate = LocalDate.parse(endDate).toString();
+        // Deep-copy: make both the outer map and every inner currency map unmodifiable
+        rates = rates.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(
+                        Map.Entry::getKey,
+                        e -> Map.copyOf(e.getValue())
+                ));
     }
 
     /**
      * Retrieves the set of dates for which exchange rates are available in the time series.
      *
-     * @return the set of dates
+     * @return an unmodifiable copy of the set of dates
      */
+    @NotNull
     public Set<LocalDate> dates() {
-        return rates.keySet();
+        return Set.copyOf(rates.keySet());
     }
 
     /**
@@ -87,6 +110,7 @@ public record SeriesRates(Double amount,
      *
      * @return the end date as a {@link LocalDate}
      */
+    @NotNull
     public LocalDate endLocalDate() {
         return LocalDate.parse(endDate);
     }
@@ -97,51 +121,62 @@ public record SeriesRates(Double amount,
      * @param date the date for which to check the availability of exchange rates
      * @return {@code true} if exchange rates are available for the specified date, {@code false} otherwise
      */
-    public boolean hasRatesFor(LocalDate date) {
+    public boolean hasRatesFor(@NotNull LocalDate date) {
+        Objects.requireNonNull(date, DATE_MUST_NOT_BE_NULL);
         return rates.containsKey(date);
     }
 
     /**
-     * Checks if a symbol is available for a specified date in the exchange rate time series.
+     * Checks if a currency symbol is available for a specified date in the exchange rate time series.
      *
      * @param date   the {@link LocalDate} for which to check the availability of the symbol
      * @param symbol the currency symbol to check for availability
      * @return {@code true} if the symbol is available for the specified date, {@code false} otherwise
      */
-    public boolean hasSymbolFor(LocalDate date, String symbol) {
-        if (date == null || symbol == null || symbol.isBlank() || !rates.containsKey(date)) {
+    public boolean hasSymbolFor(@NotNull LocalDate date, @NotNull String symbol) {
+        Objects.requireNonNull(symbol, "symbol must not be null");
+        Objects.requireNonNull(date, DATE_MUST_NOT_BE_NULL);
+        if (!rates.containsKey(date)) {
             return false;
         }
-        return rates.get(date).containsKey(FrankfurterUtils.normalizeSymbol(symbol));
+        var normalized = FrankfurterUtils.normalizeSymbol(symbol);
+        return rates.get(date).containsKey(normalized);
     }
 
     /**
      * Retrieves the exchange rate for a specific date and currency symbol from the time series.
      *
-     * @param date           the date for which the exchange rate is to be retrieved, formatted as a string
-     * @param currencySymbol the currency symbol for which the exchange rate is to be retrieved
-     * @return The exchange rate for the specified date and currency symbol, or null if no rate is available
+     * <p>It is recommended to call {@link #hasRatesFor(LocalDate)} and {@link #hasSymbolFor(LocalDate, String)}
+     * before this method to avoid a {@code null} return value.
+     *
+     * @param date   the date for which the exchange rate is to be retrieved
+     * @param symbol the currency symbol for which the exchange rate is to be retrieved
+     * @return the exchange rate for the specified date and currency symbol,
+     * or {@code null} if no rate is available
      */
-    public Double rateFor(LocalDate date, String currencySymbol) {
-        if (date == null || currencySymbol == null || currencySymbol.isBlank() ||
-                !rates.containsKey(date)) {
+    public Double rateFor(@NotNull LocalDate date, @NotNull String symbol) {
+        Objects.requireNonNull(date, DATE_MUST_NOT_BE_NULL);
+        if (!rates.containsKey(date)) {
             return null;
         }
-        return rates.get(date).get(FrankfurterUtils.normalizeSymbol(currencySymbol));
+        var normalized = FrankfurterUtils.normalizeSymbol(symbol);
+        return rates.get(date).get(normalized);
     }
 
     /**
      * Retrieves the exchange rates for all currencies on the specified date.
      *
      * @param date the date for which the exchange rates are to be retrieved as a {@link LocalDate}
-     * @return a map of currency symbols to their respective exchange rates on the specified date,
-     * or null if no rates are available for the date
+     * @return an unmodifiable map of currency symbols to their respective exchange rates on the specified date,
+     * or an empty map if no rates are available for the date
      */
-    public Map<String, Double> ratesFor(LocalDate date) {
-        if (date == null || !rates.containsKey(date)) {
+    @NotNull
+    public Map<String, Double> ratesFor(@NotNull LocalDate date) {
+        Objects.requireNonNull(date, DATE_MUST_NOT_BE_NULL);
+        if (!rates.containsKey(date)) {
             return Collections.emptyMap();
         }
-        return rates.get(date);
+        return Map.copyOf(rates.get(date));
     }
 
     /**
@@ -149,6 +184,7 @@ public record SeriesRates(Double amount,
      *
      * @return the start date as a {@link LocalDate}
      */
+    @NotNull
     public LocalDate startLocalDate() {
         return LocalDate.parse(startDate);
     }

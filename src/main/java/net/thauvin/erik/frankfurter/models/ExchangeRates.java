@@ -33,9 +33,11 @@
 package net.thauvin.erik.frankfurter.models;
 
 import net.thauvin.erik.frankfurter.FrankfurterUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -48,7 +50,7 @@ import java.util.Set;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 0.9.0
  */
-public record ExchangeRates(Double amount, String base, LocalDate date, Map<String, Double> rates) {
+public record ExchangeRates(Double amount, @NotNull String base, LocalDate date, @NotNull Map<String, Double> rates) {
 
     /**
      * Constructs a new instance of the ExchangeRates record.
@@ -56,42 +58,49 @@ public record ExchangeRates(Double amount, String base, LocalDate date, Map<Stri
      * @param amount the amount of the base currency
      * @param base   the base currency
      * @param date   the date of the exchange rates
-     * @param rates  the exchange rates map, where keys are currency symbols and values are their respective rates
+     * @param rates  the exchange rates map, where keys are currency symbols and values are their respective rates;
+     *               must not be {@code null}
+     * @throws NullPointerException if {@code rates} is {@code null}
      */
     public ExchangeRates {
-        if (rates != null) {
-            rates = Map.copyOf(rates);
-        }
+        Objects.requireNonNull(rates, "rates must not be null");
+        rates = Map.copyOf(rates);
     }
 
     /**
      * Checks if the exchange rates contain the specified currency symbol.
      *
+     * <p>It is recommended to call this method before {@link #rateFor(String)} to avoid a {@code null} return value.
+     *
      * @param symbol the currency symbol to check for
      * @return {@code true} if the exchange rates contain the symbol, {@code false} otherwise
      */
-    public boolean hasRateFor(String symbol) {
-        return rates.containsKey(symbol);
+    public boolean hasRateFor(@NotNull String symbol) {
+        var normalized = FrankfurterUtils.normalizeSymbol(symbol);
+        return rates.containsKey(normalized);
     }
 
     /**
      * Retrieves the exchange rate for the specified currency symbol.
      *
+     * <p>It is recommended to call {@link #hasRateFor(String)} before this method to avoid a {@code null}
+     * return value.
+     *
      * @param symbol the currency symbol
+     * @return the exchange rate for the specified symbol, or {@code null} if no rate is available
      */
-    public Double rateFor(String symbol) {
-        if (symbol == null || symbol.isBlank()) {
-            return null;
-        }
-        return rates.get(FrankfurterUtils.normalizeSymbol(symbol));
+    public Double rateFor(@NotNull String symbol) {
+        var normalized = FrankfurterUtils.normalizeSymbol(symbol);
+        return rates.get(normalized);
     }
 
     /**
      * Retrieves the set of all currency symbols available in the exchange rates.
      *
-     * @return a set of strings representing the currency symbols
+     * @return an unmodifiable copy of the set of currency symbols
      */
+    @NotNull
     public Set<String> symbols() {
-        return rates.keySet();
+        return Set.copyOf(rates.keySet());
     }
 }

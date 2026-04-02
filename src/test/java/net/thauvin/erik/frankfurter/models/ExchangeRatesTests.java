@@ -36,7 +36,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
@@ -81,18 +81,14 @@ class ExchangeRatesTests {
         assertTrue(exchangeRates.rates().isEmpty(), "Rates map should be empty");
     }
 
-    @Test
-    void recordCreationWithNullRates() {
+    @ParameterizedTest
+    @NullSource
+    void recordCreationWithNullRates(Map<String, Double> rates) {
         var amount = 10.25;
         var base = "GBP";
         var date = LocalDate.of(2023, 12, 31);
 
-        var exchangeRates = new ExchangeRates(amount, base, date, null);
-
-        assertEquals(amount, exchangeRates.amount());
-        assertEquals(base, exchangeRates.base());
-        assertEquals(date, exchangeRates.date());
-        assertNull(exchangeRates.rates(), "Rates map should be null");
+        assertThrows(NullPointerException.class, () -> new ExchangeRates(amount, base, date, rates));
     }
 
     @Nested
@@ -124,15 +120,13 @@ class ExchangeRatesTests {
     class RateForSymbolTests {
 
         @ParameterizedTest
-        @NullAndEmptySource
         @ValueSource(strings = {" ", "   "})
         void rateForBlankSymbol(String input) {
             var ratesMap = Map.of("USD", 1.08, "EUR", 0.96);
             var exchangeRates = new ExchangeRates(1.0, "AUD",
                     LocalDate.of(2025, 2, 28), ratesMap);
 
-            assertNull(exchangeRates.rateFor(input),
-                    "Should return null when the symbol is a blank string");
+            assertThrows(IllegalArgumentException.class, () -> exchangeRates.rateFor(input));
         }
 
         @Test
@@ -183,13 +177,12 @@ class ExchangeRatesTests {
             assertEquals(ratesMap.keySet(), symbols, "Symbols should match the key set of the rates map");
         }
 
-        @Test
-        void symbolsFromNullRates() {
-            var exchangeRates = new ExchangeRates(1.0, "AUD",
-                    LocalDate.of(2025, 2, 28), null);
-
-            assertThrows(NullPointerException.class, exchangeRates::symbols,
-                    "Should throw NullPointerException when rates map is null");
+        @ParameterizedTest
+        @NullSource
+        void symbolsFromNullRates(Map<String, Double> rates) {
+            assertThrows(NullPointerException.class, () -> new ExchangeRates(1.0, "AUD",
+                            LocalDate.of(2025, 2, 28), rates),
+                    "Should throw IllegalArgumentException when rates map is null");
         }
     }
 }

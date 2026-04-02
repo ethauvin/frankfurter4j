@@ -48,6 +48,7 @@ import rife.bld.extension.testing.LoggingExtension;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,8 +57,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class HttpErrorExceptionTests {
 
     @RegisterExtension
-    @SuppressWarnings("unused")
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings({"unused", "LoggerInitializedWithForeignClass"})
+    private static final LoggingExtension LOGGING_EXTENSION = new
+            LoggingExtension(Logger.getLogger(FrankfurterUtils.class.getName()));
     private static final MockWebServer MOCK_WEB_SERVER = new MockWebServer();
 
     @BeforeEach

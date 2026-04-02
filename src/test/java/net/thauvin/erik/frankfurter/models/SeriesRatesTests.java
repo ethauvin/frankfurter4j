@@ -38,7 +38,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -61,7 +61,6 @@ class SeriesRatesTests {
     private final LocalDate second = LocalDate.of(2023, 1, 2);
     private final LocalDate startDate = LocalDate.of(2023, 1, 1);
     private final LocalDate third = LocalDate.of(2023, 1, 3);
-    private SeriesRates dataWithInvalidDateStrings;
     private SeriesRates emptySeriesRates;
     private SeriesRates seriesRates;
 
@@ -83,8 +82,6 @@ class SeriesRatesTests {
         seriesRates = new SeriesRates(1.0, FrankfurterUtils.EUR, first.toString(), fifth.toString(), rates);
         emptySeriesRates = new SeriesRates(
                 1.5, "USD", "2020-01-01", "2020-01-01", Collections.emptyMap());
-        dataWithInvalidDateStrings = new SeriesRates(
-                2.0, "GBP", "invalid-start-date", "invalid-end-date", Collections.emptyMap());
     }
 
     @Test
@@ -130,8 +127,7 @@ class SeriesRatesTests {
     @ParameterizedTest
     @NullSource
     void rateForNullDate(LocalDate input) {
-        assertTrue(seriesRates.ratesFor(input).isEmpty(),
-                "Should return an empty map when a null date is provided.");
+        assertThrows(NullPointerException.class, () -> seriesRates.ratesFor(input));
     }
 
     @Test
@@ -149,13 +145,11 @@ class SeriesRatesTests {
     class HasSymbolForTests {
 
         @ParameterizedTest
-        @NullAndEmptySource
+        @EmptySource
         @ValueSource(strings = {" ", "   "})
-        void hasSymbolForBlankSymbolWithDate(String input) {
-            assertFalse(seriesRates.hasSymbolFor(startDate, input),
-                    "Should return false for a blank symbol with valid LocalDate.");
+        void hasSymbolForBLankSymbolWithDate(String input) {
+            assertThrows(IllegalArgumentException.class, () -> seriesRates.hasSymbolFor(startDate, input));
         }
-
 
         @Test
         void hasSymbolForEmptyRatesMapWithDate() {
@@ -163,13 +157,11 @@ class SeriesRatesTests {
                     "Should return false when rates map is empty.");
         }
 
-
         @Test
         void hasSymbolForExistingSymbolAndDateWithDate() {
             assertTrue(seriesRates.hasSymbolFor(startDate, "USD"),
                     "Should return true for an existing symbol and valid LocalDate.");
         }
-
 
         @Test
         void hasSymbolForNonExistingDateWithDate() {
@@ -186,15 +178,13 @@ class SeriesRatesTests {
         @ParameterizedTest
         @NullSource
         void hasSymbolForNullDateWithDate(LocalDate input) {
-            assertFalse(seriesRates.hasSymbolFor(input, "USD"),
-                    "Should return false for a null LocalDate.");
+            assertThrows(NullPointerException.class, () -> seriesRates.hasSymbolFor(input, "USD"));
         }
 
         @ParameterizedTest
         @NullSource
         void hasSymbolForNullSymbolWithDate(String input) {
-            assertFalse(seriesRates.hasSymbolFor(startDate, input),
-                    "Should return false for a null symbol with valid LocalDate.");
+            assertThrows(NullPointerException.class, () -> seriesRates.hasSymbolFor(startDate, input));
         }
     }
 
@@ -209,7 +199,8 @@ class SeriesRatesTests {
 
         @Test
         void endLocalDateWithInvalidDateString() {
-            assertThrows(DateTimeParseException.class, () -> dataWithInvalidDateStrings.endLocalDate());
+            assertThrows(DateTimeParseException.class, () ->
+                    new SeriesRates(1.0, "EUR", "2026-01-01", "foo", Collections.emptyMap()));
         }
 
         @Test
@@ -219,7 +210,8 @@ class SeriesRatesTests {
 
         @Test
         void startLocalDateWithInvalidDateString() {
-            assertThrows(DateTimeParseException.class, () -> dataWithInvalidDateStrings.startLocalDate());
+            assertThrows(DateTimeParseException.class, () ->
+                    new SeriesRates(1.0, "EUR", "bar", "2026-01-01", Collections.emptyMap()));
         }
     }
 
@@ -234,11 +226,10 @@ class SeriesRatesTests {
         }
 
         @ParameterizedTest
-        @NullAndEmptySource
+        @EmptySource
         @ValueSource(strings = {" ", "   "})
-        void rateForBlankCurrencySymbol(String input) {
-            assertNull(seriesRates.rateFor(startDate, input),
-                    "Should return null for blank currency symbol.");
+        void rateForEmptyCurrencySymbol(String input) {
+            assertThrows(IllegalArgumentException.class, () -> seriesRates.rateFor(startDate, input));
         }
 
         @Test
@@ -267,15 +258,20 @@ class SeriesRatesTests {
 
         @ParameterizedTest
         @NullSource
+        void rateForNullCurrencySymbol(String input) {
+            assertThrows(NullPointerException.class, () -> seriesRates.rateFor(startDate, input));
+        }
+
+        @ParameterizedTest
+        @NullSource
         void rateForNullDate(LocalDate input) {
-            assertNull(seriesRates.rateFor(input, "USD"),
-                    "Should return null when date is null.");
+            assertThrows(NullPointerException.class, () -> seriesRates.rateFor(input, "USD"));
         }
 
         @Test
+        @SuppressWarnings("DataFlowIssue")
         void rateForNullDateAndCurrency() {
-            assertNull(seriesRates.rateFor(null, null),
-                    "Should return null when both date and currencySymbol are null.");
+            assertThrows(NullPointerException.class, () -> seriesRates.rateFor(null, null));
         }
 
         @Test

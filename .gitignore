@@ -57,3 +57,4 @@ atlassian-ide-plugin.xml
 
 target
 local.properties
+/.claude/

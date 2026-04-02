@@ -39,10 +39,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import rife.bld.extension.testing.*;
+import rife.bld.extension.testing.LoggingExtension;
+import rife.bld.extension.testing.RandomRange;
+import rife.bld.extension.testing.RandomString;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,6 +52,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,8 +61,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class TimeSeriesRatesTest {
 
     @RegisterExtension
-    @SuppressWarnings("unused")
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings({"unused", "LoggerInitializedWithForeignClass"})
+    private static final LoggingExtension LOGGING_EXTENSION =
+            new LoggingExtension(Logger.getLogger(FrankfurterUtils.class.getName()));
     private static final String VALID_BASE_CURRENCY = "USD";
     private static final List<LocalDate> VALID_DATES = FrankfurterUtils.workingDays(
             LocalDate.of(2024, 1, 2), LocalDate.of(2024, 1, 31));
@@ -121,7 +125,7 @@ class TimeSeriesRatesTest {
 
             assertThrows(IllegalArgumentException.class, () -> builder.base("DOLLAR"), "Symbol too long");
             assertThrows(IllegalArgumentException.class, () -> builder.base("U$D"), "Symbol non-alphabetic");
-            assertThrows(IllegalArgumentException.class, () -> builder.base(null), "Symbol is null");
+            assertThrows(NullPointerException.class, () -> builder.base(null), "Symbol is null");
         }
 
         @Test
@@ -176,7 +180,7 @@ class TimeSeriesRatesTest {
         @Test
         void builderEndDateIsNull() {
             var builder = new TimeSeries.Builder();
-            assertThrows(IllegalArgumentException.class, () -> builder.endDate(null));
+            assertThrows(NullPointerException.class, () -> builder.endDate(null));
         }
 
         @Test
@@ -205,9 +209,7 @@ class TimeSeriesRatesTest {
         @Test
         void builderStartDateIsNull() {
             var builder = new TimeSeries.Builder();
-            assertThrows(IllegalArgumentException.class, () -> builder.startDate(null));
-            var timeSeries = builder.build();
-            assertNull(timeSeries.startDate());
+            assertThrows(NullPointerException.class, () -> builder.startDate(null));
         }
 
         @Test
@@ -217,6 +219,14 @@ class TimeSeriesRatesTest {
             var timeSeries = builder.build();
             assertEquals(VALID_START_DATE, timeSeries.startDate());
             assertEquals(VALID_START_DATE, timeSeries.endDate());
+        }
+
+        @ParameterizedTest
+        @EmptySource
+        void builderSymbolsListWithEmpty(String input) {
+            var builder = new TimeSeries.Builder();
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols("USD", input));
+            assertThrows(IllegalArgumentException.class, () -> builder.symbols(Arrays.asList("USD", input))); // Collection with null
         }
 
         @Test
@@ -233,11 +243,11 @@ class TimeSeriesRatesTest {
         }
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void builderSymbolsListWithNullAndEmpty(String input) {
+        @NullSource
+        void builderSymbolsListWithNull(String input) {
             var builder = new TimeSeries.Builder();
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols("USD", input));
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols(Arrays.asList("USD", input))); // Collection with null
+            assertThrows(NullPointerException.class, () -> builder.symbols("USD", input));
+            assertThrows(NullPointerException.class, () -> builder.symbols(Arrays.asList("USD", input))); // Collection with null
         }
 
         @Test
@@ -284,7 +294,7 @@ class TimeSeriesRatesTest {
         @NullSource
         void builderSymbolsWithNullVarargs(String input) {
             var builder = new TimeSeries.Builder();
-            assertThrows(IllegalArgumentException.class, () -> builder.symbols(input)); // Varargs with null
+            assertThrows(NullPointerException.class, () -> builder.symbols(input)); // Varargs with null
 
         }
 
@@ -303,7 +313,7 @@ class TimeSeriesRatesTest {
     class PeriodicRatesTests {
 
         @Test
-        void periodicRatesAllParameters() throws IOException, URISyntaxException, InterruptedException {
+        void periodicRatesAllParameters() throws IOException, URISyntaxException {
             var timeSeries = new TimeSeries.Builder()
                     .amount(5.25)
                     .startDate(VALID_START_DATE)
@@ -326,7 +336,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void periodicRatesCurrentMonth() throws IOException, URISyntaxException, InterruptedException {
+        void periodicRatesCurrentMonth() throws IOException, URISyntaxException {
             var now = LocalDate.now();
             var timeSeries = new TimeSeries.Builder()
                     .startDate(now.withDayOfMonth(1))
@@ -351,7 +361,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void periodicRatesForUSD() throws IOException, URISyntaxException, InterruptedException {
+        void periodicRatesForUSD() throws IOException, URISyntaxException {
             var startDate = LocalDate.of(2025, 1, 2);
             var endDate = LocalDate.of(2025, 1, 9);
             var timeSeries =
@@ -368,7 +378,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void periodicRatesOnlyStartDate() throws IOException, URISyntaxException, InterruptedException {
+        void periodicRatesOnlyStartDate() throws IOException, URISyntaxException {
             var timeSeries = new TimeSeries.Builder()
                     .startDate(VALID_START_DATE) // Default base EUR, no end date, no symbols
                     .build();
@@ -378,7 +388,6 @@ class TimeSeriesRatesTest {
             assertNotNull(data);
             assertEquals(timeSeries.base(), data.base());
             assertEquals(timeSeries.startDate(), data.startLocalDate());
-            assertNull(timeSeries.endDate());
         }
 
         @Test
@@ -389,7 +398,7 @@ class TimeSeriesRatesTest {
         }
 
         @Test
-        void periodicRatesWithIntAmount() throws IOException, URISyntaxException, InterruptedException {
+        void periodicRatesWithIntAmount() throws IOException, URISyntaxException {
             var timeSeries = new TimeSeries.Builder()
                     .startDate(VALID_START_DATE)
                     .endDate(VALID_START_DATE)
@@ -404,20 +413,15 @@ class TimeSeriesRatesTest {
             assertEquals(timeSeries.amount(), data.amount());
         }
 
-        @Test
-        void periodicRatesWithNullAmount() throws IOException, URISyntaxException, InterruptedException {
+        @ParameterizedTest
+        @NullSource
+        void periodicRatesWithNullAmount(Double amount) {
             var timeSeries = new TimeSeries.Builder()
-                    .amount(null) // not set
+                    .amount(amount) // not set
                     .startDate(VALID_START_DATE)
                     .endDate(VALID_START_DATE)
                     .build();
-
-            assertNull(timeSeries.amount());
-
-            var data = timeSeries.periodicRates();
-
-            assertNotNull(data);
-            assertEquals(1.0, data.amount());
+            assertThrows(NullPointerException.class, timeSeries::periodicRates);
         }
     }
 }

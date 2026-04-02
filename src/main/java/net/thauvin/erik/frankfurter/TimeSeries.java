@@ -32,10 +32,13 @@
 
 package net.thauvin.erik.frankfurter;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import net.thauvin.erik.frankfurter.models.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.models.SeriesRates;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -55,6 +58,14 @@ import java.util.*;
 @SuppressWarnings("PMD.DataClass")
 public class TimeSeries {
 
+    private static final double DEFAULT_AMOUNT = 1.0;
+
+    private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .setFieldNamingPolicy(com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .setPrettyPrinting()
+            .create();
+
     private final Double amount;
     private final String base;
     private final LocalDate endDate;
@@ -66,10 +77,10 @@ public class TimeSeries {
      *
      * @param builder the Builder instance containing the configuration for the TimeSeries object
      */
-    public TimeSeries(Builder builder) {
+    TimeSeries(@NotNull Builder builder) {
         this.amount = builder.amount;
         this.symbols = new ArrayList<>(builder.symbols);
-        this.base = builder.base;
+        this.base = Objects.requireNonNull(builder.base, "base must not be null");
         this.endDate = builder.endDate;
         this.startDate = builder.startDate;
     }
@@ -79,6 +90,7 @@ public class TimeSeries {
      *
      * @return a {@code Double} representing the value of the amount field
      */
+    @NotNull
     public Double amount() {
         return amount;
     }
@@ -88,15 +100,17 @@ public class TimeSeries {
      *
      * @return a string representing the base currency
      */
+    @NotNull
     public String base() {
         return base;
     }
 
     /**
-     * Retrieves the end date associated with the time series.
+     * Retrieves the end date associated with the time series, if one was specified.
      *
-     * @return The end date as a {@link LocalDate} object
+     * @return the end date as a {@link LocalDate}, or {@code null} if not set
      */
+    @Nullable
     public LocalDate endDate() {
         return endDate;
     }
@@ -115,36 +129,21 @@ public class TimeSeries {
      *                                  if the end date is before the start date
      * @throws JsonSyntaxException      if the JSON response from the API does not match the expected format
      */
-    public SeriesRates periodicRates()
-            throws IOException, URISyntaxException, JsonSyntaxException, InterruptedException {
-        var gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .setFieldNamingPolicy(com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .setPrettyPrinting()
-                .create();
-
-        var dateRangePath = new StringBuilder();
-
-        if (startDate != null) {
-            dateRangePath.append(startDate);
-        } else {
+    @NotNull
+    public SeriesRates periodicRates() throws IOException, URISyntaxException, JsonSyntaxException {
+        if (startDate == null) {
             throw new IllegalArgumentException("The start date is required.");
         }
 
-        dateRangePath.append("..");
-
-        if (endDate != null) {
-            if (!endDate.isBefore(startDate)) {
-                dateRangePath.append(endDate);
-            } else {
-                throw new IllegalArgumentException("The end date must be on or after the start date.");
-
-            }
+        if (endDate != null && endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("The end date must be on or after the start date.");
         }
+
+        var dateRangePath = startDate + ".." + (endDate != null ? endDate : "");
 
         var query = new TreeMap<String, String>();
 
-        if (amount != null && amount > 1.0) {
+        if (amount != DEFAULT_AMOUNT) {
             query.put("amount", String.valueOf(amount));
         }
 
@@ -156,15 +155,16 @@ public class TimeSeries {
             query.put("symbols", String.join(",", symbols));
         }
 
-        var uri = FrankfurterUtils.uriBuilder(dateRangePath.toString(), query);
-        return gson.fromJson(FrankfurterUtils.fetchUri(uri), SeriesRates.class);
+        var uri = FrankfurterUtils.uriBuilder(dateRangePath, query);
+        return GSON.fromJson(FrankfurterUtils.fetchUri(uri), SeriesRates.class);
     }
 
     /**
-     * Retrieves the start date associated with the time series.
+     * Retrieves the start date associated with the time series, if one was specified.
      *
-     * @return The start date as a {@link LocalDate} object
+     * @return the start date as a {@link LocalDate}, or {@code null} if not set
      */
+    @Nullable
     public LocalDate startDate() {
         return startDate;
     }
@@ -174,6 +174,7 @@ public class TimeSeries {
      *
      * @return a list containing the currency symbols
      */
+    @NotNull
     public List<String> symbols() {
         return new ArrayList<>(symbols);
     }
@@ -186,7 +187,7 @@ public class TimeSeries {
     public static class Builder {
 
         private final List<String> symbols = new ArrayList<>();
-        private Double amount = 1.0;
+        private Double amount = DEFAULT_AMOUNT;
         private String base = FrankfurterUtils.EUR;
         private LocalDate endDate;
         private LocalDate startDate;
@@ -194,10 +195,11 @@ public class TimeSeries {
         /**
          * Sets the amount for the builder.
          *
-         * @param amount the monetary amount to be set; can be null
+         * @param amount the monetary amount to be set
          * @return the current {@code Builder} instance for method chaining
          */
-        public Builder amount(Double amount) {
+        @NotNull
+        public Builder amount(@NotNull Double amount) {
             this.amount = amount;
             return this;
         }
@@ -205,14 +207,26 @@ public class TimeSeries {
         /**
          * Sets the amount for the builder.
          *
-         * @param amount the monetary amount to be set; can be null
+         * @param amount the monetary amount to be set
          * @return the current {@code Builder} instance for method chaining
          */
+        @NotNull
         public Builder amount(int amount) {
             this.amount = (double) amount;
             return this;
         }
 
+        /**
+         * Sets the amount for the builder.
+         *
+         * @param amount the monetary amount to be set
+         * @return the current {@code Builder} instance for method chaining
+         */
+        @NotNull
+        public Builder amount(double amount) {
+            this.amount = amount;
+            return this;
+        }
 
         /**
          * Sets the base currency symbol for the builder.
@@ -223,7 +237,8 @@ public class TimeSeries {
          * @return the current {@code Builder} instance for method chaining
          * @throws IllegalArgumentException if the provided symbol is not exactly three alphabetical characters
          */
-        public Builder base(String base) {
+        @NotNull
+        public Builder base(@NotNull String base) {
             this.base = FrankfurterUtils.normalizeSymbol(base);
             return this;
         }
@@ -233,6 +248,7 @@ public class TimeSeries {
          *
          * @return a new {@code TimeSeries} instance configured according to the properties set in the Builder
          */
+        @NotNull
         public TimeSeries build() {
             return new TimeSeries(this);
         }
@@ -247,7 +263,8 @@ public class TimeSeries {
          * @throws DateTimeParseException   if the provided {@code LocalDate} is invalid or cannot be processed
          * @throws IllegalArgumentException if the provided {@code LocalDate} is earlier than January 4, 1994
          */
-        public Builder endDate(LocalDate endDate) {
+        @NotNull
+        public Builder endDate(@NotNull LocalDate endDate) {
             FrankfurterUtils.validateDate(endDate);
             this.endDate = endDate;
             return this;
@@ -263,7 +280,8 @@ public class TimeSeries {
          * @throws DateTimeParseException   if the provided {@code LocalDate} is invalid or cannot be processed
          * @throws IllegalArgumentException if the provided {@code LocalDate} is earlier than January 4, 1994
          */
-        public Builder startDate(LocalDate startDate) {
+        @NotNull
+        public Builder startDate(@NotNull LocalDate startDate) {
             FrankfurterUtils.validateDate(startDate);
             this.startDate = startDate;
             return this;
@@ -277,7 +295,8 @@ public class TimeSeries {
          * @param symbols an array of strings representing currency symbols to be added
          * @return the current {@code Builder} instance for method chaining
          */
-        public Builder symbols(String... symbols) {
+        @NotNull
+        public Builder symbols(@NotNull String... symbols) {
             Arrays.stream(symbols).forEach(symbol -> this.symbols.add(FrankfurterUtils.normalizeSymbol(symbol)));
             return this;
         }
@@ -291,7 +310,8 @@ public class TimeSeries {
          * @return the current {@code Builder} instance for method chaining
          * @throws IllegalArgumentException if any symbol in the collection is not exactly three alphabetical characters
          */
-        public Builder symbols(Collection<String> symbols) {
+        @NotNull
+        public Builder symbols(@NotNull Collection<String> symbols) {
             symbols.forEach(symbol -> this.symbols.add(FrankfurterUtils.normalizeSymbol(symbol)));
             return this;
         }

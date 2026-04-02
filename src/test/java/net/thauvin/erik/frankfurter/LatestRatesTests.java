@@ -35,12 +35,15 @@ package net.thauvin.erik.frankfurter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import rife.bld.extension.testing.LoggingExtension;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,8 +52,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class LatestRatesTests {
 
     @RegisterExtension
-    @SuppressWarnings("unused")
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings({"unused", "LoggerInitializedWithForeignClass"})
+    private static final LoggingExtension LOGGING_EXTENSION =
+            new LoggingExtension(Logger.getLogger(FrankfurterUtils.class.getName()));
 
     @Test
     void constructorAndGetters() {
@@ -65,12 +69,13 @@ class LatestRatesTests {
 
         assertEquals(123.45, latestRates.amount());
         assertEquals("GBP", latestRates.base());
-        assertEquals(date, latestRates.date());
+        assertTrue(latestRates.date().isPresent());
+        assertEquals(date, latestRates.date().get());
         assertEquals(symbols, latestRates.symbols()); // Builder stores formatted symbols
     }
 
     @Test
-    void exchangeRates() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRates() throws IOException, URISyntaxException {
         {
             var builder = new LatestRates.Builder().build();
             var ratesData = builder.exchangeRates();
@@ -93,7 +98,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void exchangeRatesForHistoricalDate() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesForHistoricalDate() throws IOException, URISyntaxException {
         var date = LocalDate.of(2010, 1, 4);
         var latestRates = new LatestRates.Builder()
                 .date(date)
@@ -107,7 +112,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void exchangeRatesForHistoricalDateWithAmount() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesForHistoricalDateWithAmount() throws IOException, URISyntaxException {
         var date = LocalDate.of(2010, 1, 1);
         var latestRates = new LatestRates.Builder()
                 .amount(10.0)
@@ -123,7 +128,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void exchangeRatesWithAllParameters() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithAllParameters() throws IOException, URISyntaxException {
         var testDate = LocalDate.of(2025, 1, 30);
         var builder = new LatestRates.Builder()
                 .amount(10.0)
@@ -145,7 +150,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void exchangeRatesWithIntAmount() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithIntAmount() throws IOException, URISyntaxException {
         var builder = new LatestRates.Builder().amount(10).build();
         var ratesData = builder.exchangeRates();
 
@@ -157,15 +162,10 @@ class LatestRatesTests {
         assertThrows(IllegalArgumentException.class, () -> new LatestRates.Builder().symbols("INVALID").build());
     }
 
-    @Test
-    void exchangeRatesWithNullAmount() throws IOException, URISyntaxException, InterruptedException {
-        var builder = new LatestRates.Builder()
-                .amount(null) // not set
-                .build();
-        var ratesData = builder.exchangeRates();
-
-        assertNull(builder.amount());
-        assertEquals(1.0, ratesData.amount());
+    @ParameterizedTest
+    @NullSource
+    void exchangeRatesWithNullAmount(Double amount) {
+        assertThrows(NullPointerException.class, () -> new LatestRates.Builder().amount(amount).build());
     }
 
     @Test
@@ -176,7 +176,7 @@ class LatestRatesTests {
     }
 
     @Test
-    void exchangeRatesWithValidBaseAndSymbols() throws IOException, URISyntaxException, InterruptedException {
+    void exchangeRatesWithValidBaseAndSymbols() throws IOException, URISyntaxException {
         var latestRates = new LatestRates.Builder().base("USD").symbols("EUR", "GBP").build();
         var exchangeRates = latestRates.exchangeRates();
         assertNotNull(exchangeRates);

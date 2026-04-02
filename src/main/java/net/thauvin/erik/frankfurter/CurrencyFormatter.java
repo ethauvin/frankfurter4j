@@ -29,17 +29,23 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package net.thauvin.erik.frankfurter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.NumberFormat;
-import java.util.Currency;
 import java.util.NoSuchElementException;
 
 /**
  * Utility class for formatting currency values.
  */
 public final class CurrencyFormatter {
+
+    /**
+     * Maximum fraction digits used to suppress rounding for arbitrary-precision display.
+     * {@link Integer#MAX_VALUE} signals "no practical limit" to {@link NumberFormat}.
+     */
+    private static final int MAX_FRACTION_DIGITS = Integer.MAX_VALUE;
 
     private CurrencyFormatter() {
         // no-op
@@ -52,8 +58,10 @@ public final class CurrencyFormatter {
      * @param amount the monetary amount to format
      * @return a formatted currency string
      * @throws IllegalArgumentException if the currency symbol is unknown or invalid
+     * @throws NullPointerException     if {@code symbol} is {@code null}
      */
-    public static String format(String symbol, Double amount) {
+    @NotNull
+    public static String format(@NotNull String symbol, double amount) {
         return format(symbol, amount, false);
     }
 
@@ -62,26 +70,21 @@ public final class CurrencyFormatter {
      *
      * @param symbol  the 3-letter ISO currency symbol (e.g., "USD", "EUR")
      * @param amount  the monetary amount to format
-     * @param rounded Whether to round the amount
+     * @param rounded whether to round the amount
      * @return a formatted currency string
      * @throws IllegalArgumentException if the currency symbol is unknown or invalid
+     * @throws NoSuchElementException   if the currency symbol is not found in the registry
+     * @throws NullPointerException     if {@code symbol} is {@code null}
      */
-    public static String format(String symbol, Double amount, boolean rounded) {
+    @NotNull
+    public static String format(@NotNull String symbol, double amount, boolean rounded) {
         var normalizedSymbol = FrankfurterUtils.normalizeSymbol(symbol);
-
-        try {
-            var locale = CurrencyRegistry.getInstance().findBySymbol(normalizedSymbol).orElseThrow().locale();
-            var currencyFormatter = NumberFormat.getCurrencyInstance(locale);
-            if (!rounded) {
-                currencyFormatter.setMaximumFractionDigits(99); // prevent rounding
-            }
-
-            var currency = Currency.getInstance(normalizedSymbol);
-            currencyFormatter.setCurrency(currency);
-
-            return currencyFormatter.format(amount);
-        } catch (NoSuchElementException | IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unknown currency symbol: " + normalizedSymbol, e);
+        var locale = CurrencyRegistry.getInstance().findBySymbol(normalizedSymbol).orElseThrow().locale();
+        var currencyFormatter = NumberFormat.getCurrencyInstance(locale);
+        if (!rounded) {
+            // Suppress rounding to preserve full precision of the raw amount.
+            currencyFormatter.setMaximumFractionDigits(MAX_FRACTION_DIGITS);
         }
+        return currencyFormatter.format(amount);
     }
 }

@@ -36,6 +36,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import net.thauvin.erik.frankfurter.models.Currency;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URI;
@@ -79,12 +81,11 @@ public final class CurrencyRegistry {
      *
      * @return A map where the keys are currency symbols (e.g., {@code USD}) and the values
      * are the corresponding currency names (e.g., {@code United States Dollar}).
-     * @throws IOException          if an input or output exception occurs during the API request.
-     * @throws JsonSyntaxException  if the JSON response from the API does not match the expected format.
-     * @throws InterruptedException if the operation is interrupted.
+     * @throws IOException         if an input or output exception occurs during the API request.
+     * @throws JsonSyntaxException if the JSON response from the API does not match the expected format.
      */
-    public static Map<String, String> availableCurrencies()
-            throws IOException, JsonSyntaxException, InterruptedException {
+    @NotNull
+    public static Map<String, String> availableCurrencies() throws IOException, JsonSyntaxException {
         var gson = new GsonBuilder().setPrettyPrinting().create();
         var mapType = new TypeToken<Map<String, String>>() {
         }.getType();
@@ -98,6 +99,7 @@ public final class CurrencyRegistry {
      *
      * @return The default currency registry
      */
+    @NotNull
     public static CurrencyRegistry getInstance() {
         return Holder.INSTANCE;
     }
@@ -108,12 +110,11 @@ public final class CurrencyRegistry {
      * If a currency with the same symbol exists, it will be replaced with the new entry.
      *
      * @param currency The currency to add
-     * @throws IllegalArgumentException if the currency is {@code null} or has a {@code null} symbol
+     * @throws NullPointerException if the currency or it's symbol are {@code null}
      */
-    public void add(Currency currency) throws IllegalArgumentException {
-        if (currency == null || currency.symbol() == null) {
-            throw new IllegalArgumentException("Currency and currency symbol cannot be null");
-        }
+    public void add(@NotNull Currency currency) {
+        Objects.requireNonNull(currency, "Currency cannot be null");
+        Objects.requireNonNull(currency.symbol(), "Currency symbol cannot be null");
 
         var upperSymbol = currency.symbol().toUpperCase(Locale.ROOT);
         currencyBySymbol.put(upperSymbol, currency);
@@ -126,11 +127,13 @@ public final class CurrencyRegistry {
      *
      * @param symbol The currency symbol (e.g., "USD")
      * @param name   The currency name (e.g., "United States Dollar")
-     * @throws IllegalArgumentException if the symbol is {@code null} or empty
+     * @throws IllegalArgumentException if the symbol is blank
+     * @throws NullPointerException     if the symbol is {@code null}
      */
-    public void add(String symbol, String name) throws IllegalArgumentException {
-        if (symbol == null) {
-            throw new IllegalArgumentException("Currency symbol cannot be null");
+    public void add(@NotNull String symbol, @Nullable String name) {
+        Objects.requireNonNull(symbol, "Currency symbol cannot be null");
+        if (symbol.isBlank()) {
+            throw new IllegalArgumentException("Currency symbol cannot be blank");
         }
 
         var upperSymbol = symbol.toUpperCase(Locale.ROOT);
@@ -152,7 +155,7 @@ public final class CurrencyRegistry {
      * @param pattern The regular expression pattern to match against currency symbols
      * @return {@code true} if at least one currency matches, {@code false} otherwise or if the pattern is invalid
      */
-    public boolean contains(String pattern) {
+    public boolean contains(@Nullable String pattern) {
         var regex = compilePattern(pattern);
         return regex != null &&
                 currencyBySymbol.keySet().stream().anyMatch(symbol -> regex.matcher(symbol).find());
@@ -164,7 +167,8 @@ public final class CurrencyRegistry {
      * @param pattern The regular expression pattern to match against currency names
      * @return An Optional containing the first currency that matches, or empty if none found or pattern invalid
      */
-    public Optional<Currency> findByName(String pattern) {
+    @NotNull
+    public Optional<Currency> findByName(@Nullable String pattern) {
         var regex = compilePattern(pattern);
         if (regex == null) {
             return Optional.empty();
@@ -180,7 +184,8 @@ public final class CurrencyRegistry {
      * @param pattern The regular expression pattern to match against currency symbols
      * @return An Optional containing the first currency that matches, or empty if none found or pattern invalid
      */
-    public Optional<Currency> findBySymbol(String pattern) {
+    @NotNull
+    public Optional<Currency> findBySymbol(@Nullable String pattern) {
         var regex = compilePattern(pattern);
         if (regex == null) {
             return Optional.empty();
@@ -196,6 +201,7 @@ public final class CurrencyRegistry {
      *
      * @return Unmodifiable list of all currencies
      */
+    @NotNull
     public List<Currency> getAllCurrencies() {
         return List.copyOf(currencyBySymbol.values());
     }
@@ -205,6 +211,7 @@ public final class CurrencyRegistry {
      *
      * @return An unmodifiable list of all currency symbols.
      */
+    @NotNull
     public List<String> getAllSymbols() {
         return List.copyOf(currencyBySymbol.keySet());
     }
@@ -222,9 +229,8 @@ public final class CurrencyRegistry {
      * @throws IOException         if an input or output exception occurs during the API request
      * @throws JsonSyntaxException if the JSON response from the API does not match the expected format
      */
-    public void refresh() throws IOException, JsonSyntaxException, InterruptedException {
+    public void refresh() throws IOException, JsonSyntaxException {
         var currencyMap = availableCurrencies();
-
         currencyMap.forEach(this::add);
     }
 
@@ -243,7 +249,8 @@ public final class CurrencyRegistry {
      * @param pattern The regular expression pattern to search with
      * @return List of matching currencies, or empty list if the pattern is invalid
      */
-    public List<Currency> search(String pattern) {
+    @NotNull
+    public List<Currency> search(@Nullable String pattern) {
         if (pattern == null || pattern.isBlank()) {
             return Collections.emptyList();
         }

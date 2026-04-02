@@ -40,6 +40,7 @@ import rife.bld.extension.testing.LoggingExtension;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,8 +49,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReadmeExamplesTests {
 
     @RegisterExtension
-    @SuppressWarnings("unused")
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings({"unused", "LoggerInitializedWithForeignClass"})
+    private static final LoggingExtension LOGGING_EXTENSION =
+            new LoggingExtension(Logger.getLogger(FrankfurterUtils.class.getName()));
 
     @Test
     void availableCurrencies() {
@@ -85,7 +87,7 @@ class ReadmeExamplesTests {
 
     @Test
     @SuppressWarnings("PMD.SystemPrintln")
-    void currencyConversionExample() throws IOException, URISyntaxException, InterruptedException {
+    void currencyConversionExample() throws IOException, URISyntaxException {
         var latestRates = new LatestRates.Builder()
                 .amount(10)
                 .base("USD")
@@ -93,6 +95,8 @@ class ReadmeExamplesTests {
                 .build();
         var exchangeRates = latestRates.exchangeRates();
         var euro = exchangeRates.rateFor("EUR");
+
+        assertNotNull(euro);
 
         System.out.println("$10 = €" + euro);
 
@@ -113,7 +117,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void historicalRatesExample() throws IOException, URISyntaxException, InterruptedException {
+    void historicalRatesExample() throws IOException, URISyntaxException {
         var date = LocalDate.of(1999, 1, 4);
         var latestRates = new LatestRates.Builder()
                 .date(date)
@@ -123,7 +127,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void historicalRatesExampleWithBaseAndCurrencies() throws IOException, URISyntaxException, InterruptedException {
+    void historicalRatesExampleWithBaseAndCurrencies() throws IOException, URISyntaxException {
         var latestRates = new LatestRates.Builder()
                 .base("USD")
                 .date(LocalDate.of(1999, 1, 4))
@@ -135,12 +139,13 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void latestRatesExample() throws IOException, URISyntaxException, InterruptedException {
+    void latestRatesExample() throws IOException, URISyntaxException {
         var latestRates = new LatestRates.Builder().build();
         var exchangeRates = latestRates.exchangeRates();
 
         if (exchangeRates.hasRateFor("JPY")) {
             var jpy = exchangeRates.rateFor("JPY");
+            assertNotNull(jpy);
             assertTrue(jpy > 0);
         } else {
             fail("JPY not found");
@@ -148,7 +153,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void latestRatesExampleWithBase() throws IOException, URISyntaxException, InterruptedException {
+    void latestRatesExampleWithBase() throws IOException, URISyntaxException {
         var latestRates = new LatestRates.Builder()
                 .base("USD")
                 .build();
@@ -159,7 +164,7 @@ class ReadmeExamplesTests {
 
     @Test
     @SuppressWarnings("PMD.SystemPrintln")
-    void periodicRatesExample() throws IOException, URISyntaxException, InterruptedException {
+    void periodicRatesExample() throws IOException, URISyntaxException {
         var timeSeries = new TimeSeries.Builder()
                 .startDate(LocalDate.of(2000, 1, 1))
                 .endDate(LocalDate.of(2000, 12, 31))
@@ -170,6 +175,7 @@ class ReadmeExamplesTests {
         if (periodicRates.hasRatesFor(firstMarketDay)) {
             var rates = periodicRates.ratesFor(firstMarketDay);
             var yen = periodicRates.rateFor(firstMarketDay, "JPY");
+            assertNotNull(yen);
             assertTrue(yen > 0);
             if (rates.containsKey("USD")) {
                 var usd = rates.get("USD");
@@ -192,7 +198,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void periodicRatesExampleToPresent() throws IOException, URISyntaxException, InterruptedException {
+    void periodicRatesExampleToPresent() throws IOException, URISyntaxException {
         var timeSeries = new TimeSeries.Builder()
                 .startDate(LocalDate.of(2025, 1, 1))
                 .build();
@@ -202,7 +208,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void periodicRatesExampleWithCurrencies() throws IOException, URISyntaxException, InterruptedException {
+    void periodicRatesExampleWithCurrencies() throws IOException, URISyntaxException {
         var timeSeries = new TimeSeries.Builder()
                 .startDate(LocalDate.of(2025, 1, 1))
                 .endDate(LocalDate.now())
@@ -214,7 +220,7 @@ class ReadmeExamplesTests {
     }
 
     @Test
-    void tldrExample() throws IOException, URISyntaxException, InterruptedException {
+    void tldrExample() throws IOException, URISyntaxException {
         var latestRates = new LatestRates.Builder()
                 .amount(100.0)
                 .base("USD")
@@ -224,7 +230,9 @@ class ReadmeExamplesTests {
         var euro = exchangeRates.rateFor("EUR");
         var britishPound = exchangeRates.rateFor("GBP");
 
+        assertNotNull(euro);
         assertTrue(euro > 0);
+        assertNotNull(britishPound);
         assertTrue(britishPound > 0);
     }
 

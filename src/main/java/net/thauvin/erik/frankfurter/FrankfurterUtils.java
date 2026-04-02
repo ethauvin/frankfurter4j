@@ -112,6 +112,7 @@ public final class FrankfurterUtils {
      * @return {@link LocalDate} representing Easter Monday
      * @see #calculateEasterSunday(int)
      */
+    @NotNull
     public static LocalDate calculateEasterMonday(int year) {
         var easter = calculateEasterSunday(year);
         return easter.plusDays(1);
@@ -125,6 +126,7 @@ public final class FrankfurterUtils {
      * @param year the year for which to calculate Easter
      * @return {@link LocalDate} representing Easter Sunday
      */
+    @NotNull
     public static LocalDate calculateEasterSunday(int year) {
         var a = year % 19;
         var b = year / 100;
@@ -154,6 +156,7 @@ public final class FrankfurterUtils {
      * @return {@link LocalDate} representing Good Friday
      * @see #calculateEasterSunday(int)
      */
+    @NotNull
     public static LocalDate calculateGoodFriday(int year) {
         var easter = calculateEasterSunday(year);
         return easter.minusDays(2);
@@ -178,6 +181,7 @@ public final class FrankfurterUtils {
      * @see #calculateGoodFriday(int)
      * @see <a href="https://www.ecb.europa.eu/ecb/contacts/working-hours/html/index.en.html">ECB Closing Days</a>
      */
+    @NotNull
     public static List<LocalDate> closingDays(int year) {
         var closingDays = new ArrayList<LocalDate>();
 
@@ -204,10 +208,12 @@ public final class FrankfurterUtils {
      *
      * @param uri the URI to which the GET request will be sent
      * @return the response body as a string
-     * @throws HttpErrorException if the response status code is not 200
+     * @throws HttpErrorException   if the response status code is not 200
+     * @throws NullPointerException if the URI is {@code null}
      */
 
-    public static String fetchUri(URI uri) throws HttpErrorException {
+    public static String fetchUri(@NotNull URI uri) throws HttpErrorException {
+        Objects.requireNonNull(uri, "URI must not be null");
         var request = HttpRequest.newBuilder()
                 .uri(uri)
                 .header("Accept", "application/json")
@@ -261,7 +267,8 @@ public final class FrankfurterUtils {
      * @param date the {@link LocalDate} to evaluate
      * @return {@code true} if the specified date is a Saturday or Sunday, {@code false} otherwise
      */
-    public static boolean isWeekend(LocalDate date) {
+    public static boolean isWeekend(@NotNull LocalDate date) {
+        Objects.requireNonNull(date, "date must not be null");
         return date.getDayOfWeek() == DayOfWeek.SATURDAY
                 || date.getDayOfWeek() == DayOfWeek.SUNDAY;
     }
@@ -278,7 +285,9 @@ public final class FrankfurterUtils {
      * @see #isWeekend(LocalDate)
      * @see #closingDays(int)
      */
-    public static boolean isWorkingDay(LocalDate date, Collection<LocalDate> closingDays) {
+    public static boolean isWorkingDay(@NotNull LocalDate date, @NotNull Collection<LocalDate> closingDays) {
+        Objects.requireNonNull(date, "date must not be null");
+        Objects.requireNonNull(closingDays, "closingDays must not be null");
         return !isWeekend(date) && !closingDays.contains(date);
     }
 
@@ -290,6 +299,7 @@ public final class FrankfurterUtils {
      * @throws IllegalArgumentException if the provided symbol is not exactly three alphabetical characters
      * @throws NullPointerException     if the provided symbol is {@code null}
      */
+    @NotNull
     public static String normalizeSymbol(@NotNull String symbol) {
         Objects.requireNonNull(symbol, "symbol must not be null");
         if (isValidSymbol(symbol)) {
@@ -313,6 +323,7 @@ public final class FrankfurterUtils {
      * @return a URI constructed from the base URL, the path, and the query parameters
      * @throws URISyntaxException if the resulting URI is invalid
      */
+    @NotNull
     public static URI uriBuilder(String path, Map<String, String> query) throws URISyntaxException {
         var sb = new StringBuilder(API_BASE_URL);
 
@@ -342,10 +353,9 @@ public final class FrankfurterUtils {
      * @return the validated date
      * @throws IllegalArgumentException if the date is null or earlier than {@code 1994-01-04}
      */
-    public static LocalDate validateDate(LocalDate date) {
-        if (date == null) {
-            throw new IllegalArgumentException("A valid date is required.");
-        }
+    @NotNull
+    public static LocalDate validateDate(@NotNull LocalDate date) {
+        Objects.requireNonNull(date, "date must not be null");
 
         if (date.isBefore(MIN_DATE)) {
             throw new IllegalArgumentException(String.format("Dates prior to 1994-01-04 are not supported: %s", date));
@@ -367,7 +377,11 @@ public final class FrankfurterUtils {
      * @see #closingDays(int)
      * @see <a href="https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html">ECB Working Days</a>
      */
-    public static List<LocalDate> workingDays(LocalDate startDate, LocalDate endDate) {
+    @NotNull
+    public static List<LocalDate> workingDays(@NotNull LocalDate startDate, @NotNull LocalDate endDate) {
+        Objects.requireNonNull(startDate, "startDate must not be null");
+        Objects.requireNonNull(endDate, "endDate must not be null");
+
         if (startDate.isAfter(endDate)) {
             return workingDays(endDate, startDate);
         }
@@ -391,7 +405,11 @@ public final class FrankfurterUtils {
      * @param endDate   the ending date of the range (inclusive)
      * @return a list of integers representing all years in the specified date range
      */
-    public static List<Integer> yearsBetween(LocalDate startDate, LocalDate endDate) {
+    @NotNull
+    public static List<Integer> yearsBetween(@NotNull LocalDate startDate, @NotNull LocalDate endDate) {
+        Objects.requireNonNull(startDate, "startDate must not be null");
+        Objects.requireNonNull(endDate, "endDate must not be null");
+
         if (startDate.isAfter(endDate)) {
             return yearsBetween(endDate, startDate);
         }

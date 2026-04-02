@@ -32,11 +32,6 @@
 
 package net.thauvin.erik.frankfurter;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
 import net.thauvin.erik.frankfurter.models.Currency;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -45,11 +40,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import rife.bld.extension.testing.RandomString;
 import rife.bld.extension.testing.TestingUtils;
 
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals" })
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class CurrencyRegistryTests {
 
     @Nested
@@ -64,27 +66,27 @@ class CurrencyRegistryTests {
             var size = registry.size();
 
             registry.add(
-                new Currency("FMD", "Fake Money Dollar", Locale.CANADA)
+                    new Currency("FMD", "Fake Money Dollar", Locale.CANADA)
             );
             assertEquals(
-                size + 1,
-                registry.size(),
-                "size should increase by 1"
+                    size + 1,
+                    registry.size(),
+                    "size should increase by 1"
             );
 
             var fmd = registry
-                .findBySymbol("FMD")
-                .orElseThrow(() -> new AssertionError("FMD not found"));
+                    .findBySymbol("FMD")
+                    .orElseThrow(() -> new AssertionError("FMD not found"));
             assertEquals("FMD", fmd.symbol(), "symbol should be FMD");
             assertEquals(
-                "Fake Money Dollar",
-                fmd.name(),
-                "name should be Fake Money Dollar"
+                    "Fake Money Dollar",
+                    fmd.name(),
+                    "name should be Fake Money Dollar"
             );
             assertEquals(
-                Locale.CANADA,
-                fmd.locale(),
-                "locale should be Canada"
+                    Locale.CANADA,
+                    fmd.locale(),
+                    "locale should be Canada"
             );
         }
 
@@ -92,53 +94,59 @@ class CurrencyRegistryTests {
         void addCurrencyAlreadyExisting() {
             var registry = CurrencyRegistry.getInstance();
             var dollar = registry
-                .findBySymbol("USD")
-                .orElseThrow(() -> new AssertionError("USD should be present"));
+                    .findBySymbol("USD")
+                    .orElseThrow(() -> new AssertionError("USD should be present"));
 
             assertEquals(
-                "United States Dollar",
-                dollar.name(),
-                "name should be United States Dollar"
+                    "United States Dollar",
+                    dollar.name(),
+                    "name should be United States Dollar"
             );
 
             registry.add(new Currency("USD", "US Dollar", Locale.US));
             assertEquals(
-                "US Dollar",
-                registry
-                    .findBySymbol("USD")
-                    .orElseThrow(() ->
-                        new AssertionError("USD should be present")
-                    )
-                    .name(),
-                "name should now be US Dollar"
+                    "US Dollar",
+                    registry
+                            .findBySymbol("USD")
+                            .orElseThrow(() ->
+                                    new AssertionError("USD should be present")
+                            )
+                            .name(),
+                    "name should now be US Dollar"
             );
 
             registry.add(dollar);
             assertEquals(
-                "United States Dollar",
-                registry
-                    .findBySymbol("USD")
-                    .orElseThrow(() ->
-                        new AssertionError("USD should be present")
-                    )
-                    .name(),
-                "name should be back to United State Dollar"
+                    "United States Dollar",
+                    registry
+                            .findBySymbol("USD")
+                            .orElseThrow(() ->
+                                    new AssertionError("USD should be present")
+                            )
+                            .name(),
+                    "name should be back to United State Dollar"
             );
         }
 
-        @Test
-        void addCurrencyWithNullSymbol() {
+        @ParameterizedTest
+        @EmptySource
+        void addCurrencyWithBlankSymbol(String symbol) {
             var registry = CurrencyRegistry.getInstance();
-            assertThrows(IllegalArgumentException.class, () ->
-                registry.add(null, null)
-            );
+            assertThrows(IllegalArgumentException.class, () -> registry.add(symbol, null));
+        }
+
+        @ParameterizedTest
+        @NullSource
+        void addCurrencyWithNullSymbol(String symbol) {
+            var registry = CurrencyRegistry.getInstance();
+            assertThrows(NullPointerException.class, () -> registry.add(symbol, null));
         }
 
         @Test
         void addCurrencyWithNulls() {
             var registry = CurrencyRegistry.getInstance();
-            assertThrows(IllegalArgumentException.class, () ->
-                registry.add(new Currency(null, null, null))
+            assertThrows(NullPointerException.class, () ->
+                    registry.add(new Currency(null, null, null))
             );
         }
 
@@ -148,32 +156,31 @@ class CurrencyRegistryTests {
             var size = registry.size();
             registry.add("FMD", "Fake Money Dollar");
             assertEquals(
-                size + 1,
-                registry.size(),
-                "size should increase by 1"
+                    size + 1,
+                    registry.size(),
+                    "size should increase by 1"
             );
             var fmd = registry
-                .findBySymbol("FMD")
-                .orElseThrow(() -> new AssertionError("FMD not found"));
+                    .findBySymbol("FMD")
+                    .orElseThrow(() -> new AssertionError("FMD not found"));
             assertEquals("FMD", fmd.symbol(), "symbol should be FMD");
             assertEquals(
-                "Fake Money Dollar",
-                fmd.name(),
-                "name should be Fake Money Dollar"
+                    "Fake Money Dollar",
+                    fmd.name(),
+                    "name should be Fake Money Dollar"
             );
             assertEquals(
-                Locale.ROOT,
-                fmd.locale(),
-                "locale should be Locale.ROOT"
+                    Locale.ROOT,
+                    fmd.locale(),
+                    "locale should be Locale.ROOT"
             );
         }
 
-        @Test
-        void addNullCurrency() {
+        @ParameterizedTest
+        @NullSource
+        void addNullCurrency(Currency currency) {
             var registry = CurrencyRegistry.getInstance();
-            assertThrows(IllegalArgumentException.class, () ->
-                registry.add(null)
-            );
+            assertThrows(NullPointerException.class, () -> registry.add(currency));
         }
     }
 
@@ -184,7 +191,7 @@ class CurrencyRegistryTests {
         @Test
         void availableCurrencies() {
             var currencies = assertDoesNotThrow(
-                CurrencyRegistry::availableCurrencies
+                    CurrencyRegistry::availableCurrencies
             );
             assertNotNull(currencies);
             assertTrue(currencies.containsKey("USD"));
@@ -211,7 +218,7 @@ class CurrencyRegistryTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        @ValueSource(strings = { "", " " })
+        @ValueSource(strings = {"", " "})
         void containsNullOrEmptyName(String name) {
             var registry = CurrencyRegistry.getInstance();
             assertFalse(registry.contains(name));
@@ -225,14 +232,14 @@ class CurrencyRegistryTests {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = { "USD", "JPY", "CaD" })
+        @ValueSource(strings = {"USD", "JPY", "CaD"})
         void containsValidSymbol(String symbol) {
             var registry = CurrencyRegistry.getInstance();
             assertTrue(registry.contains(symbol));
         }
 
         @ParameterizedTest
-        @ValueSource(strings = { "US[A-D]", ".*PY", "C\\p{Upper}D" })
+        @ValueSource(strings = {"US[A-D]", ".*PY", "C\\p{Upper}D"})
         void containsValidSymbolRegex(String symbol) {
             var registry = CurrencyRegistry.getInstance();
             assertTrue(registry.contains(symbol));
@@ -245,7 +252,7 @@ class CurrencyRegistryTests {
 
         @ParameterizedTest
         @EmptySource
-        @ValueSource(strings = { " ", "   " })
+        @ValueSource(strings = {" ", "   "})
         void findNameWithEmptyOrBlankSymbol(String input) {
             var registry = CurrencyRegistry.getInstance();
             assertTrue(registry.findBySymbol(input).isEmpty());
@@ -255,14 +262,14 @@ class CurrencyRegistryTests {
         void findNameWithExistingSymbol() {
             var registry = CurrencyRegistry.getInstance();
             assertEquals(
-                "United States Dollar",
-                registry
-                    .findBySymbol("USD")
-                    .orElseThrow(() ->
-                        new AssertionError("USD should be present")
-                    )
-                    .name(),
-                "Should return the full name for an existing currency symbol."
+                    "United States Dollar",
+                    registry
+                            .findBySymbol("USD")
+                            .orElseThrow(() ->
+                                    new AssertionError("USD should be present")
+                            )
+                            .name(),
+                    "Should return the full name for an existing currency symbol."
             );
         }
 
@@ -277,9 +284,9 @@ class CurrencyRegistryTests {
         void findNameWithInvalidSymbol(String input) {
             var registry = CurrencyRegistry.getInstance();
             assertTrue(
-                registry.findBySymbol(input).isEmpty(),
-                "Should return empty Optional for a non-existing currency symbol: " +
-                    input
+                    registry.findBySymbol(input).isEmpty(),
+                    "Should return empty Optional for a non-existing currency symbol: " +
+                            input
             );
         }
 
@@ -287,13 +294,13 @@ class CurrencyRegistryTests {
         void findNameWithLowercaseSymbol() {
             var registry = CurrencyRegistry.getInstance();
             assertEquals(
-                "Euro",
-                registry
-                    .findBySymbol("eur")
-                    .orElseThrow(() ->
-                        new AssertionError("EUR should be present")
-                    )
-                    .name()
+                    "Euro",
+                    registry
+                            .findBySymbol("eur")
+                            .orElseThrow(() ->
+                                    new AssertionError("EUR should be present")
+                            )
+                            .name()
             );
         }
 
@@ -301,13 +308,13 @@ class CurrencyRegistryTests {
         void findNameWithMixedCaseSymbol() {
             var registry = CurrencyRegistry.getInstance();
             assertEquals(
-                "Japanese Yen",
-                registry
-                    .findBySymbol("jPy")
-                    .orElseThrow(() ->
-                        new AssertionError("JPY should be present")
-                    )
-                    .name()
+                    "Japanese Yen",
+                    registry
+                            .findBySymbol("jPy")
+                            .orElseThrow(() ->
+                                    new AssertionError("JPY should be present")
+                            )
+                            .name()
             );
         }
 
@@ -316,8 +323,8 @@ class CurrencyRegistryTests {
             var registry = CurrencyRegistry.getInstance();
             // FIX: Use isEmpty not assertThrows
             assertTrue(
-                registry.findBySymbol("XYZ").isEmpty(),
-                "Should return empty Optional for a non-existing currency symbol."
+                    registry.findBySymbol("XYZ").isEmpty(),
+                    "Should return empty Optional for a non-existing currency symbol."
             );
         }
 
@@ -335,12 +342,12 @@ class CurrencyRegistryTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        @ValueSource(strings = { " ", "   " })
+        @ValueSource(strings = {" ", "   "})
         void findSymbolWithBlankName(String input) {
             var registry = CurrencyRegistry.getInstance();
             assertTrue(
-                registry.findBySymbol(input).isEmpty(),
-                "Should return empty Optional for blank name: " + input
+                    registry.findBySymbol(input).isEmpty(),
+                    "Should return empty Optional for blank name: " + input
             );
         }
 
@@ -350,14 +357,14 @@ class CurrencyRegistryTests {
             var registry = CurrencyRegistry.getInstance();
             // FIX: Use isEmpty not assertThrows
             assertTrue(
-                registry.findByName(input).isEmpty(),
-                "Should return empty Optional for invalid name: " + input
+                    registry.findByName(input).isEmpty(),
+                    "Should return empty Optional for invalid name: " + input
             );
         }
 
         @ParameterizedTest
         @NullAndEmptySource
-        @ValueSource(strings = { "(", " " })
+        @ValueSource(strings = {"(", " "})
         void findSymbolWithInvalidRegex(String pattern) {
             var registry = CurrencyRegistry.getInstance();
             assertTrue(registry.findByName(pattern).isEmpty());
@@ -367,13 +374,13 @@ class CurrencyRegistryTests {
         void findSymbolWithMixedCase() {
             var registry = CurrencyRegistry.getInstance();
             assertEquals(
-                "USD",
-                registry
-                    .findByName("United STATES dollar")
-                    .orElseThrow(() ->
-                        new AssertionError("USD should be present")
-                    )
-                    .symbol()
+                    "USD",
+                    registry
+                            .findByName("United STATES dollar")
+                            .orElseThrow(() ->
+                                    new AssertionError("USD should be present")
+                            )
+                            .symbol()
             );
         }
 
@@ -382,8 +389,8 @@ class CurrencyRegistryTests {
             var registry = CurrencyRegistry.getInstance();
             // FIX: Use isEmpty not assertThrows
             assertTrue(
-                registry.findByName("NotARealCurrencyName").isEmpty(),
-                "Should return empty Optional for a non-existing currency name."
+                    registry.findByName("NotARealCurrencyName").isEmpty(),
+                    "Should return empty Optional for a non-existing currency name."
             );
         }
 
@@ -398,13 +405,13 @@ class CurrencyRegistryTests {
         void findSymbolWithRegex() {
             var registry = CurrencyRegistry.getInstance();
             assertEquals(
-                "JPY",
-                registry
-                    .findByName(".*Japan.*")
-                    .orElseThrow(() ->
-                        new AssertionError("JPY should be present")
-                    )
-                    .symbol()
+                    "JPY",
+                    registry
+                            .findByName(".*Japan.*")
+                            .orElseThrow(() ->
+                                    new AssertionError("JPY should be present")
+                            )
+                            .symbol()
             );
         }
 
@@ -412,13 +419,13 @@ class CurrencyRegistryTests {
         void findSymbolWithValidName() {
             var registry = CurrencyRegistry.getInstance();
             assertEquals(
-                "USD",
-                registry
-                    .findByName("United States Dollar")
-                    .orElseThrow(() ->
-                        new AssertionError("USD should be present")
-                    )
-                    .symbol()
+                    "USD",
+                    registry
+                            .findByName("United States Dollar")
+                            .orElseThrow(() ->
+                                    new AssertionError("USD should be present")
+                            )
+                            .symbol()
             );
         }
     }
@@ -435,8 +442,8 @@ class CurrencyRegistryTests {
             var currencies = registry.getAllCurrencies();
 
             assertEquals(
-                CurrencyRegistry.DEFAULT_CURRENCY_COUNT,
-                currencies.size()
+                    CurrencyRegistry.DEFAULT_CURRENCY_COUNT,
+                    currencies.size()
             );
         }
 
@@ -448,8 +455,8 @@ class CurrencyRegistryTests {
             var symbols = registry.getAllSymbols();
 
             assertEquals(
-                CurrencyRegistry.DEFAULT_CURRENCY_COUNT,
-                symbols.size()
+                    CurrencyRegistry.DEFAULT_CURRENCY_COUNT,
+                    symbols.size()
             );
             assertTrue(symbols.contains("USD"));
         }
@@ -465,15 +472,15 @@ class CurrencyRegistryTests {
             if (registry.patternCacheSize() == 0) {
                 assertTrue(registry.contains("USD"), "USD should be present");
                 assertTrue(
-                    registry.size() > 0,
-                    "registry size should be greater than 0"
+                        registry.size() > 0,
+                        "registry size should be greater than 0"
                 );
             }
             registry.clearPatternCache();
             assertEquals(
-                0,
-                registry.patternCacheSize(),
-                "cache size should be 0"
+                    0,
+                    registry.patternCacheSize(),
+                    "cache size should be 0"
             );
         }
 
@@ -486,25 +493,25 @@ class CurrencyRegistryTests {
             }
 
             assertEquals(
-                50,
-                registry.patternCacheSize(),
-                "cache size should now be 50"
+                    50,
+                    registry.patternCacheSize(),
+                    "cache size should now be 50"
             );
 
             registry.contains(TestingUtils.generateRandomString(3));
 
             assertEquals(
-                50,
-                registry.patternCacheSize(),
-                "cache size should still be 50"
+                    50,
+                    registry.patternCacheSize(),
+                    "cache size should still be 50"
             );
 
             registry.clearPatternCache();
 
             assertEquals(
-                0,
-                registry.patternCacheSize(),
-                "cache size should be 0"
+                    0,
+                    registry.patternCacheSize(),
+                    "cache size should be 0"
             );
         }
     }
@@ -514,12 +521,12 @@ class CurrencyRegistryTests {
     class SearchTests {
 
         static final List<String> DOLLAR_SYMBOLS = List.of(
-            "AUD",
-            "CAD",
-            "HKD",
-            "NZD",
-            "SGD",
-            "USD"
+                "AUD",
+                "CAD",
+                "HKD",
+                "NZD",
+                "SGD",
+                "USD"
         );
 
         @Test

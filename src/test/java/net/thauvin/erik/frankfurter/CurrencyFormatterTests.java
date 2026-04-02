@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 
+import java.util.NoSuchElementException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -51,18 +53,16 @@ class CurrencyFormatterTests {
     @ParameterizedTest
     @NullSource
     void formatCurrencyRoundedWithNullCode(String input) {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NullPointerException.class,
                 () -> CurrencyFormatter.format(input, 100.0, true),
                 "Null currency code should throw an IllegalArgumentException");
     }
 
     @Test
     void formatCurrencyRoundedWithUnknownSymbol() {
-        var exception = assertThrows(IllegalArgumentException.class,
+        assertThrows(NoSuchElementException.class,
                 () -> CurrencyFormatter.format("FOO", 100.0, true),
-                "Invalid currency code should throw an IllegalArgumentException");
-        assertTrue(exception.getMessage().contains("Unknown currency"),
-                "Exception message should mention unknown currency: " + exception.getMessage());
+                "Invalid currency code should throw an NoSuchElementException");
     }
 
     @Test
@@ -75,18 +75,16 @@ class CurrencyFormatterTests {
     @ParameterizedTest
     @NullSource
     void formatCurrencyWithNullCode(String input) {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NullPointerException.class,
                 () -> CurrencyFormatter.format(input, 100.0),
                 "Null currency code should throw an IllegalArgumentException");
     }
 
     @Test
     void formatCurrencyWithUnknownSymbol() {
-        var exception = assertThrows(IllegalArgumentException.class,
+        assertThrows(NoSuchElementException.class,
                 () -> CurrencyFormatter.format("FOO", 100.0),
-                "Invalid currency code should throw an IllegalArgumentException");
-        assertTrue(exception.getMessage().contains("Unknown currency"),
-                "Exception message should mention unknown currency: " + exception.getMessage());
+                "Invalid currency code should throw an NoSuchElementException");
     }
 
     @Test
@@ -99,7 +97,7 @@ class CurrencyFormatterTests {
     @ParameterizedTest
     @NullSource
     void formatRoundedWithNullAmount(Double input) {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NullPointerException.class,
                 () -> CurrencyFormatter.format("USD", input, true),
                 "Null amount should throw a NullPointerException");
     }
@@ -158,7 +156,7 @@ class CurrencyFormatterTests {
     @ParameterizedTest
     @NullSource
     void formatWithNullAmount(Double input) {
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NullPointerException.class,
                 () -> CurrencyFormatter.format("USD", input),
                 "Null amount should throw a NullPointerException");
     }

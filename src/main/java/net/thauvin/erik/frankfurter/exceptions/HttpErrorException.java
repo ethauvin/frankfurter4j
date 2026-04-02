@@ -29,12 +29,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package net.thauvin.erik.frankfurter.exceptions;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Serial;
 import java.net.URI;
+import java.util.Objects;
 
 /**
  * Exception representing HTTP errors with status codes.
@@ -46,31 +48,31 @@ public class HttpErrorException extends IOException {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
     private final int statusCode;
     private final URI uri;
 
     /**
-     * Creates an HttpErrorException with status code, message, and cause.
+     * Creates an HttpErrorException with status code, message, URI, and cause.
      *
      * @param statusCode the HTTP status code
      * @param message    the error message
-     * @param cause      the underlying cause of the exception
+     * @param uri        the URI
+     * @param cause      the underlying cause of the exception, may be {@code null}
      */
-    public HttpErrorException(int statusCode, String message, URI uri, Throwable cause) {
+    public HttpErrorException(int statusCode, String message, @NotNull URI uri, Throwable cause) {
         super(message, cause);
         this.statusCode = statusCode;
-        this.uri = uri;
+        this.uri = Objects.requireNonNull(uri, "uri must not be null");
     }
 
     /**
-     * Creates an HttpErrorException with status code and message.
+     * Creates an HttpErrorException with status code, message, and URI.
      *
      * @param statusCode the HTTP status code
      * @param message    the error message
      * @param uri        the URI
      */
-    public HttpErrorException(int statusCode, String message, URI uri) {
+    public HttpErrorException(int statusCode, String message, @NotNull URI uri) {
         this(statusCode, message, uri, null);
     }
 
@@ -88,6 +90,7 @@ public class HttpErrorException extends IOException {
      *
      * @return the URI
      */
+    @NotNull
     public URI getUri() {
         return uri;
     }
