@@ -42,17 +42,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.*;
 import rife.bld.extension.testing.LoggingExtension;
 import rife.bld.extension.testing.TestLogHandler;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
@@ -67,13 +63,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "PMD.ExcessiveImports"})
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 @ExtendWith(LoggingExtension.class)
 class FrankfurterUtilsTests {
 
     @RegisterExtension
-    @SuppressWarnings({"unused"})
-    private static final LoggingExtension LOGGING_EXTENSION = new LoggingExtension(FrankfurterUtils.LOGGER);
+    @SuppressWarnings({"unused", "LoggerInitializedWithForeignClass"})
+    private static final LoggingExtension LOGGING_EXTENSION =
+            new LoggingExtension(Logger.getLogger(FrankfurterUtils.class.getName()));
 
     @Test
     @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
@@ -298,7 +295,7 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUri() throws IOException, InterruptedException {
+        void fetchUri() throws IOException {
             var uri = URI.create(FrankfurterUtils.API_BASE_URL + "2025-01-02?symbols=USD");
             var response = FrankfurterUtils.fetchUri(uri);
 
@@ -307,7 +304,7 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUriNoBody() throws IOException, InterruptedException {
+        void fetchUriNoBody() throws IOException {
             MOCK_WEB_SERVER.enqueue(
                     new MockResponse.Builder().code(200).body("").build()
             );
@@ -316,7 +313,7 @@ class FrankfurterUtilsTests {
         }
 
         @Test
-        void fetchUriNoLogging() throws IOException, InterruptedException {
+        void fetchUriNoLogging() throws IOException {
             var logger = Logger.getLogger(FrankfurterUtils.class.getName());
             var logHandler = new TestLogHandler();
 
@@ -382,7 +379,7 @@ class FrankfurterUtilsTests {
         void fetchUriWithUnknownHost() {
             var uri = URI.create("https://fake.unknown.host");
 
-            assertThrows(ConnectException.class, () -> FrankfurterUtils.fetchUri(uri));
+            assertThrows(HttpErrorException.class, () -> FrankfurterUtils.fetchUri(uri));
         }
     }
 
@@ -452,7 +449,7 @@ class FrankfurterUtilsTests {
     class NormalizeSymbolTests {
 
         @ParameterizedTest
-        @NullAndEmptySource
+        @EmptySource
         void normalizeSymbolWithEmptyString(String input) {
             try {
                 FrankfurterUtils.normalizeSymbol(input);

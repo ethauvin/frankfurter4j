@@ -35,12 +35,11 @@ package net.thauvin.erik.frankfurter;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.uwyn.urlencoder.UrlEncoder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.exceptions.HttpErrorException;
 import net.thauvin.erik.frankfurter.models.Error;
 import net.thauvin.erik.httpstatus.Reasons;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -51,8 +50,9 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -73,24 +73,31 @@ public final class FrankfurterUtils {
      */
     public static final String EUR = "EUR";
     /**
-     * The logger for this class.
-     */
-    public static final Logger LOGGER = Logger.getLogger(FrankfurterUtils.class.getName());
-    /**
      * The minimum date supported by the Frankfurter API.
      */
     public static final LocalDate MIN_DATE = LocalDate.of(1994, 1, 4);
+    /**
+     * Unexpected error status code.
+     */
+    public static final int UNEXPECTED_ERROR = 599;
     /**
      * Gson instance for parsing JSON responses.
      */
     private static final Gson GSON = new Gson();
     /**
-     * Client for executing HTTP requests.
+     * Client for executing HTTP requests. Shared across all calls for the lifetime of the JVM.
+     * Thread-safe per {@link HttpClient} specification; no explicit shutdown is required for
+     * short-lived or single-JVM usage.
      */
     private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
+    /**
+     * Regular expression pattern for validating currency symbols.
+     */
+    private static final Pattern SYMBOL_PATTERN = Pattern.compile("[a-zA-Z]{3}");
+
 
     private FrankfurterUtils() {
         throw new IllegalStateException("Utility class");
@@ -160,7 +167,7 @@ public final class FrankfurterUtils {
      *     <li>New Year's Day (Jan 1)</li>
      *     <li>Good Friday (2 days before Easter)</li>
      *     <li>Easter Monday (1 day after Easter)</li>
-     *     <li>Lobor Day (May 1)</li>
+     *     <li>Labor Day (May 1)</li>
      *     <li>Christmas Day (Dec 25)</li>
      *     <li>Christmas Holiday (Dec 26)</li>
      * </ul>
@@ -187,7 +194,7 @@ public final class FrankfurterUtils {
         // Christmas Holiday
         closingDays.add(LocalDate.of(year, 12, 26));
 
-        return closingDays;
+        return List.copyOf(closingDays);
     }
 
     /**
@@ -198,33 +205,29 @@ public final class FrankfurterUtils {
      * @param uri the URI to which the GET request will be sent
      * @return the response body as a string
      * @throws HttpErrorException if the response status code is not 200
-     * @throws IOException        if an I/O error occurs during the request
      */
-    @SuppressFBWarnings("DRE_DECLARED_RUNTIME_EXCEPTION")
-    public static String fetchUri(URI uri) throws IOException, InterruptedException, IllegalArgumentException {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest(uri.toString());
-        }
 
+    public static String fetchUri(URI uri) throws HttpErrorException {
         var request = HttpRequest.newBuilder()
                 .uri(uri)
                 .header("Accept", "application/json")
                 .timeout(Duration.ofSeconds(30))
                 .GET()
                 .build();
-
-        var response =
-                HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-
-        if (response.statusCode() != 200) {
-            handleErrorResponse(response, uri);
+        try {
+            var response =
+                    HTTP_CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).join();
+            if (response.statusCode() != 200) {
+                handleErrorResponse(response, uri);
+            }
+            return response.body();
+        } catch (CompletionException | CancellationException e) {
+            throw new HttpErrorException(UNEXPECTED_ERROR, "Unexpected error fetching URI", uri, e);
         }
-
-        return response.body();
     }
 
     @SuppressWarnings("PMD.ExceptionAsFlowControl")
-    private static void handleErrorResponse(HttpResponse<String> response, URI uri) throws IOException {
+    private static void handleErrorResponse(HttpResponse<String> response, URI uri) throws HttpErrorException {
         try {
             var errorBody = response.body();
             if (errorBody != null && !errorBody.isEmpty()) {
@@ -249,7 +252,7 @@ public final class FrankfurterUtils {
      * {@code false} otherwise.
      */
     public static boolean isValidSymbol(String symbol) {
-        return symbol != null && symbol.matches("[a-zA-Z]{3}");
+        return symbol != null && SYMBOL_PATTERN.matcher(symbol).matches();
     }
 
     /**
@@ -283,10 +286,12 @@ public final class FrankfurterUtils {
      * Formats a given currency symbol to uppercase if it matches the required format of three alphabetical characters.
      *
      * @param symbol the currency symbol to be formatted, which must consist of exactly three alphabetical characters
-     * @return The normalized version of the currency symbol if it is valid
+     * @return the normalized version of the currency symbol if it is valid
      * @throws IllegalArgumentException if the provided symbol is not exactly three alphabetical characters
+     * @throws NullPointerException     if the provided symbol is {@code null}
      */
-    public static String normalizeSymbol(String symbol) {
+    public static String normalizeSymbol(@NotNull String symbol) {
+        Objects.requireNonNull(symbol, "symbol must not be null");
         if (isValidSymbol(symbol)) {
             return symbol.toUpperCase(Locale.US);
         } else {
@@ -334,9 +339,10 @@ public final class FrankfurterUtils {
      * A valid date must be non-null and not earlier than {@code 1994-01-04}.
      *
      * @param date the date to be validated
+     * @return the validated date
      * @throws IllegalArgumentException if the date is null or earlier than {@code 1994-01-04}
      */
-    public static void validateDate(LocalDate date) {
+    public static LocalDate validateDate(LocalDate date) {
         if (date == null) {
             throw new IllegalArgumentException("A valid date is required.");
         }
@@ -344,11 +350,16 @@ public final class FrankfurterUtils {
         if (date.isBefore(MIN_DATE)) {
             throw new IllegalArgumentException(String.format("Dates prior to 1994-01-04 are not supported: %s", date));
         }
+
+        return date;
     }
 
     /**
      * Calculates a list of working days between two given dates, excluding weekends (Saturdays and Sundays) and
      * target closing days.
+     * <p>
+     * The starting and ending dates do not have to be chronologically ordered; results are always returned in
+     * ascending order.
      *
      * @param startDate the starting date of the range (inclusive)
      * @param endDate   the ending date of the range (inclusive)
@@ -372,6 +383,9 @@ public final class FrankfurterUtils {
 
     /**
      * Retrieves a list of all years in the range between the provided start date and end date, inclusive.
+     * <p>
+     * The starting and ending dates do not have to be chronologically ordered; results are always returned in
+     * ascending order.
      *
      * @param startDate the starting date of the range (inclusive)
      * @param endDate   the ending date of the range (inclusive)

@@ -82,10 +82,12 @@ public class Frankfurter4JBuild extends Project {
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(provided)
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
-                        version(4, 9, 8)));
+                        version(4, 9, 8)))
+                .include(dependency("org.jetbrains", "annotations",
+                        version(26, 1, 0)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(0, 9, 6)))
+                        version(1, 0, 0)))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 23, 0)))
                 .include(dependency("com.squareup.okhttp3", "mockwebserver",
@@ -95,9 +97,9 @@ public class Frankfurter4JBuild extends Project {
 
         publishOperation()
                 .repository(version.isSnapshot() ? repository(CENTRAL_SNAPSHOTS.location())
-                        .withCredentials(property("central.user"), property("central.password"))
+                                                   .withCredentials(property("central.user"), property("central.password"))
                         : repository(CENTRAL_RELEASES.location())
-                        .withCredentials(property("central.user"), property("central.password")))
+                          .withCredentials(property("central.user"), property("central.password")))
                 .repository(repository("github"))
                 .info()
                 .groupId(pkg)
