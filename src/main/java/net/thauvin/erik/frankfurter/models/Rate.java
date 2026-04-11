@@ -44,6 +44,7 @@ import java.time.LocalDate;
  * @param base         the base currency code (e.g. {@code "EUR"})
  * @param quote        the quote currency code (e.g. {@code "AED"})
  * @param exchangeRate the exchange rate from base to quote currency
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
 @NullMarked

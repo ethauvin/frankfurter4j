@@ -41,6 +41,7 @@ import org.jspecify.annotations.NullMarked;
  * <p>Either an {@link Currencies} instance on success or an
  * {@link ErrorResponse} instance on error.</p>
  *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
 @NullMarked

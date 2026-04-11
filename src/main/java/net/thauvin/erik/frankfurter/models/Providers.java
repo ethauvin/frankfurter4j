@@ -48,6 +48,9 @@ import java.util.List;
  *
  * <p>The API returns a JSON array of provider entries. This type normalizes the
  * structure into a list and provides simple lookup helpers.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 @SuppressWarnings("ClassCanBeRecord")

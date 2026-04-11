@@ -60,6 +60,7 @@ import java.util.Map;
  * <p>All dates are represented as {@link LocalDate} and must not be earlier
  * than {@code 1994-01-04}, the earliest supported date.</p>
  *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
 @NullMarked

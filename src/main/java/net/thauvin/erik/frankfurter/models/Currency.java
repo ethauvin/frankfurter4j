@@ -46,6 +46,9 @@ import java.time.LocalDate;
  *
  * <p>All fields except {@code isoCode} and {@code name} may be {@code null}
  * depending on the currency and the data available from the API.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 public record Currency(

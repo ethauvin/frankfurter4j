@@ -43,6 +43,9 @@ import java.util.Optional;
  *
  * <p>The API returns a JSON array of rate objects. This wrapper provides
  * convenience methods for searching and inspecting the returned rates.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 public final class ExchangeRates implements RatesResult {

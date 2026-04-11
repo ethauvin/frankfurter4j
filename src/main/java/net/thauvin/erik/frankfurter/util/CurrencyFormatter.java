@@ -50,6 +50,9 @@ import java.util.Map;
  *
  * <p>The class is thread‑safe. All state is immutable and formatting
  * operations create new {@link NumberFormat} instances.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 public final class CurrencyFormatter {

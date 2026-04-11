@@ -42,6 +42,7 @@ import org.jspecify.annotations.NullMarked;
  * When specified, rates are aggregated over the given time period rather than
  * returned as daily values.</p>
  *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
 @NullMarked

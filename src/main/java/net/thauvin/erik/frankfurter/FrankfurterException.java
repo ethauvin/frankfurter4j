@@ -37,6 +37,7 @@ import java.io.Serial;
 /**
  * Exception thrown when the Frankfurter API returns an error response.
  *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
 public final class FrankfurterException extends RuntimeException {

@@ -44,6 +44,9 @@ import java.time.LocalDate;
  * <p>This adapter reads and writes ISO‑8601 date strings such as
  * {@code "2026-04-08"}. It is used internally by the Frankfurter client to
  * ensure consistent date handling across all JSON payloads.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 public final class LocalDateAdapter implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {

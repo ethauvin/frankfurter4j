@@ -47,6 +47,9 @@ import java.util.List;
  *
  * <p>These methods convert raw JSON strings into strongly typed model objects.
  * They are used internally by {@link Frankfurter}.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public final class FrankfurterEndpoints {
 

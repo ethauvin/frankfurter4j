@@ -56,6 +56,9 @@ import java.time.Duration;
  * </ul>
  *
  * <p>Instances of this class are thread-safe and may be reused.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 public final class Frankfurter {

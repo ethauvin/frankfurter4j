@@ -56,6 +56,9 @@ import java.util.LinkedHashMap;
  * </ul>
  *
  * <p>Date ranges are not supported for this endpoint.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @NullMarked
 public final class RateConfig {

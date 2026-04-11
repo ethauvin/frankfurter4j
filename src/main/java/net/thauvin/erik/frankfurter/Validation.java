@@ -44,6 +44,9 @@ import java.time.LocalDate;
  * validation, date range validation, and minimum supported date enforcement.
  * It is intended for internal use by configuration builders and endpoint
  * methods, and is not part of the public API surface.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public final class Validation {
 

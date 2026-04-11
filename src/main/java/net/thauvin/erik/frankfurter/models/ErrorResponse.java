@@ -45,6 +45,9 @@ import org.jspecify.annotations.Nullable;
  * ({@link CurrenciesResult}, {@link CurrencyResult}, {@link ProvidersResult},
  * {@link RatesResult}, {@link RateResult}) so callers can uniformly handle
  * success and error outcomes.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 @SuppressWarnings("ClassCanBeRecord")
 public final class ErrorResponse
