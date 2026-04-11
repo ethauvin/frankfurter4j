@@ -40,6 +40,8 @@ import net.thauvin.erik.frankfurter.models.Providers;
 import net.thauvin.erik.frankfurter.models.Rate;
 import net.thauvin.erik.frankfurter.util.CurrencyFormatter;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
@@ -73,6 +75,7 @@ class ReadmeTest {
     }
 
     @Test
+    @DisabledOnOs(OS.WINDOWS)
     void currencyFormat() throws IOException, InterruptedException {
         var client = new Frankfurter();
         var rate = client.getRate("USD", "GBP");

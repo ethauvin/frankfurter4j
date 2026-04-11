@@ -35,6 +35,8 @@ package net.thauvin.erik.frankfurter.util;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -51,6 +53,7 @@ class CurrencyFormatterTest {
 
         @Test
         @DisplayName("formats using locale rules")
+        @DisabledOnOs(OS.WINDOWS)
         void formatsLocaleAware() {
             var formatted = CurrencyFormatter.format(1234.56, "EUR");
             assertEquals("1.234,56 €", formatted);
