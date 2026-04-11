@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * Frankfurter4JRateOverloadTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
 package net.thauvin.erik.frankfurter;
+
+import net.thauvin.erik.frankfurter.models.Rate;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.Mockito.*;
+
+class FrankfurterRateOverloadTest {
+
+    @Test
+    @DisplayName("getRate(base, quote) delegates to config-based method")
+    void delegatesToConfig() throws Exception {
+        var json = """
+                { "date":"2024-01-01", "base":"USD", "quote":"EUR", "rate":1.1 }
+                """;
+
+        var mockClient = mock(HttpClient.class);
+        var mockResponse = mock(HttpResponse.class);
+
+        when(mockResponse.statusCode()).thenReturn(200);
+        when(mockResponse.body()).thenReturn(json);
+
+        //noinspection unchecked
+        when(mockClient.send(any(), any(HttpResponse.BodyHandler.class)))
+                .thenReturn(mockResponse);
+
+        var api = new Frankfurter(mockClient, URI.create("https://example.com/"));
+        var result = api.getRate("USD", "EUR");
+
+        assertInstanceOf(Rate.class, result);
+        assertEquals("USD", ((Rate) result).base());
+    }
+}

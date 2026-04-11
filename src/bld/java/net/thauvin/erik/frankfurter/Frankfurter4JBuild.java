@@ -77,29 +77,25 @@ public class Frankfurter4JBuild extends Project {
         scope(compile)
                 .include(dependency("com.uwyn", "urlencoder",
                         version(1, 3, 5)))
-                .include(dependency("net.thauvin.erik.httpstatus", "httpstatus",
-                        version(2, 0, 0)))
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(provided)
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
                         version(4, 9, 8)))
-                .include(dependency("org.jetbrains", "annotations",
-                        version(26, 1, 0)));
+                .include(dependency("org.jspecify", "jspecify",
+                        version(1, 0, 0)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
                         version(1, 0, 0)))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 23, 0)))
-                .include(dependency("com.squareup.okhttp3", "mockwebserver",
-                        version(5, 3, 2)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
                 .include(dependency("org.junit.platform", "junit-platform-console-standalone", junit));
 
         publishOperation()
                 .repository(version.isSnapshot() ? repository(CENTRAL_SNAPSHOTS.location())
-                                                   .withCredentials(property("central.user"), property("central.password"))
+                        .withCredentials(property("central.user"), property("central.password"))
                         : repository(CENTRAL_RELEASES.location())
-                          .withCredentials(property("central.user"), property("central.password")))
+                        .withCredentials(property("central.user"), property("central.password")))
                 .repository(repository("github"))
                 .info()
                 .groupId(pkg)

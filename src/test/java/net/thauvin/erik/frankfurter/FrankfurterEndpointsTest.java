@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * FrankfurterEndpointsTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
 package net.thauvin.erik.frankfurter;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class FrankfurterEndpointsTest {
+
+    @Nested
+    @DisplayName("parseError()")
+    class ParseErrorTests {
+
+        @Test
+        @DisplayName("falls back to raw message on parse failure")
+        void fallback() {
+            var e = FrankfurterEndpoints.parseError("not-json", 500);
+
+            assertEquals(500, e.status());
+            assertEquals("not-json", e.message());
+        }
+
+        @Test
+        @DisplayName("parses valid error JSON")
+        void parsesError() {
+            var json = "{\"status\":400,\"message\":\"Bad request\"}";
+            var e = FrankfurterEndpoints.parseError(json, 400);
+
+            assertEquals(400, e.status());
+            assertEquals("Bad request", e.message());
+        }
+    }
+}

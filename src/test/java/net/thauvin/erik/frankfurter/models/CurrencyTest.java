@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * CurrencyTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,11 +30,55 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Contains immutable model types representing Frankfurter API responses.
- *
- * <p>These include currencies, providers, exchange rates, and error responses.
- * All model types are designed for safe deserialization and predictable
- * behavior.</p>
- */
 package net.thauvin.erik.frankfurter.models;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class CurrencyTest {
+
+    @Nested
+    @DisplayName("constructor validation")
+    class ConstructorValidation {
+
+        @Test
+        @DisplayName("accepts valid currency")
+        void acceptsValid() {
+            var c = new Currency("USD", "840", "US Dollar", "$",
+                    LocalDate.parse("2000-01-01"), null);
+
+            assertEquals("USD", c.isoCode());
+            assertEquals("US Dollar", c.name());
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @EmptySource
+        @ValueSource(strings = {"  "})
+        @DisplayName("rejects null or blank isoCode")
+        void rejectsBlankIso(String iso) {
+            assertThrows(IllegalArgumentException.class,
+                    () -> new Currency(iso, "123", "Name", "$", null, null));
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @EmptySource
+        @ValueSource(strings = {"  "})
+        @DisplayName("rejects null or blank name")
+        void rejectsBlankName(String name) {
+            assertThrows(IllegalArgumentException.class,
+                    () -> new Currency("USD", "123", name, "$", null, null));
+        }
+    }
+}

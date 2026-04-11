@@ -1,5 +1,5 @@
 /*
- * ExchangeRates.java
+ * Group.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -32,73 +32,45 @@
 
 package net.thauvin.erik.frankfurter.models;
 
+import com.google.gson.annotations.SerializedName;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
 /**
- * Represents a list of exchange rates returned by the Frankfurter API.
+ * Represents the time period by which exchange rates can be downsampled.
  *
- * <p>The API returns a JSON array of rate objects. This wrapper provides
- * convenience methods for searching and inspecting the returned rates.</p>
+ * <p>Used as an optional query parameter when requesting rates over a date range.
+ * When specified, rates are aggregated over the given time period rather than
+ * returned as daily values.</p>
+ *
+ * @since 1.0
  */
 @NullMarked
-public final class ExchangeRates implements RatesResult {
-
-    private final List<Rate> rates;
+public enum Group {
 
     /**
-     * Creates a new immutable container for the given list of rates.
-     *
-     * @param rates the list of rate entries
+     * Downsample rates to one value per week.
      */
-    public ExchangeRates(Collection<Rate> rates) {
-        this.rates = List.copyOf(rates);
-    }
-
-    @Override
-    public String toString() {
-        return "ExchangeRates{rates=" + rates + '}';
-    }
+    @SerializedName("week")
+    WEEK("week"),
 
     /**
-     * Finds the first entry matching the given quote currency.
-     *
-     * @param quote the ISO 4217 quote currency
-     * @return an optional containing the matching rate
+     * Downsample rates to one value per month.
      */
-    public Optional<Rate> find(String quote) {
-        return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
-                .findFirst();
+    @SerializedName("month")
+    MONTH("month");
+
+    private final String value;
+
+    Group(String value) {
+        this.value = value;
     }
 
     /**
-     * Returns {@code true} if there are no rate entries.
+     * Returns the API query parameter value for this group (e.g. {@code "week"}, {@code "month"}).
      *
-     * @return {@code true} if the list is empty, {@code false} otherwise
+     * @return the lowercase string value used in query strings
      */
-    public boolean isEmpty() {
-        return rates.isEmpty();
-    }
-
-    /**
-     * Returns all rate entries.
-     *
-     * @return the list of rates
-     */
-    public List<Rate> list() {
-        return rates;
-    }
-
-    /**
-     * Returns the number of rate entries.
-     *
-     * @return the number of entries
-     */
-    public int size() {
-        return rates.size();
+    public String value() {
+        return value;
     }
 }

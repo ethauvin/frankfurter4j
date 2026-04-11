@@ -1,5 +1,5 @@
 /*
- * ExchangeRates.java
+ * Rate.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -32,73 +32,26 @@
 
 package net.thauvin.erik.frankfurter.models;
 
+import com.google.gson.annotations.SerializedName;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
 
 /**
- * Represents a list of exchange rates returned by the Frankfurter API.
+ * Represents a currency exchange rate between a base and quote currency on a given date.
  *
- * <p>The API returns a JSON array of rate objects. This wrapper provides
- * convenience methods for searching and inspecting the returned rates.</p>
+ * @param date         the date the exchange rate was recorded
+ * @param base         the base currency code (e.g. {@code "EUR"})
+ * @param quote        the quote currency code (e.g. {@code "AED"})
+ * @param exchangeRate the exchange rate from base to quote currency
+ * @since 1.0
  */
 @NullMarked
-public final class ExchangeRates implements RatesResult {
+public record Rate(
+        @SerializedName("date") LocalDate date,
+        @SerializedName("base") String base,
+        @SerializedName("quote") String quote,
+        @SerializedName("rate") double exchangeRate
+) implements RateResult {
 
-    private final List<Rate> rates;
-
-    /**
-     * Creates a new immutable container for the given list of rates.
-     *
-     * @param rates the list of rate entries
-     */
-    public ExchangeRates(Collection<Rate> rates) {
-        this.rates = List.copyOf(rates);
-    }
-
-    @Override
-    public String toString() {
-        return "ExchangeRates{rates=" + rates + '}';
-    }
-
-    /**
-     * Finds the first entry matching the given quote currency.
-     *
-     * @param quote the ISO 4217 quote currency
-     * @return an optional containing the matching rate
-     */
-    public Optional<Rate> find(String quote) {
-        return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
-                .findFirst();
-    }
-
-    /**
-     * Returns {@code true} if there are no rate entries.
-     *
-     * @return {@code true} if the list is empty, {@code false} otherwise
-     */
-    public boolean isEmpty() {
-        return rates.isEmpty();
-    }
-
-    /**
-     * Returns all rate entries.
-     *
-     * @return the list of rates
-     */
-    public List<Rate> list() {
-        return rates;
-    }
-
-    /**
-     * Returns the number of rate entries.
-     *
-     * @return the number of entries
-     */
-    public int size() {
-        return rates.size();
-    }
 }

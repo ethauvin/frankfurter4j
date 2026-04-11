@@ -1,5 +1,5 @@
 /*
- * ExchangeRates.java
+ * ErrorResponse.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -32,73 +32,54 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import org.jspecify.annotations.NullMarked;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Represents a list of exchange rates returned by the Frankfurter API.
+ * Represents an error response returned by the Frankfurter API.
  *
- * <p>The API returns a JSON array of rate objects. This wrapper provides
- * convenience methods for searching and inspecting the returned rates.</p>
+ * <p>This type models the structure of error payloads returned by any endpoint.
+ * It is used when the API responds with a non‑200 HTTP status code. Instances
+ * may originate from parsed JSON or from fallback text when parsing fails.</p>
+ *
+ * <p>{@code ErrorResponse} participates in all result hierarchies
+ * ({@link CurrenciesResult}, {@link CurrencyResult}, {@link ProvidersResult},
+ * {@link RatesResult}, {@link RateResult}) so callers can uniformly handle
+ * success and error outcomes.</p>
  */
-@NullMarked
-public final class ExchangeRates implements RatesResult {
+@SuppressWarnings("ClassCanBeRecord")
+public final class ErrorResponse
+        implements CurrenciesResult, CurrencyResult, ProvidersResult, RatesResult, RateResult {
 
-    private final List<Rate> rates;
-
-    /**
-     * Creates a new immutable container for the given list of rates.
-     *
-     * @param rates the list of rate entries
-     */
-    public ExchangeRates(Collection<Rate> rates) {
-        this.rates = List.copyOf(rates);
-    }
-
-    @Override
-    public String toString() {
-        return "ExchangeRates{rates=" + rates + '}';
-    }
+    private final String message;
+    private final int status;
 
     /**
-     * Finds the first entry matching the given quote currency.
+     * Creates a new error response.
      *
-     * @param quote the ISO 4217 quote currency
-     * @return an optional containing the matching rate
+     * @param status  the HTTP status code returned by the API
+     * @param message the error message, or {@code null} if none was provided
      */
-    public Optional<Rate> find(String quote) {
-        return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
-                .findFirst();
+    public ErrorResponse(int status, @Nullable String message) {
+        this.status = status;
+        this.message = message;
     }
 
     /**
-     * Returns {@code true} if there are no rate entries.
+     * Returns the error message provided by the API.
      *
-     * @return {@code true} if the list is empty, {@code false} otherwise
+     * @return the error message, or {@code null} if none was provided
      */
-    public boolean isEmpty() {
-        return rates.isEmpty();
+    @Nullable
+    public String message() {
+        return message;
     }
 
     /**
-     * Returns all rate entries.
+     * Returns the HTTP status code associated with this error.
      *
-     * @return the list of rates
+     * @return the HTTP status code
      */
-    public List<Rate> list() {
-        return rates;
-    }
-
-    /**
-     * Returns the number of rate entries.
-     *
-     * @return the number of entries
-     */
-    public int size() {
-        return rates.size();
+    public int status() {
+        return status;
     }
 }

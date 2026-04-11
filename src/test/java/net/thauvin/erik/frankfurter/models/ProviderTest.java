@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * ProviderTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
-package net.thauvin.erik.frankfurter;
+package net.thauvin.erik.frankfurter.models;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class ProviderTest {
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void nullKey(String key) {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Provider(
+                        key,
+                        "name",
+                        "desc",
+                        "url",
+                        "terms",
+                        LocalDate.now(),
+                        LocalDate.now(),
+                        List.of("USD")
+                ));
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void nullName(String name) {
+        assertThrows(IllegalArgumentException.class, () ->
+                new Provider(
+                        "key",
+                        name,
+                        "desc",
+                        "url",
+                        "terms",
+                        LocalDate.now(),
+                        LocalDate.now(),
+                        List.of("USD")
+                ));
+    }
+}

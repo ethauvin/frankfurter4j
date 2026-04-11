@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * FrankfurterException.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
 package net.thauvin.erik.frankfurter;
+
+import java.io.Serial;
+
+/**
+ * Exception thrown when the Frankfurter API returns an error response.
+ *
+ * @since 1.0
+ */
+public final class FrankfurterException extends RuntimeException {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Creates a new exception with the given message.
+     *
+     * @param message the error message
+     */
+    public FrankfurterException(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new exception with the given message and cause.
+     *
+     * @param message the error message
+     * @param cause   the underlying cause
+     */
+    public FrankfurterException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

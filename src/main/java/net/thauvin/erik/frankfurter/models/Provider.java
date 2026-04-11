@@ -1,5 +1,5 @@
 /*
- * Currency.java
+ * Provider.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -37,55 +37,68 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
- * Represents a currency entry returned by the Frankfurter {@code /currencies} endpoint.
+ * Represents a provider entry returned by the Frankfurter {@code /providers} endpoint.
  *
- * <p>The API provides metadata for each currency, including its ISO codes,
- * display name, symbol, and the date range for which data is available.</p>
+ * <p>The API supplies metadata for each provider, including its identifier,
+ * descriptive information, data source URLs, the date range of available data,
+ * and the list of currencies supported by the provider.</p>
  *
- * <p>All fields except {@code isoCode} and {@code name} may be {@code null}
- * depending on the currency and the data available from the API.</p>
+ * <p>All fields except {@code key} and {@code name} may be {@code null}
+ * depending on the provider and the data available from the API.</p>
  */
 @NullMarked
-public record Currency(
-        @SerializedName("iso_code")
-        String isoCode,
-
-        @SerializedName("iso_numeric")
-        @Nullable String isoNumeric,
+public record Provider(
+        @SerializedName("key")
+        String key,
 
         @SerializedName("name")
         String name,
 
-        @SerializedName("symbol")
-        @Nullable String symbol,
+        @SerializedName("description")
+        @Nullable String description,
+
+        @SerializedName("data_url")
+        @Nullable String dataUrl,
+
+        @SerializedName("terms_url")
+        @Nullable String termsUrl,
 
         @SerializedName("start_date")
         @Nullable LocalDate startDate,
 
         @SerializedName("end_date")
-        @Nullable LocalDate endDate
-) implements CurrencyResult {
+        @Nullable LocalDate endDate,
+
+        @SerializedName("currencies")
+        List<String> currencies
+) {
 
     /**
-     * Creates a new currency entry.
+     * Creates a new provider entry.
      *
-     * @param isoCode    the ISO 4217 alphabetic currency code
-     * @param isoNumeric the ISO 4217 numeric currency code, or {@code null}
-     * @param name       the currency name
-     * @param symbol     the currency symbol, or {@code null}
-     * @param startDate  the first date for which data is available, or {@code null}
-     * @param endDate    the last date for which data is available, or {@code null}
-     * @throws IllegalArgumentException if {@code isoCode} or {@code name} is blank
+     * @param key         the provider identifier
+     * @param name        the provider name
+     * @param description the provider description, or {@code null}
+     * @param dataUrl     the data source URL, or {@code null}
+     * @param termsUrl    the terms-of-use URL, or {@code null}
+     * @param startDate   the first date for which data is available, or {@code null}
+     * @param endDate     the last date for which data is available, or {@code null}
+     * @param currencies  the list of supported currencies
+     * @throws IllegalArgumentException if {@code key} or {@code name} is blank
      */
     @SuppressWarnings("ConstantValue")
-    public Currency {
-        if (isoCode == null || isoCode.isBlank()) {
-            throw new IllegalArgumentException("isoCode must not be blank");
+    public Provider {
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("key must not be blank");
         }
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("name must not be blank");
         }
+
+        // Normalize null → empty list (API always provides an array, but defensive)
+        currencies = currencies == null ? List.of() : List.copyOf(currencies);
     }
 }

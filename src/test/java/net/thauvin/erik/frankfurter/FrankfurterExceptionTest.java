@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * FrankfurterExceptionTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
 package net.thauvin.erik.frankfurter;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+class FrankfurterExceptionTest {
+
+    @Nested
+    @DisplayName("constructors")
+    class ConstructorTests {
+
+        @Test
+        @DisplayName("stores message")
+        void storesMessage() {
+            var ex = new FrankfurterException("Boom");
+            assertEquals("Boom", ex.getMessage());
+            assertNull(ex.getCause());
+        }
+
+        @Test
+        @DisplayName("stores message and cause")
+        void storesMessageAndCause() {
+            var cause = new IllegalArgumentException("bad");
+            var ex = new FrankfurterException("Boom", cause);
+
+            assertEquals("Boom", ex.getMessage());
+            assertSame(cause, ex.getCause());
+        }
+    }
+
+    @Nested
+    @DisplayName("serialization")
+    class SerializationTests {
+
+        @Test
+        @DisplayName("has serialVersionUID")
+        void hasSerialVersionUID() {
+            // This test ensures the field exists and is of type long.
+            // Reflection avoids depending on the actual value.
+            assertDoesNotThrow(() -> {
+                var field = FrankfurterException.class.getDeclaredField("serialVersionUID");
+                assertEquals(long.class, field.getType());
+            });
+        }
+    }
+}

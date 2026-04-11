@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * RateTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
-package net.thauvin.erik.frankfurter;
+package net.thauvin.erik.frankfurter.models;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class RateTest {
+
+    @Nested
+    @DisplayName("constructor")
+    class ConstructorTests {
+
+        @Test
+        @DisplayName("stores base, quote, and rate")
+        void storesValues() {
+            var now = LocalDate.now();
+            var r = new Rate(now, "USD", "EUR", 1.1);
+
+            assertEquals(now, r.date());
+            assertEquals("USD", r.base());
+            assertEquals("EUR", r.quote());
+            assertEquals(1.1, r.exchangeRate());
+        }
+    }
+}

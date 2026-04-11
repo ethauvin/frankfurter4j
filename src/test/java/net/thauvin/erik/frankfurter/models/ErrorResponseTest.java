@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * ErrorResponseTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
-package net.thauvin.erik.frankfurter;
+package net.thauvin.erik.frankfurter.models;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+class ErrorResponseTest {
+
+    @Test
+    @DisplayName("allows null message")
+    void allowsNullMessage() {
+        var e = new ErrorResponse(500, null);
+        assertNull(e.message());
+    }
+
+    @Test
+    @DisplayName("stores status and message")
+    void storesValues() {
+        var e = new ErrorResponse(404, "Not found");
+
+        assertEquals(404, e.status());
+        assertEquals("Not found", e.message());
+    }
+}

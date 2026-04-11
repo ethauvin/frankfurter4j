@@ -14,23 +14,28 @@
 
 Retrieve reference exchange rates from
 [Frankfurter.dev](https://frankfurter.dev/), a free, open-source currency data
-API.
+APIv2.
 
 ## Examples (TL;DR)
 
 ```java
-var latestRates = new LatestRates.Builder()
-        .amount(100.0)
-        .base("USD")
-        .symbols("EUR", "GBP")
-        .build();
-var exchangeRates = latestRates.exchangeRates();
-var euro = exchangeRates.rateFor("EUR");
-var britishPound = exchangeRates.rateFor("GBP");
+var client = new Frankfurter4J();
+
+var latestRates = client.getRates();
+if (latestRates instanceof ExchangeRates latest) {
+    var pound = latest.find("GBP");
+    pound.ifPresent(rate ->
+        System.out.println("1 GBP: " + rate.exchangeRate() + " EUR"));
+}
+
+var rate = client.getRate("USD", "EUR");
+if (rate instanceof Rate dollar) {
+    System.out.println("1 USD: " + dollar.exchangeRate() + " EUR");
+}
 ```
 
-To get the latest exchange rates for the United States Dollar in Euro
-and British Pound.
+To get the latest exchange rates for the British Pound and
+United States Dollar in Euro.
 
 ## bld
 
@@ -41,7 +46,7 @@ in your build file:
 repositories = List.of(MAVEN_CENTRAL, CENTRAL_SNAPSHOTS);
 
 scope(compile)
-    .include(dependency("net.thauvin.erik:frankfurter4j:0.9.1"));
+    .include(dependency("net.thauvin.erik:frankfurter4j:1.0.0"));
 ```
 
 ## Gradle, Maven, etc
@@ -59,7 +64,7 @@ repositories {
 }
 
 dependencies {
-    implementation("net.thauvin.erik:frankfurter4j:0.9.1")
+    implementation("net.thauvin.erik:frankfurter4j:1.0.0")
 }
 ```
 
@@ -68,59 +73,49 @@ on [Maven Central](https://central.sonatype.com/artifact/net.thauvin.erik/frankf
 
 ## Latest Rates
 
-To fetch the latest working day's rates:
+Fetch the latest exchange rates.
 
 ```java
-var latestRates = new LatestRates.Builder().build();
-var exchangeRates = latestRates.exchangeRates();
+var client = new Frankfurter4J();
+var latestRates = client.getRates();
 ```
 
-The latest exchange rates will be stored in the
+The latest exchange rates are stored in the
 [ExchangeRates](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/ExchangeRates.html)
-class:
+class.
+
+Find a specific rate.
 
 ```java
-if (exchangeRates.hasRateFor("JPY")) {
-    var jpy = exchangeRates.rateFor("JPY");
+if (latestRates instanceof ExchangeRates rates) {
+   var gbp = rates.find("GBP").orElse(null);
 }
 ```
 
-To change the base currency use the builder's
-[base](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/LatestRates.Builder.html#base(java.lang.String))
-method. The default is `EUR`.
+The rate is stored in the [Rate](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/Rate.html)
+class.
+
+Change the base currency with base. Filter target currencies with quotes.
 
 ```java
-var latestRates = new LatestRates.Builder()
-        .base("USD")
-        .build();
-```
-
-To limit the response to specific target currencies.
-
-```java
-var latestRates = new LatestRates.Builder()
-        .symbols("CHF", "GBP")
-        .build();
+var latestResult = client.getRates(
+        new RatesConfig.Builder()
+                .base("USD")
+                .quotes("EUR", "GBP")
+                .build()
+    );
 ```
 
 ## Historical Rates
 
-To retrieve rates for a specific date.
+Look up rates for a specific date.
 
 ```java
-var latestRates = new LatestRates.Builder()
-        .date(LocalDate.of(1999, 1, 4))
-        .build();
-```
-
-To change the base currency and filter target currencies.
-
-```java
-var latestRates = new LatestRates.Builder()
-        .base("USD")
-        .date(LocalDate.of(1999, 1, 4))
-        .symbols("EUR")
-        .build();
+var historicalRates = client.getRates(
+        new RatesConfig.Builder()
+                .date(LocalDate.parse("1999-01-04"))
+                .build()
+        );
 ```
 
 **Note**: As mentioned on the website, Frankfurter stores dates in UTC.
@@ -130,174 +125,129 @@ for today is not stable and will update if new rates are published.
 
 ## Time Series Data
 
-To fetch rates over a period.
+Fetch rates over a period with from and to.
 
 ```java
-var timeSeries = new TimeSeries.Builder()
-        .startDate(LocalDate.of(2000, 1, 1))
-        .endDate(LocalDate.of(2000, 12, 31))
-        .build();
-var periodicRates = timeSeries.periodicRates();
+var timeSeries = client.getRates(
+        new RatesConfig.Builder()
+                .from(LocalDate.parse("2024-01-01"))
+                .to(LocalDate.parse("2024-01-10"))
+                .build()
+        );
 
 ```
 
-The periodic rates will be stored in the
-[TimeSeries](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/TimeSeries.html)
-class.
+## Grouping
+
+Downsample a time series with group.
 
 ```java
-var firstMarketDay = LocalDate.of(2000, 1, 4);
-if (periodicRates.hasRatesFor(firstMarketDay)) {
-    // Get the Yen rate directly
-    var yen = periodicRates.rateFor(firstMarketDay, "JPY");
-
-    // Get the Dollar rate if available
-    var rates = periodicRates.rateFor(firstMarketDay);
-    if (rates.containsKey("USD")) {
-        var usd = rates.get("USD");
-    }
-}
-
-// Loop through all dates
-periodicRates.dates().forEach(date -> {
-    // Print the date
-    System.out.println("Rates for " + date);
-    // Loop through all rates
-    periodicRates.ratesFor(date).forEach((symbol, rate) -> {
-        // Print the symbol and rate, e.g., USD: 0.9059
-        System.out.println("    " + symbol + ": " + rate); 
-    });
-});
+var group = client.getRates(
+        new RatesConfig.Builder()
+                .from(LocalDate.of(2024, 1, 1))
+                .group(Group.MONTH)
+                .build()
+        );
 ```
 
-To fetch rates up to the present.
+## Filter by Provider
+
+Scope to specific providers with providers.
 
 ```java
-var timeSeries = new TimeSeries.Builder()
-        .startDate(LocalDate.of(2025, 1, 1))
-        .build();
+var filtered = client.getRates(
+            new RatesConfig.Builder()
+                    .providers("ECB", "BAM")
+                    .build()
+    );
+
 ```
 
-To filter currencies to reduce response size and improve performance.
+## Rate
+
+Get the rate for a single currency pair.
 
 ```java
-var timeSeries = new TimeSeries.Builder()
-        .startDate(LocalDate.of(2025, 1, 1))
-        .endDate(LocalDate.now())
-        .symbols("USD")
-        .build();
+var rate = client.getRate("USD", "EUR");
 ```
 
-## Available currencies
-
-The currencies are stored in a
-[CurrencyRegistry](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/CurrencyRegistry.html)
-which contains [Currency](https://ethauvin.github.io/frankfurter4j/net/thauvin/erik/frankfurter/models/Currency.html)
-records.
+Optionally add date or providers.
 
 ```java
-var currencies = CurrencyRegistry.getInstance();
-var usd = currencies.findBySymbol("USD"); // case-insensitive
-if (usd.isPresent()) {
-    var name = usd.get().name(); // United States Dollar
-    var symbol = usd.get().symbol(); // USD
-    var locale = usd.get().locale(); // Locale.US
-}
-
-currencies.findBySymbol("usd"); // case-insensitive
-currencies.findBySymbol("EUR"); // the record for Euro
-
-currencies.findByName("euro"); // the record for EUR
-currencies.findByName(".*Japan.*"); // the record for JPY
-
-currencies.search(".*Dollar$"); //  list of matching currencies
-
-currencies.contains("JPY"); // true
-```
-
-The currently supported currencies are:
-
-| Symbol | Name                  |
-|:-------|:----------------------|
-| `AUD`  | Australian Dollar     |
-| `BGN`  | Bulgarian Lev         |
-| `BRL`  | Brazilian Real        |
-| `CAD`  | Canadian Dollar       |
-| `CHF`  | Swiss Franc           |
-| `CNY`  | Chinese Renminbi Yuan |
-| `CZK`  | Czech Koruna          |
-| `DKK`  | Danish Krone          |
-| `EUR`  | Euro                  |
-| `GBP`  | British Pound         |
-| `HKD`  | Hong Kong Dollar      |
-| `HUF`  | Hungarian Forint      |
-| `IDR`  | Indonesian Rupiah     |
-| `ILS`  | Israeli New Sheqel    |
-| `INR`  | Indian Rupee          |
-| `ISK`  | Icelandic Króna       |
-| `JPY`  | Japanese Yen          |
-| `KRW`  | South Korean Won      |
-| `MXN`  | Mexican Peso          |
-| `MYR`  | Malaysian Ringgit     |
-| `NOK`  | Norwegian Krone       |
-| `NZD`  | New Zealand Dollar    |
-| `PHP`  | Philippine Peso       |
-| `PLN`  | Polish Złoty          |
-| `RON`  | Romanian Leu          |
-| `SEK`  | Swedish Krona         |
-| `SGD`  | Singapore Dollar      |
-| `THB`  | Thai Baht             |
-| `TRY`  | Turkish Lira          |
-| `USD`  | United States Dollar  |
-| `ZAR`  | South African Rand    |
-
-This list is maintained internally as it is unlikely to change.
-Although, to fully implement the API, the list could be refreshed using:
-
-```java
-currencies.refresh();
-```
-
-## Currency Conversion
-
-You can perform currency conversion by fetching the exchange rate with a
-specified amount.
-
-```java
-var latestRates = new LatestRates.Builder()
-        .amount(10)
+var rate = client.getRate(
+        new RateConfig.Builder()
         .base("USD")
-        .symbols("EUR")
-        .build();
-var exchangeRates = latestRates.exchangeRates();
-var euro = exchangeRates.rateFor("EUR");
+        .quote("EUR")
+        .date(LocalDate.of(2026, 1, 1))
+        .build()
+    );
+```
 
-System.out.println("$10 = €" + euro); // $10 = €8.8059
+## Currency
+
+Get details and provider coverage for a single currency.
+
+```java
+var currency = client.getCurrency("EUR");
+
+if (currency instanceof Currency eur) {
+    var name = eur.name();
+}
+```
+
+## Providers
+
+List the data sources behind the API.
+
+```java
+var providers = client.getProviders();
+
+if (providers instanceof Providers p) {
+        var ecb = p.find("ECB");
+}
 
 ```
 
-## Working Days
+## Currencies
 
-You can retrieve a list
-of [working days](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html)
-(non-weekends, non-closing days) between two dates.
+Get available currencies with provider coverage.
 
 ```java
-var workingDays = FrankfurterUtils.workingDays(
-        LocalDate.of(2021, 1, 1), LocalDate.of(2021, 1, 31));
+var currencies = client.getCurrencies();
 
-var firstWorkingDay = workingDays.get(0); // 2021-01-04
-var lastWorkingDay = workingDays.get(workingDays.size() - 1); // 2025-01-29
+if (currencies instanceof.Currencies c) {
+        var usd = p.find("USD");
+}
 ```
 
 ## Currency Format
 
-You can also format amounts for specific currencies.
+Format amounts to specific local currencies.
 
 ```java
-CurrencyFormatter.formatCurrency("USD", 100.0); // $100.00
-CurrencyFormatter.formatCurrency("EUR", 1234.567); // 1.234,567 €
-CurrencyFormatter.formatCurrency("EUR", 1234.567, true); // 1.234,57 € rounded
+var client = new Frankfurter4J();
+var rate = client.getRate("USD", "GBP");
+
+if (rate instanceof Rate r) {
+    var amount = 12;
+    var usd = CurrencyFormatter.format(amount, "USD");
+    var gbp = CurrencyFormatter.format(r.exchangeRate() * amount, "GBP");
+    System.out.println(usd + ": " + gbp); // e.g. $12.00: £9.00468
+}
+```
+
+
+## Error
+
+The API returns standard HTTP status codes with an error message.
+
+```java
+var rate = client.getRate("FOO", "BAR");
+
+if (rate instanceof net.thauvin.erik.frankfurter.models.ErrorResponse error) {
+    // 422: invalid currency: FOO,BAR
+    System.out.println(error.status() + ": " + error.message());
+}
 ```
 
 ## Contributing

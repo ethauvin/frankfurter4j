@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * FrankfurterEndpointsSingleRateTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
 package net.thauvin.erik.frankfurter;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class FrankfurterEndpointsSingleRateTest {
+
+    @Test
+    @DisplayName("parses single rate JSON")
+    void parsesSingleRate() {
+        var json = """
+                {
+                  "date": "2024-01-01",
+                  "base": "USD",
+                  "quote": "EUR",
+                  "rate": 0.92
+                }
+                """;
+
+        var r = FrankfurterEndpoints.parseSingleRate(json);
+
+        assertEquals(LocalDate.parse("2024-01-01"), r.date());
+        assertEquals("USD", r.base());
+        assertEquals("EUR", r.quote());
+        assertEquals(0.92, r.exchangeRate());
+    }
+}

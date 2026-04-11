@@ -1,5 +1,5 @@
 /*
- * ExchangeRates.java
+ * LocalDateAdapter.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,75 +30,47 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter.models;
+package net.thauvin.erik.frankfurter.json;
 
+import com.google.gson.*;
 import org.jspecify.annotations.NullMarked;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.lang.reflect.Type;
+import java.time.LocalDate;
 
 /**
- * Represents a list of exchange rates returned by the Frankfurter API.
+ * Gson adapter for serializing and deserializing {@link LocalDate} values.
  *
- * <p>The API returns a JSON array of rate objects. This wrapper provides
- * convenience methods for searching and inspecting the returned rates.</p>
+ * <p>This adapter reads and writes ISO‑8601 date strings such as
+ * {@code "2026-04-08"}. It is used internally by the Frankfurter client to
+ * ensure consistent date handling across all JSON payloads.</p>
  */
 @NullMarked
-public final class ExchangeRates implements RatesResult {
-
-    private final List<Rate> rates;
+public final class LocalDateAdapter implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {
 
     /**
-     * Creates a new immutable container for the given list of rates.
+     * Deserializes an ISO‑8601 date string into a {@link LocalDate}.
      *
-     * @param rates the list of rate entries
+     * @param json the JSON element containing the date string
+     * @param type the target type (ignored)
+     * @param ctx  the deserialization context (ignored)
+     * @return the parsed {@link LocalDate}
      */
-    public ExchangeRates(Collection<Rate> rates) {
-        this.rates = List.copyOf(rates);
-    }
-
     @Override
-    public String toString() {
-        return "ExchangeRates{rates=" + rates + '}';
+    public LocalDate deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) {
+        return LocalDate.parse(json.getAsString());
     }
 
     /**
-     * Finds the first entry matching the given quote currency.
+     * Serializes a {@link LocalDate} into its ISO‑8601 string representation.
      *
-     * @param quote the ISO 4217 quote currency
-     * @return an optional containing the matching rate
+     * @param date the date to serialize
+     * @param type the target type (ignored)
+     * @param ctx  the serialization context (ignored)
+     * @return a JSON string containing the ISO‑8601 representation of the date
      */
-    public Optional<Rate> find(String quote) {
-        return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
-                .findFirst();
-    }
-
-    /**
-     * Returns {@code true} if there are no rate entries.
-     *
-     * @return {@code true} if the list is empty, {@code false} otherwise
-     */
-    public boolean isEmpty() {
-        return rates.isEmpty();
-    }
-
-    /**
-     * Returns all rate entries.
-     *
-     * @return the list of rates
-     */
-    public List<Rate> list() {
-        return rates;
-    }
-
-    /**
-     * Returns the number of rate entries.
-     *
-     * @return the number of entries
-     */
-    public int size() {
-        return rates.size();
+    @Override
+    public JsonElement serialize(LocalDate date, Type type, JsonSerializationContext ctx) {
+        return new JsonPrimitive(date.toString());
     }
 }

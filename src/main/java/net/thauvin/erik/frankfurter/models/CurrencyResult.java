@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * CurrencyResult.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package net.thauvin.erik.frankfurter.models;
+
 /**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
+ * Represents the result of a {@code /currency} query.
  *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
+ * <p>Either an {@link Currency} instance on success or an
+ * {@link ErrorResponse} instance on error.</p>
+ *
+ * @since 1.0
  */
-package net.thauvin.erik.frankfurter;
+public sealed interface CurrencyResult
+        permits Currency, ErrorResponse {
+
+}

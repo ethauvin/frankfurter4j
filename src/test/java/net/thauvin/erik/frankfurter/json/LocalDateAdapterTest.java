@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * LocalDateAdapterTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
- */
-package net.thauvin.erik.frankfurter;
+package net.thauvin.erik.frankfurter.json;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class LocalDateAdapterTest {
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .create();
+
+    @Nested
+    @DisplayName("deserialize")
+    class DeserializeTests {
+
+        @Test
+        @DisplayName("parses ISO-8601 date")
+        void parsesDate() {
+            var d = gson.fromJson("\"2020-01-02\"", LocalDate.class);
+            assertEquals(LocalDate.of(2020, 1, 2), d);
+        }
+    }
+
+    @Nested
+    @DisplayName("serialize")
+    class SerializeTests {
+
+        @Test
+        @DisplayName("writes ISO-8601 date")
+        void writesDate() {
+            var json = gson.toJson(LocalDate.of(2020, 1, 2));
+            assertEquals("\"2020-01-02\"", json);
+        }
+    }
+}

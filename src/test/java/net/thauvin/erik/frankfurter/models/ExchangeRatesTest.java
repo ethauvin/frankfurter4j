@@ -1,5 +1,5 @@
 /*
- * ExchangeRates.java
+ * ExchangeRatesTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -32,73 +32,59 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import org.jspecify.annotations.NullMarked;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
-/**
- * Represents a list of exchange rates returned by the Frankfurter API.
- *
- * <p>The API returns a JSON array of rate objects. This wrapper provides
- * convenience methods for searching and inspecting the returned rates.</p>
- */
-@NullMarked
-public final class ExchangeRates implements RatesResult {
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    private final List<Rate> rates;
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+class ExchangeRatesTest {
 
-    /**
-     * Creates a new immutable container for the given list of rates.
-     *
-     * @param rates the list of rate entries
-     */
-    public ExchangeRates(Collection<Rate> rates) {
-        this.rates = List.copyOf(rates);
+    @Test
+    void checkToString() {
+        var r = new Rate(LocalDate.now(), "USD", "EUR", 1.1);
+        assertTrue(new ExchangeRates(List.of(r)).toString().contains("ExchangeRates"));
     }
 
-    @Override
-    public String toString() {
-        return "ExchangeRates{rates=" + rates + '}';
+    @Nested
+    @DisplayName("find()")
+    class FindTests {
+
+        @Test
+        @DisplayName("finds matching rate")
+        void findsRate() {
+            var r = new Rate(LocalDate.now(), "USD", "EUR", 1.1);
+            var ex = new ExchangeRates(List.of(r));
+
+            assertTrue(ex.find("EUR").isPresent());
+        }
+
+        @Test
+        @DisplayName("returns empty when not found")
+        void notFound() {
+            var ex = new ExchangeRates(List.of());
+            assertTrue(ex.find("GBP").isEmpty());
+        }
     }
 
-    /**
-     * Finds the first entry matching the given quote currency.
-     *
-     * @param quote the ISO 4217 quote currency
-     * @return an optional containing the matching rate
-     */
-    public Optional<Rate> find(String quote) {
-        return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
-                .findFirst();
-    }
+    @Nested
+    @DisplayName("list()")
+    class ListTests {
 
-    /**
-     * Returns {@code true} if there are no rate entries.
-     *
-     * @return {@code true} if the list is empty, {@code false} otherwise
-     */
-    public boolean isEmpty() {
-        return rates.isEmpty();
-    }
+        @Test
+        @DisplayName("returns immutable list")
+        void immutableList() {
+            var r = new Rate(LocalDate.now(), "USD", "EUR", 1.1);
+            var ex = new ExchangeRates(List.of(r));
 
-    /**
-     * Returns all rate entries.
-     *
-     * @return the list of rates
-     */
-    public List<Rate> list() {
-        return rates;
-    }
-
-    /**
-     * Returns the number of rate entries.
-     *
-     * @return the number of entries
-     */
-    public int size() {
-        return rates.size();
+            var list = ex.list();
+            //noinspection DataFlowIssue
+            assertThrows(UnsupportedOperationException.class, () -> list.add(r));
+        }
     }
 }
