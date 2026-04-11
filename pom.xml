@@ -5,7 +5,7 @@
   <groupId>net.thauvin.erik</groupId>
   <artifactId>frankfurter4j</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>Frankfurter4J</name>
+  <name>Frankfurter4j</name>
   <description>Retrieve reference exchange rates from Frankfurter.dev</description>
   <url>https://github.com/ethauvin/frankfurter4j</url>
   <licenses>

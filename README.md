@@ -19,7 +19,7 @@ APIv2.
 ## Examples (TL;DR)
 
 ```java
-var client = new Frankfurter4J();
+var client = new Frankfurter();
 
 var latestRates = client.getRates();
 if (latestRates instanceof ExchangeRates latest) {
@@ -76,7 +76,7 @@ on [Maven Central](https://central.sonatype.com/artifact/net.thauvin.erik/frankf
 Fetch the latest exchange rates.
 
 ```java
-var client = new Frankfurter4J();
+var client = new Frankfurter();
 var latestRates = client.getRates();
 ```
 
@@ -225,7 +225,6 @@ if (currencies instanceof.Currencies c) {
 Format amounts to specific local currencies.
 
 ```java
-var client = new Frankfurter4J();
 var rate = client.getRate("USD", "GBP");
 
 if (rate instanceof Rate r) {

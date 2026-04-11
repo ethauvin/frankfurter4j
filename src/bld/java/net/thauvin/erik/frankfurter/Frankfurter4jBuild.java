@@ -1,5 +1,5 @@
 /*
- * Frankfurter4JBuild.java
+ * Frankfurter4jBuild.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -51,7 +51,7 @@ import java.util.List;
 import static rife.bld.dependencies.Repository.*;
 import static rife.bld.dependencies.Scope.*;
 
-public class Frankfurter4JBuild extends Project {
+public class Frankfurter4jBuild extends Project {
 
     final PmdOperation pmdOp = new PmdOperation()
             .fromProject(this)
@@ -59,9 +59,9 @@ public class Frankfurter4JBuild extends Project {
             .ruleSets("config/pmd.xml");
     final File testResultsDirectory = IOTools.resolveFile(buildDirectory(), "test-results", "test");
 
-    public Frankfurter4JBuild() {
+    public Frankfurter4jBuild() {
         pkg = "net.thauvin.erik";
-        name = "Frankfurter4J";
+        name = "Frankfurter4j";
         archiveBaseName = "frankfurter4j";
         version = version(1, 0, 0, "SNAPSHOT");
 
@@ -122,6 +122,7 @@ public class Frankfurter4JBuild extends Project {
 
         javadocOperation()
                 .javadocOptions()
+                .docTitle("Frankfurter4j API Specification")
                 .author()
                 .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson);
     }
@@ -146,7 +147,7 @@ public class Frankfurter4JBuild extends Project {
     }
 
     public static void main(String[] args) {
-        new Frankfurter4JBuild().start(args);
+        new Frankfurter4jBuild().start(args);
     }
 
     @BuildCommand(summary = "Generates JaCoCo Reports")

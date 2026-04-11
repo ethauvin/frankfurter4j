@@ -1,5 +1,5 @@
 /*
- * Frankfurter4JRateOverloadTest.java
+ * FrankfurterRateOverloadTest.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
