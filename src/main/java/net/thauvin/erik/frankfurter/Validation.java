@@ -52,8 +52,21 @@ public final class Validation {
 
     private static final LocalDate MIN_SUPPORTED_DATE = LocalDate.of(1994, 1, 4);
 
+    /**
+     * You can't call the constructor.
+     */
     private Validation() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+
+    }
+
+    /**
+     * Checks if a string is null or blank.
+     *
+     * @param s the string to check
+     * @return {@code true} if the string is null or blank, {@code false} otherwise
+     */
+    public static boolean isNullOrBlank(String s) {
+        return s == null || s.isBlank();
     }
 
     /**
@@ -68,7 +81,7 @@ public final class Validation {
      * @throws IllegalArgumentException if the code is null, blank, or not three letters
      */
     public static void requireIsoCurrency(@Nullable String code, @NonNull String field) {
-        if (code == null || code.isBlank()) {
+        if (isNullOrBlank(code)) {
             throw new IllegalArgumentException(field + " currency must not be blank");
         }
         if (code.length() != 3) {

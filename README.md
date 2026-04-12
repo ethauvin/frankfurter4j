@@ -98,6 +98,7 @@ class.
 Change the base currency with base. Filter target currencies with quotes.
 
 ```java
+var client = new Frankfurter();
 var latestResult = client.getRates(
         new RatesConfig.Builder()
                 .base("USD")
@@ -111,6 +112,7 @@ var latestResult = client.getRates(
 Look up rates for a specific date.
 
 ```java
+var client = new Frankfurter();
 var historicalRates = client.getRates(
         new RatesConfig.Builder()
                 .date(LocalDate.parse("1999-01-04"))
@@ -128,6 +130,7 @@ for today is not stable and will update if new rates are published.
 Fetch rates over a period with from and to.
 
 ```java
+var client = new Frankfurter();
 var timeSeries = client.getRates(
         new RatesConfig.Builder()
                 .from(LocalDate.parse("2024-01-01"))
@@ -142,6 +145,7 @@ var timeSeries = client.getRates(
 Downsample a time series with group.
 
 ```java
+var client = new Frankfurter();
 var group = client.getRates(
         new RatesConfig.Builder()
                 .from(LocalDate.of(2024, 1, 1))
@@ -155,6 +159,7 @@ var group = client.getRates(
 Scope to specific providers with providers.
 
 ```java
+var client = new Frankfurter();
 var filtered = client.getRates(
             new RatesConfig.Builder()
                     .providers("ECB", "BAM")
@@ -168,6 +173,7 @@ var filtered = client.getRates(
 Get the rate for a single currency pair.
 
 ```java
+var client = new Frankfurter();
 var rate = client.getRate("USD", "EUR");
 ```
 
@@ -188,6 +194,7 @@ var rate = client.getRate(
 Get details and provider coverage for a single currency.
 
 ```java
+var client = new Frankfurter();
 var currency = client.getCurrency("EUR");
 
 if (currency instanceof Currency eur) {
@@ -200,6 +207,7 @@ if (currency instanceof Currency eur) {
 List the data sources behind the API.
 
 ```java
+var client = new Frankfurter();
 var providers = client.getProviders();
 
 if (providers instanceof Providers p) {
@@ -213,10 +221,11 @@ if (providers instanceof Providers p) {
 Get available currencies with provider coverage.
 
 ```java
+var client = new Frankfurter();
 var currencies = client.getCurrencies();
 
 if (currencies instanceof.Currencies c) {
-        var usd = p.find("USD");
+        var usd = c.find("USD");
 }
 ```
 

@@ -33,6 +33,7 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
+import net.thauvin.erik.frankfurter.Validation;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -94,10 +95,10 @@ public record Provider(
      */
     @SuppressWarnings("ConstantValue")
     public Provider {
-        if (key == null || key.isBlank()) {
+        if (Validation.isNullOrBlank(key)) {
             throw new IllegalArgumentException("key must not be blank");
         }
-        if (name == null || name.isBlank()) {
+        if (Validation.isNullOrBlank(name)) {
             throw new IllegalArgumentException("name must not be blank");
         }
 

@@ -32,6 +32,7 @@
 
 package net.thauvin.erik.frankfurter.util;
 
+import net.thauvin.erik.frankfurter.Validation;
 import org.jspecify.annotations.NullMarked;
 
 import java.text.NumberFormat;
@@ -230,8 +231,10 @@ public final class CurrencyFormatter {
             Map.entry("ZWG", new Locale("en", "ZW"))
     );
 
+    /**
+     * You can't call the constructor.
+     */
     private CurrencyFormatter() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
     /**
@@ -258,8 +261,7 @@ public final class CurrencyFormatter {
      * @throws IllegalArgumentException if the ISO code is null, blank, or unknown
      */
     public static String format(double amount, String isoCode, boolean rounded) {
-        //noinspection ConstantValue
-        if (isoCode == null || isoCode.isBlank()) {
+        if (Validation.isNullOrBlank(isoCode)) {
             throw new IllegalArgumentException("ISO currency code must not be null or blank");
         }
 

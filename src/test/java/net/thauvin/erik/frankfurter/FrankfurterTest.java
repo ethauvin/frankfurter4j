@@ -36,6 +36,7 @@ import net.thauvin.erik.frankfurter.config.RateConfig;
 import net.thauvin.erik.frankfurter.config.RatesConfig;
 import net.thauvin.erik.frankfurter.models.ErrorResponse;
 import net.thauvin.erik.frankfurter.models.ExchangeRates;
+import net.thauvin.erik.frankfurter.models.Rate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -69,6 +70,30 @@ class FrankfurterTest {
     @Nested
     @DisplayName("HTTP error handling")
     class HttpErrorTest {
+
+        @Test
+        @DisplayName("getRate(base, quote) delegates to config-based method")
+        void delegatesToConfig() throws Exception {
+            var json = """
+                    { "date":"2024-01-01", "base":"USD", "quote":"EUR", "rate":1.1 }
+                    """;
+
+            var mockClient = mock(HttpClient.class);
+            var mockResponse = mock(HttpResponse.class);
+
+            when(mockResponse.statusCode()).thenReturn(200);
+            when(mockResponse.body()).thenReturn(json);
+
+            //noinspection unchecked
+            when(mockClient.send(any(), any(HttpResponse.BodyHandler.class)))
+                    .thenReturn(mockResponse);
+
+            var api = new Frankfurter(mockClient, URI.create("https://example.com/"));
+            var result = api.getRate("USD", "EUR");
+
+            assertInstanceOf(Rate.class, result);
+            assertEquals("USD", ((Rate) result).base());
+        }
 
         private HttpClient mockClient(int status, String body) throws IOException, InterruptedException {
             var client = mock(HttpClient.class);

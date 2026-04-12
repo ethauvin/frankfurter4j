@@ -36,9 +36,31 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FrankfurterEndpointsTest {
+
+    @Test
+    @DisplayName("parses single rate JSON")
+    void parsesSingleRate() {
+        var json = """
+                {
+                  "date": "2024-01-01",
+                  "base": "USD",
+                  "quote": "EUR",
+                  "rate": 0.92
+                }
+                """;
+
+        var r = FrankfurterEndpoints.parseSingleRate(json);
+
+        assertEquals(LocalDate.parse("2024-01-01"), r.date());
+        assertEquals("USD", r.base());
+        assertEquals("EUR", r.quote());
+        assertEquals(0.92, r.exchangeRate());
+    }
 
     @Nested
     @DisplayName("parseError()")

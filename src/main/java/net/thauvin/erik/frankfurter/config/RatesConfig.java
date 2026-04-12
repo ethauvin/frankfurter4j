@@ -156,7 +156,7 @@ public final class RatesConfig {
 
             var params = new LinkedHashMap<String, String>();
 
-            if (base != null && !base.isBlank()) {
+            if (!Validation.isNullOrBlank(base)) {
                 params.put("base", base);
             }
 
@@ -224,6 +224,7 @@ public final class RatesConfig {
 
         /**
          * Sets one or more providers (e.g. {@code "ECB"}, {@code "BAM" })
+         * null
          *
          * @param providers one or more providers
          * @return this builder instance

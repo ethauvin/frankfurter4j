@@ -57,8 +57,10 @@ public final class FrankfurterEndpoints {
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
 
+    /**
+     * You can't call the constructor.
+     */
     private FrankfurterEndpoints() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
     }
 
     /**

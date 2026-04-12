@@ -41,6 +41,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,6 +73,20 @@ class RateConfigTest {
     @Nested
     @DisplayName("build()")
     class BuildTests {
+
+        @Test
+        @DisplayName("build with blank base")
+        void buildWithBlankBase() {
+            var b = new RateConfig.Builder();
+            assertThrows(IllegalArgumentException.class, () -> b.base(" "));
+        }
+
+        @Test
+        @DisplayName("build with empty providers list")
+        void buildWithEmptyProviders() {
+            var b = new RateConfig.Builder().providers(List.of("").toArray(new String[0]));
+            assertThrows(IllegalArgumentException.class, b::build);
+        }
 
         @Test
         @DisplayName("builds valid config")

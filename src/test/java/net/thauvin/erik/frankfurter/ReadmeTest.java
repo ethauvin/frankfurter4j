@@ -59,6 +59,9 @@ class ReadmeTest {
 
         if (currencies instanceof net.thauvin.erik.frankfurter.models.Currencies c) {
             assertFalse(c.isEmpty());
+            var usd = c.find("USD");
+            assertTrue(usd.isPresent());
+            assertEquals("United States Dollar", usd.get().name());
         }
     }
 

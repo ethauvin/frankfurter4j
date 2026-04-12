@@ -33,6 +33,7 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
+import net.thauvin.erik.frankfurter.Validation;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -82,12 +83,11 @@ public record Currency(
      * @param endDate    the last date for which data is available, or {@code null}
      * @throws IllegalArgumentException if {@code isoCode} or {@code name} is blank
      */
-    @SuppressWarnings("ConstantValue")
     public Currency {
-        if (isoCode == null || isoCode.isBlank()) {
+        if (Validation.isNullOrBlank(isoCode)) {
             throw new IllegalArgumentException("isoCode must not be blank");
         }
-        if (name == null || name.isBlank()) {
+        if (Validation.isNullOrBlank(name)) {
             throw new IllegalArgumentException("name must not be blank");
         }
     }
