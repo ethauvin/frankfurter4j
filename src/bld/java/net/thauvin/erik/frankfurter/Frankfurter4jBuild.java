@@ -73,7 +73,7 @@ public class Frankfurter4jBuild extends Project {
         repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES);
 
         var junit = version(6, 0, 3);
-        var gson = version(2, 13, 2);
+        var gson = version(2, 14, 0);
         scope(compile)
                 .include(dependency("com.uwyn", "urlencoder",
                         version(1, 3, 5)))
@@ -124,7 +124,8 @@ public class Frankfurter4jBuild extends Project {
                 .javadocOptions()
                 .docTitle("Frankfurter4j API Specification")
                 .author()
-                .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson);
+                .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson)
+                .link("https://findbugs.sourceforge.net/api/");
     }
 
     @Override
