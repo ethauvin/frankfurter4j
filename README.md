@@ -14,7 +14,7 @@
 
 Retrieve reference exchange rates from
 [Frankfurter.dev](https://frankfurter.dev/), a free, open-source currency data
-APIv2.
+API (v2)
 
 ## Examples (TL;DR)
 
@@ -46,7 +46,7 @@ in your build file:
 repositories = List.of(MAVEN_CENTRAL, CENTRAL_SNAPSHOTS);
 
 scope(compile)
-    .include(dependency("net.thauvin.erik:frankfurter4j:1.0.0"));
+    .include(dependency("net.thauvin.erik:frankfurter4j:1.0.0-SNAPSHOT"));
 ```
 
 ## Gradle, Maven, etc
@@ -64,7 +64,7 @@ repositories {
 }
 
 dependencies {
-    implementation("net.thauvin.erik:frankfurter4j:1.0.0")
+    implementation("net.thauvin.erik:frankfurter4j:1.0.0-SNAPSHOT")
 }
 ```
 
@@ -224,7 +224,7 @@ Get available currencies with provider coverage.
 var client = new Frankfurter();
 var currencies = client.getCurrencies();
 
-if (currencies instanceof.Currencies c) {
+if (currencies instanceof Currencies c) {
         var usd = c.find("USD");
 }
 ```
@@ -244,7 +244,6 @@ if (rate instanceof Rate r) {
 }
 ```
 
-
 ## Error
 
 The API returns standard HTTP status codes with an error message.
@@ -252,7 +251,7 @@ The API returns standard HTTP status codes with an error message.
 ```java
 var rate = client.getRate("FOO", "BAR");
 
-if (rate instanceof net.thauvin.erik.frankfurter.models.ErrorResponse error) {
+if (rate instanceof ErrorResponse error) {
     // 422: invalid currency: FOO,BAR
     System.out.println(error.status() + ": " + error.message());
 }

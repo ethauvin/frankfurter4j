@@ -32,7 +32,7 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import org.jspecify.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Represents an error response returned by the Frankfurter API.

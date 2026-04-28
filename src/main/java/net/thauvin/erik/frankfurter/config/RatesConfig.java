@@ -33,47 +33,34 @@
 package net.thauvin.erik.frankfurter.config;
 
 import com.uwyn.urlencoder.UrlEncoder;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.Validation;
 import net.thauvin.erik.frankfurter.models.Group;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Immutable configuration for constructing Frankfurter {@code /rates} queries.
- *
- * <p>This type models the query parameters accepted by the Frankfurter API.
- * Use {@link Builder} to construct instances.</p>
- *
- * <p>The API supports three date modes:</p>
- * <ul>
- *   <li><strong>Latest</strong> — no date parameters</li>
- *   <li><strong>Single date</strong> — {@code date=YYYY-MM-DD}</li>
- *   <li><strong>Date range</strong> — {@code from=YYYY-MM-DD} and {@code to=YYYY-MM-DD}</li>
- * </ul>
- *
- * <p>All dates are represented as {@link LocalDate} and must not be earlier
- * than {@code 1994-01-04}, the earliest supported date.</p>
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @since 1.0
  */
-@NullMarked
 public final class RatesConfig {
 
+    @NonNull
     private final Map<String, String> params;
 
     @SuppressFBWarnings("DMC_DUBIOUS_MAP_COLLECTION")
-    private RatesConfig(Map<String, String> params) {
-        this.params = params;
+    private RatesConfig(@NonNull Map<String, String> params) {
+        this.params = Objects.requireNonNull(params, "params must not be null");
     }
 
-    private static String encode(String s) {
+    @NonNull
+    private static String encode(@NonNull String s) {
+        Objects.requireNonNull(s, "encode string must not be null");
         return UrlEncoder.encode(s);
     }
 
@@ -83,7 +70,10 @@ public final class RatesConfig {
      * @param base the base API endpoint
      * @return a new URI with the query parameters appended
      */
-    public URI applyTo(URI base) {
+    @NonNull
+    public URI applyTo(@NonNull URI base) {
+        Objects.requireNonNull(base, "base must not be null");
+
         if (params.isEmpty()) {
             return base;
         }
@@ -107,49 +97,49 @@ public final class RatesConfig {
 
     /**
      * Builder for creating {@link RatesConfig} instances.
-     *
-     * @since 1.0
      */
-    @NullMarked
     public static final class Builder {
 
-        private @Nullable String base;
-        private @Nullable LocalDate date;
-        private @Nullable LocalDate from;
-        private @Nullable Group group;
-        private String[] providers = new String[0];
-        private String[] quotes = new String[0];
-        private @Nullable LocalDate to;
+        @Nullable
+        private String base; // optional, but never null once set
 
+        @Nullable
+        private LocalDate date; // optional, but never null once set
+
+        @Nullable
+        private LocalDate from; // optional, but never null once set
+
+        @Nullable
+        private Group group; // optional, but never null once set
+
+        @NonNull
+        private String[] providers = new String[0];
+
+        @NonNull
+        private String[] quotes = new String[0];
+
+        @Nullable
+        private LocalDate to; // optional, but never null once set
 
         /**
-         * Sets the base currency (e.g. {@code "EUR"}).
-         *
-         * @param base the ISO 4217 base currency code
-         * @return this builder instance
+         * Sets the base currency.
          */
-        public Builder base(String base) {
-            //noinspection ConstantValue
-            if (base != null) {
-                Validation.requireIsoCurrency(base, "base");
-                this.base = base;
-            }
+        @NonNull
+        public Builder base(@NonNull String base) {
+            this.base = Validation.requireIsoCurrency(base, "base");
             return this;
         }
 
         /**
          * Builds and returns an immutable configuration.
-         *
-         * @return a new {@link RatesConfig}
          */
+        @NonNull
         public RatesConfig build() {
 
-            // date vs range exclusivity
             if (date != null && (from != null || to != null)) {
                 throw new IllegalArgumentException("date is mutually exclusive with from and to");
             }
 
-            // chronological order
             if (from != null && to != null && to.isBefore(from)) {
                 throw new IllegalArgumentException("to must be on or after from");
             }
@@ -189,86 +179,57 @@ public final class RatesConfig {
 
         /**
          * Sets a single date for the rate query.
-         *
-         * @param date the date to query
-         * @return this builder instance
          */
-        public Builder date(LocalDate date) {
-            Validation.requireSupportedDate(date, "date");
-            this.date = date;
+        @NonNull
+        public Builder date(@NonNull LocalDate date) {
+            this.date = Validation.requireSupportedDate(date, "date");
             return this;
         }
 
         /**
          * Sets the start of a date range query.
-         *
-         * @param from the first date in the range
-         * @return this builder instance
          */
-        public Builder from(LocalDate from) {
-            Validation.requireSupportedDate(from, "from");
-            this.from = from;
+        @NonNull
+        public Builder from(@NonNull LocalDate from) {
+            this.from = Validation.requireSupportedDate(from, "from");
             return this;
         }
 
         /**
-         * Sets the grouping period for downsampled results.
-         *
-         * @param group the grouping value, or {@code null} to omit
-         * @return this builder instance
+         * Sets the grouping period.
          */
-        public Builder group(@Nullable Group group) {
-            this.group = group;
+        @NonNull
+        public Builder group(@NonNull Group group) {
+            this.group = Objects.requireNonNull(group, "group must not be null");
             return this;
         }
 
         /**
-         * Sets one or more providers (e.g. {@code "ECB"}, {@code "BAM" })
-         * null
-         *
-         * @param providers one or more providers
-         * @return this builder instance
+         * Sets one or more providers.
          */
-        public Builder providers(String... providers) {
-            //noinspection ConstantValue
-            if (providers != null) {
-                if (providers.length == 0) {
-                    throw new IllegalArgumentException("At least one providers must be specified");
-                }
-                this.providers = providers.clone();
-            }
+        @NonNull
+        public Builder providers(@NonNull String... providers) {
+            Validation.requireAllNonNull("providers", providers);
+            this.providers = providers.clone();
             return this;
         }
 
         /**
-         * Sets one or more quote currencies (e.g. {@code "USD"}, {@code "JPY"}).
-         *
-         * @param quotes one or more ISO 4217 currency codes
-         * @return this builder instance
+         * Sets one or more quote currencies.
          */
-        public Builder quotes(String... quotes) {
-            //noinspection ConstantValue
-            if (quotes != null) {
-                if (quotes.length == 0) {
-                    throw new IllegalArgumentException("At least one quote currency must be specified");
-                }
-                for (var q : quotes) {
-                    Validation.requireIsoCurrency(q, "quote");
-                }
-                this.quotes = quotes.clone();
-            }
+        @NonNull
+        public Builder quotes(@NonNull String... quotes) {
+            Validation.requireAllNonNull("quotes", quotes);
+            this.quotes = quotes.clone();
             return this;
         }
 
         /**
          * Sets the end of a date range query.
-         *
-         * @param to the last date in the range
-         * @return this builder instance
          */
-        public Builder to(LocalDate to) {
-            Validation.requireSupportedDate(to, "to");
-            this.to = to;
+        @NonNull
+        public Builder to(@NonNull LocalDate to) {
+            this.to = Validation.requireSupportedDate(to, "to");
             return this;
         }
     }

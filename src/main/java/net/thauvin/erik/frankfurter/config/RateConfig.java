@@ -32,74 +32,51 @@
 
 package net.thauvin.erik.frankfurter.config;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import net.thauvin.erik.frankfurter.Validation;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 /**
  * Immutable configuration for constructing Frankfurter {@code /rate} queries.
- *
- * <p>This type models the parameters accepted by the {@code /rate/{base}/{quote}}
- * endpoint, which returns a single exchange rate. Use {@link Builder} to create
- * instances.</p>
- *
- * <p>Supported options include:</p>
- * <ul>
- *   <li>a required base currency</li>
- *   <li>a required quote currency</li>
- *   <li>an optional historical date</li>
- *   <li>optional provider filtering</li>
- * </ul>
- *
- * <p>Date ranges are not supported for this endpoint.</p>
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @since 1.0
  */
-@NullMarked
 public final class RateConfig {
 
+    @NonNull
     private final String base;
-    private final @Nullable LocalDate date;
+
+    @Nullable
+    private final LocalDate date;
+
+    @NonNull
     private final String[] providers;
+
+    @NonNull
     private final String quote;
 
-    /**
-     * Creates a new immutable configuration.
-     *
-     * @param base      the base currency
-     * @param quote     the quote currency
-     * @param date      the optional historical date
-     * @param providers the optional provider filters
-     */
     @SuppressWarnings("PMD.UseVarargs")
-    private RateConfig(String base,
-                       String quote,
+    private RateConfig(@NonNull String base,
+                       @NonNull String quote,
                        @Nullable LocalDate date,
-                       String[] providers) {
-        this.base = base;
-        this.quote = quote;
+                       @NonNull String[] providers) {
+
+        this.base = Objects.requireNonNull(base, "base must not be null");
+        this.quote = Objects.requireNonNull(quote, "quote must not be null");
         this.date = date;
-        this.providers = providers;
+        this.providers = Objects.requireNonNull(providers, "providers must not be null");
     }
 
     /**
      * Applies this configuration to the given base URI.
-     *
-     * <p>The resulting URI has the form:</p>
-     *
-     * <pre>{@code
-     *   /rate/{base}/{quote}?date=YYYY-MM-DD&providers=A,B,C
-     * }</pre>
-     *
-     * @param baseUri the base API URI
-     * @return the fully constructed request URI
      */
-    public URI applyTo(URI baseUri) {
+    @NonNull
+    public URI applyTo(@NonNull URI baseUri) {
+        Objects.requireNonNull(baseUri, "baseUri must not be null");
+
         var path = "rate/" + base + "/" + quote;
         var uri = baseUri.resolve(path);
 
@@ -133,36 +110,35 @@ public final class RateConfig {
 
     /**
      * Builder for {@link RateConfig}.
-     *
-     * <p>Instances are mutable and not thread‑safe. Use {@link #build()} to
-     * create an immutable configuration.</p>
      */
     public static final class Builder {
 
-        private @Nullable String base;
-        private @Nullable LocalDate date;
+        @Nullable
+        private String base; // optional, but never null once set
+
+
+        @Nullable
+        private LocalDate date; // optional, but never null once set
+
+        @NonNull
         private String[] providers = new String[0];
-        private @Nullable String quote;
+
+        @Nullable
+        private String quote; // optional, but never null once set
 
         /**
          * Sets the base currency.
-         *
-         * @param base the ISO 4217 base currency code
-         * @return this builder
-         * @throws IllegalArgumentException if the code is invalid
          */
-        public Builder base(String base) {
-            Validation.requireIsoCurrency(base, "base");
-            this.base = base;
+        @NonNull
+        public Builder base(@NonNull String base) {
+            this.base = Validation.requireIsoCurrency(base, "base");
             return this;
         }
 
         /**
          * Builds the configuration.
-         *
-         * @return a new {@link RateConfig}
-         * @throws IllegalArgumentException if base or quote is missing
          */
+        @NonNull
         public RateConfig build() {
             if (base == null) {
                 throw new IllegalArgumentException("base currency is required");
@@ -176,41 +152,30 @@ public final class RateConfig {
 
         /**
          * Sets an optional historical date.
-         *
-         * @param date the date to query, or {@code null} for the latest rate
-         * @return this builder
-         * @throws IllegalArgumentException if the date is earlier than the minimum supported date
          */
-        public Builder date(@Nullable LocalDate date) {
-            if (date != null) {
-                Validation.requireSupportedDate(date, "date");
-            }
-            this.date = date;
+        @NonNull
+        public Builder date(@NonNull LocalDate date) {
+            this.date = Validation.requireSupportedDate(date, "date");
+
             return this;
         }
 
         /**
          * Sets optional provider filters.
-         *
-         * @param providers provider codes such as {@code "ECB"}
-         * @return this builder
          */
-        public Builder providers(String... providers) {
-            //noinspection ConstantValue
-            this.providers = providers == null ? new String[0] : providers.clone();
+        @NonNull
+        public Builder providers(@NonNull String... providers) {
+            Validation.requireAllNonNull("providers", providers);
+            this.providers = providers.clone();
             return this;
         }
 
         /**
          * Sets the quote currency.
-         *
-         * @param quote the ISO 4217 quote currency code
-         * @return this builder
-         * @throws IllegalArgumentException if the code is invalid
          */
-        public Builder quote(String quote) {
-            Validation.requireIsoCurrency(quote, "quote");
-            this.quote = quote;
+        @NonNull
+        public Builder quote(@NonNull String quote) {
+            this.quote = Validation.requireIsoCurrency(quote, "quote");
             return this;
         }
     }

@@ -33,7 +33,6 @@
 package net.thauvin.erik.frankfurter.json;
 
 import com.google.gson.*;
-import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -48,7 +47,6 @@ import java.time.LocalDate;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@NullMarked
 public final class LocalDateAdapter implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {
 
     /**

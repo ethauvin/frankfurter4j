@@ -45,8 +45,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class RateConfigTest {
-
 
     @Nested
     @DisplayName("applyTo()")
@@ -140,6 +140,51 @@ class RateConfigTest {
             var b = new RateConfig.Builder();
             assertThrows(IllegalArgumentException.class,
                     () -> b.date(LocalDate.of(1970, 1, 1)));
+        }
+    }
+
+    @Nested
+    @DisplayName("from/to validation")
+    class FromToValidation {
+
+        @Test
+        @DisplayName("accepts valid from/to range")
+        void acceptsValidRange() {
+            var b = new RatesConfig.Builder()
+                    .from(LocalDate.parse("2024-01-01"))
+                    .to(LocalDate.parse("2024-01-10"));
+
+            assertDoesNotThrow(b::build);
+        }
+
+        @Test
+        @DisplayName("rejects date combined with from")
+        void rejectsDateWithFrom() {
+            var b = new RatesConfig.Builder()
+                    .date(LocalDate.parse("2024-01-01"))
+                    .from(LocalDate.parse("2024-01-02"));
+
+            assertThrows(IllegalArgumentException.class, b::build);
+        }
+
+        @Test
+        @DisplayName("rejects date combined with to")
+        void rejectsDateWithTo() {
+            var b = new RatesConfig.Builder()
+                    .date(LocalDate.parse("2024-01-01"))
+                    .to(LocalDate.parse("2024-01-02"));
+
+            assertThrows(IllegalArgumentException.class, b::build);
+        }
+
+        @Test
+        @DisplayName("rejects to < from")
+        void rejectsToBeforeFrom() {
+            var b = new RatesConfig.Builder()
+                    .from(LocalDate.parse("2024-01-10"))
+                    .to(LocalDate.parse("2024-01-01"));
+
+            assertThrows(IllegalArgumentException.class, b::build);
         }
     }
 }

@@ -35,30 +35,28 @@ package net.thauvin.erik.frankfurter.models;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import net.thauvin.erik.frankfurter.Validation;
 import net.thauvin.erik.frankfurter.json.LocalDateAdapter;
-import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Represents the set of currencies returned by the Frankfurter API.
- *
- * <p>The API returns a JSON array of currency entries. This type normalizes
- * the structure into a list and provides simple lookup helpers.</p>
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @since 1.0
  */
-@NullMarked
 @SuppressWarnings("ClassCanBeRecord")
 public final class Currencies implements CurrenciesResult {
 
+    @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(java.time.LocalDate.class, new LocalDateAdapter())
             .create();
 
+    @NonNull
     private final List<Currency> list;
 
     /**
@@ -66,7 +64,8 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param list the list of currency entries
      */
-    public Currencies(Collection<Currency> list) {
+    public Currencies(@NonNull Collection<Currency> list) {
+        Validation.requireAllNonNull(list, "currencies");
         this.list = List.copyOf(list);
     }
 
@@ -76,10 +75,15 @@ public final class Currencies implements CurrenciesResult {
      * @param json the JSON response
      * @return the parsed currencies
      */
-    public static Currencies fromJson(String json) {
+    @NonNull
+    public static Currencies fromJson(@NonNull String json) {
+        Objects.requireNonNull(json, "json must not be null");
+
         Type type = new TypeToken<List<Currency>>() {
         }.getType();
         List<Currency> list = GSON.fromJson(json, type);
+
+        // Gson guarantees non-null list unless JSON itself is null (already checked)
         return new Currencies(list);
     }
 
@@ -89,7 +93,10 @@ public final class Currencies implements CurrenciesResult {
      * @param iso the ISO 4217 currency code
      * @return an optional containing the matching currency
      */
-    public java.util.Optional<Currency> find(String iso) {
+    @NonNull
+    public Optional<Currency> find(@NonNull String iso) {
+        Objects.requireNonNull(iso, "iso must not be null");
+
         return list.stream()
                 .filter(c -> c.isoCode().equalsIgnoreCase(iso))
                 .findFirst();
@@ -97,8 +104,6 @@ public final class Currencies implements CurrenciesResult {
 
     /**
      * Returns {@code true} if the list is empty.
-     *
-     * @return {@code true} if the list is empty
      */
     public boolean isEmpty() {
         return list.isEmpty();
@@ -109,6 +114,7 @@ public final class Currencies implements CurrenciesResult {
      *
      * @return the list of currencies
      */
+    @NonNull
     public List<Currency> list() {
         return list;
     }
@@ -119,7 +125,10 @@ public final class Currencies implements CurrenciesResult {
      * @param name the substring to match
      * @return the list of matching currencies
      */
-    public List<Currency> searchByName(String name) {
+    @NonNull
+    public List<Currency> searchByName(@NonNull String name) {
+        Objects.requireNonNull(name, "name must not be null");
+
         var n = name.toLowerCase();
         return list.stream()
                 .filter(c -> c.name().toLowerCase().contains(n))
@@ -128,8 +137,6 @@ public final class Currencies implements CurrenciesResult {
 
     /**
      * Returns the number of currencies.
-     *
-     * @return the number of currencies
      */
     public int size() {
         return list.size();

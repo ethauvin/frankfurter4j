@@ -33,9 +33,9 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import net.thauvin.erik.frankfurter.Validation;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,19 +47,22 @@ import java.util.List;
  * descriptive information, data source URLs, the date range of available data,
  * and the list of currencies supported by the provider.</p>
  *
- * <p>All fields except {@code key} and {@code name} may be {@code null}
- * depending on the provider and the data available from the API.</p>
+ * <p>Only {@code key} and {@code name} are guaranteed to be non‑null. All other
+ * fields may be {@code null} depending on the provider and the data available
+ * from the API.</p>
+ *
+ * <p>The {@code currencies} list is normalized to a non‑null, unmodifiable list
+ * to ensure safe iteration and predictable behavior.</p>
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@NullMarked
 public record Provider(
         @SerializedName("key")
-        String key,
+        @NonNull String key,
 
         @SerializedName("name")
-        String name,
+        @NonNull String name,
 
         @SerializedName("description")
         @Nullable String description,
@@ -77,20 +80,29 @@ public record Provider(
         @Nullable LocalDate endDate,
 
         @SerializedName("currencies")
-        List<String> currencies
+        @NonNull List<String> currencies
 ) {
 
     /**
-     * Creates a new provider entry.
+     * Validates required fields and normalizes optional values.
      *
-     * @param key         the provider identifier
-     * @param name        the provider name
+     * <p>This compact constructor enforces the non‑blank contract for
+     * {@code key} and {@code name}, which are the only required fields
+     * in a provider entry. All other fields may be {@code null} as
+     * supplied by the API.</p>
+     *
+     * <p>The {@code currencies} list is defensively normalized to a
+     * non‑null, unmodifiable list. When the API omits the field or
+     * supplies {@code null}, it is replaced with an empty list.</p>
+     *
+     * @param key         the provider identifier (must not be blank)
+     * @param name        the provider name (must not be blank)
      * @param description the provider description, or {@code null}
      * @param dataUrl     the data source URL, or {@code null}
-     * @param termsUrl    the terms-of-use URL, or {@code null}
+     * @param termsUrl    the terms‑of‑use URL, or {@code null}
      * @param startDate   the first date for which data is available, or {@code null}
      * @param endDate     the last date for which data is available, or {@code null}
-     * @param currencies  the list of supported currencies
+     * @param currencies  the list of supported currencies, or {@code null}
      * @throws IllegalArgumentException if {@code key} or {@code name} is blank
      */
     @SuppressWarnings("ConstantValue")

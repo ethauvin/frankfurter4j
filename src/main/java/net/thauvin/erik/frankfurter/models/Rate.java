@@ -33,7 +33,6 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
-import org.jspecify.annotations.NullMarked;
 
 import java.time.LocalDate;
 
@@ -47,7 +46,6 @@ import java.time.LocalDate;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@NullMarked
 public record Rate(
         @SerializedName("date") LocalDate date,
         @SerializedName("base") String base,

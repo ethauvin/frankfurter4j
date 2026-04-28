@@ -34,10 +34,7 @@ package net.thauvin.erik.frankfurter;
 
 import net.thauvin.erik.frankfurter.config.RateConfig;
 import net.thauvin.erik.frankfurter.config.RatesConfig;
-import net.thauvin.erik.frankfurter.models.ExchangeRates;
-import net.thauvin.erik.frankfurter.models.Group;
-import net.thauvin.erik.frankfurter.models.Providers;
-import net.thauvin.erik.frankfurter.models.Rate;
+import net.thauvin.erik.frankfurter.models.*;
 import net.thauvin.erik.frankfurter.util.CurrencyFormatter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -97,7 +94,7 @@ class ReadmeTest {
         var client = new Frankfurter();
         var rate = client.getRate("FOO", "BAR");
 
-        if (rate instanceof net.thauvin.erik.frankfurter.models.ErrorResponse error) {
+        if (rate instanceof ErrorResponse error) {
             System.out.println(error.status() + ": " + error.message());
             assertEquals(422, error.status());
             assertEquals("invalid currency: FOO,BAR", error.message());

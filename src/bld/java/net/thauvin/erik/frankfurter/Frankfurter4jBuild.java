@@ -54,9 +54,9 @@ import static rife.bld.dependencies.Scope.*;
 public class Frankfurter4jBuild extends Project {
 
     final PmdOperation pmdOp = new PmdOperation()
-            .fromProject(this)
             .failOnViolation(true)
-            .ruleSets("config/pmd.xml");
+            .ruleSets("config/pmd.xml")
+            .fromProject(this);
     final File testResultsDirectory = IOTools.resolveFile(buildDirectory(), "test-results", "test");
 
     public Frankfurter4jBuild() {
@@ -80,12 +80,10 @@ public class Frankfurter4jBuild extends Project {
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(provided)
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
-                        version(4, 9, 8)))
-                .include(dependency("org.jspecify", "jspecify",
-                        version(1, 0, 0)));
+                        version(4, 9, 8)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(1, 0, 0)))
+                        version(1, 0, 1)))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 23, 0)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))

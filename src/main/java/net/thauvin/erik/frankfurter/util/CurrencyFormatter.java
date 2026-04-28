@@ -1,5 +1,5 @@
 /*
- * CurrencyFormat.java
+ * CurrencyFormatter.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -32,12 +32,13 @@
 
 package net.thauvin.erik.frankfurter.util;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.Validation;
-import org.jspecify.annotations.NullMarked;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Provides locale‑aware formatting of monetary amounts using ISO 4217
@@ -45,24 +46,13 @@ import java.util.Map;
  * currency to a representative locale. The locale determines grouping,
  * decimal separators, and symbol placement.
  *
- * <p>This class does not rely on the currency symbol returned by the
- * Frankfurter API. Instead, it uses {@link NumberFormat} with a locale
- * chosen for each ISO currency code.</p>
- *
- * <p>The class is thread‑safe. All state is immutable and formatting
+ * <p>This class is thread‑safe. All state is immutable and formatting
  * operations create new {@link NumberFormat} instances.</p>
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @since 1.0
  */
-@NullMarked
 public final class CurrencyFormatter {
 
     /**
      * Maps ISO currency codes to representative locales.
-     *
-     * <p>The mapping is sorted alphabetically by ISO code. Each locale
-     * represents the most common formatting conventions for the currency.</p>
      *
      * <p>This map is immutable and safe for concurrent access.</p>
      */
@@ -242,11 +232,12 @@ public final class CurrencyFormatter {
      * with the given ISO currency code.
      *
      * @param amount  the numeric amount
-     * @param isoCode the ISO 4217 currency code
+     * @param isoCode the ISO 4217 currency code (must not be null or blank)
      * @return the formatted currency string
-     * @throws IllegalArgumentException if the ISO code is null, blank, or unknown
+     * @throws IllegalArgumentException if {@code isoCode} is null, blank, or unknown
      */
-    public static String format(double amount, String isoCode) {
+    @NonNull
+    public static String format(double amount, @NonNull String isoCode) {
         return format(amount, isoCode, false);
     }
 
@@ -255,17 +246,14 @@ public final class CurrencyFormatter {
      * with the given ISO currency code.
      *
      * @param amount  the numeric amount
-     * @param isoCode the ISO 4217 currency code
+     * @param isoCode the ISO 4217 currency code (must not be null or blank)
      * @param rounded whether to round to the locale's default fraction digits
      * @return the formatted currency string
-     * @throws IllegalArgumentException if the ISO code is null, blank, or unknown
+     * @throws IllegalArgumentException if {@code isoCode} is null, blank, or unknown
      */
-    public static String format(double amount, String isoCode, boolean rounded) {
-        if (Validation.isNullOrBlank(isoCode)) {
-            throw new IllegalArgumentException("ISO currency code must not be null or blank");
-        }
-
-        var code = isoCode.toUpperCase(Locale.ROOT);
+    @NonNull
+    public static String format(double amount, @NonNull String isoCode, boolean rounded) {
+        var code = Validation.requireIsoCurrency(isoCode, "ISO currency code").toUpperCase(Locale.ROOT);
         var locale = LOCALES.get(code);
 
         if (locale == null) {
@@ -284,11 +272,15 @@ public final class CurrencyFormatter {
      * preserves full precision by disabling rounding.</p>
      *
      * @param amount  the numeric amount
-     * @param locale  the locale whose currency formatting rules to apply
+     * @param locale  the locale whose currency formatting rules to apply (must not be null)
      * @param rounded whether to round to the locale's default fraction digits
      * @return the formatted currency string
+     * @throws NullPointerException if {@code locale} is null
      */
-    public static String format(double amount, Locale locale, boolean rounded) {
+    @NonNull
+    public static String format(double amount, @NonNull Locale locale, boolean rounded) {
+        Objects.requireNonNull(locale, "locale must not be null");
+
         var formatter = NumberFormat.getCurrencyInstance(locale);
 
         if (!rounded) {

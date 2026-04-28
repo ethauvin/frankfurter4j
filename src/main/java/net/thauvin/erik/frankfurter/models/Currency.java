@@ -33,9 +33,8 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import net.thauvin.erik.frankfurter.Validation;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 
@@ -51,7 +50,6 @@ import java.time.LocalDate;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@NullMarked
 public record Currency(
         @SerializedName("iso_code")
         String isoCode,

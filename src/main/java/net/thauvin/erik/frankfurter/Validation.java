@@ -32,10 +32,13 @@
 
 package net.thauvin.erik.frankfurter;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Internal validation helpers used throughout the Frankfurter client.
@@ -69,6 +72,56 @@ public final class Validation {
         return s == null || s.isBlank();
     }
 
+
+    /**
+     * Ensures that the given collection and all of its elements are non‑null.
+     *
+     * <p>This method validates both the collection reference and each individual
+     * element. If the collection itself is {@code null}, or if any element within
+     * it is {@code null}, a {@link NullPointerException} is thrown. The exception
+     * message includes the supplied field name to make validation errors easier
+     * to diagnose.</p>
+     *
+     * @param fieldName a descriptive name for the parameter being validated
+     * @param values    the collection to validate
+     * @param <T>       the element type
+     * @throws NullPointerException if the collection or any element is {@code null}
+     */
+    @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
+    public static <T> void requireAllNonNull(@NonNull Collection<T> values,
+                                             @NonNull String fieldName) {
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+        Objects.requireNonNull(values, fieldName + " must not be null");
+
+        int i = 0;
+        for (T v : values) {
+            if (v == null) {
+                throw new NullPointerException(fieldName + "[" + i + "] must not be null");
+            }
+            i++;
+        }
+    }
+
+
+    /**
+     * Ensures that the given varargs array and all of its elements are non‑null.
+     *
+     * <p>This method delegates to the list‑based validator after converting the
+     * varargs array to a list using {@link List#of(Object[])}. The exception
+     * semantics and messages are identical to the list‑based version.</p>
+     *
+     * @param fieldName a descriptive name for the parameter being validated
+     * @param values    the array to validate
+     * @throws NullPointerException if the array or any element is {@code null}
+     */
+    public static void requireAllNonNull(@NonNull String fieldName, @NonNull String... values) {
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+        Objects.requireNonNull(values, fieldName + " must not be null");
+
+        // Delegate to the list-based version
+        requireAllNonNull(List.of(values), fieldName);
+    }
+
     /**
      * Validates that the given value is a non-blank ISO 4217 alphabetic currency code.
      *
@@ -78,15 +131,22 @@ public final class Validation {
      *
      * @param code  the currency code to validate
      * @param field the field name used in exception messages
-     * @throws IllegalArgumentException if the code is null, blank, or not three letters
+     * @return the validated currency code
+     * @throws IllegalArgumentException if the {@code code} blank, or not three letters
+     * @throws NullPointerException     if the {@code code} or {@code field} are {@code null}
      */
-    public static void requireIsoCurrency(@Nullable String code, @NonNull String field) {
-        if (isNullOrBlank(code)) {
+    public static String requireIsoCurrency(@NonNull String code, @NonNull String field) {
+        Objects.requireNonNull(field, "field must not be null");
+        Objects.requireNonNull(code, field + " currency must not be null");
+
+        if (code.isBlank()) {
             throw new IllegalArgumentException(field + " currency must not be blank");
         }
         if (code.length() != 3) {
             throw new IllegalArgumentException(field + " currency must be a 3-letter ISO code");
         }
+
+        return code;
     }
 
     /**
@@ -98,11 +158,17 @@ public final class Validation {
      *
      * @param date  the date to validate
      * @param field the field name used in exception messages
+     * @return the validated date
      * @throws IllegalArgumentException if the date is earlier than the minimum supported date
      */
-    public static void requireSupportedDate(@NonNull LocalDate date, @NonNull String field) {
+    public static LocalDate requireSupportedDate(@NonNull LocalDate date, @NonNull String field) {
+        Objects.requireNonNull(field, "field must not be null");
+        Objects.requireNonNull(date, field + " must not be null");
+
         if (date.isBefore(MIN_SUPPORTED_DATE)) {
             throw new IllegalArgumentException(field + " must not be earlier than " + MIN_SUPPORTED_DATE);
         }
+
+        return date;
     }
 }

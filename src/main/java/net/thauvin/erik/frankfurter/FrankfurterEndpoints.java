@@ -35,24 +35,25 @@ package net.thauvin.erik.frankfurter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.json.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.models.*;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides JSON parsing helpers for Frankfurter API responses.
  *
  * <p>These methods convert raw JSON strings into strongly typed model objects.
  * They are used internally by {@link Frankfurter}.</p>
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
- * @since 1.0
  */
 public final class FrankfurterEndpoints {
 
+    public static final String JSON_MUST_NOT_BE_NULL = "json must not be null";
+    @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
@@ -66,25 +67,38 @@ public final class FrankfurterEndpoints {
     /**
      * Parses a JSON object of currency entries.
      *
-     * @param json the JSON response
-     * @return the parsed currencies
+     * @param json the JSON response (must not be null)
+     * @return the parsed currencies (never null)
      */
-    public static Currencies parseCurrencies(String json) {
+    @NonNull
+    public static Currencies parseCurrencies(@NonNull String json) {
+        Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return Currencies.fromJson(json);
     }
 
-    public static Currency parseCurrency(String json) {
+    /**
+     * Parses a single currency entry.
+     *
+     * @param json the JSON response (must not be null)
+     * @return the parsed currency (never null)
+     */
+    @NonNull
+    public static Currency parseCurrency(@NonNull String json) {
+        Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return GSON.fromJson(json, Currency.class);
     }
 
     /**
      * Parses an error response.
      *
-     * @param json   the raw JSON or fallback text
+     * @param json   the raw JSON or fallback text (must not be null)
      * @param status the HTTP status code
-     * @return the parsed error response
+     * @return the parsed error response (never null)
      */
-    public static ErrorResponse parseError(String json, int status) {
+    @NonNull
+    public static ErrorResponse parseError(@NonNull String json, int status) {
+        Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
+
         try {
             return GSON.fromJson(json, ErrorResponse.class);
         } catch (com.google.gson.JsonParseException e) {
@@ -95,27 +109,41 @@ public final class FrankfurterEndpoints {
     /**
      * Parses a JSON object of provider entries.
      *
-     * @param json the JSON response
-     * @return the parsed providers
+     * @param json the JSON response (must not be null)
+     * @return the parsed providers (never null)
      */
-    public static Providers parseProviders(String json) {
+    @NonNull
+    public static Providers parseProviders(@NonNull String json) {
+        Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return Providers.fromJson(json);
     }
 
     /**
      * Parses a JSON array of rate entries.
      *
-     * @param json the JSON response
-     * @return the parsed exchange rates
+     * @param json the JSON response (must not be null)
+     * @return the parsed exchange rates (never null)
      */
-    public static ExchangeRates parseRates(String json) {
+    @NonNull
+    public static ExchangeRates parseRates(@NonNull String json) {
+        Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
+
         Type type = new TypeToken<List<Rate>>() {
         }.getType();
         List<Rate> list = GSON.fromJson(json, type);
+
         return new ExchangeRates(list);
     }
 
-    public static Rate parseSingleRate(String json) {
+    /**
+     * Parses a single rate entry.
+     *
+     * @param json the JSON response (must not be null)
+     * @return the parsed rate (never null)
+     */
+    @NonNull
+    public static Rate parseSingleRate(@NonNull String json) {
+        Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return GSON.fromJson(json, Rate.class);
     }
 }

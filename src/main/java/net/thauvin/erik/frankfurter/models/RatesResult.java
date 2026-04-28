@@ -32,8 +32,6 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import org.jspecify.annotations.NullMarked;
-
 /**
  * Represents the result of a {@code /rates} query.
  *
@@ -43,7 +41,6 @@ import org.jspecify.annotations.NullMarked;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@NullMarked
 public sealed interface RatesResult
         permits ExchangeRates, ErrorResponse {
 

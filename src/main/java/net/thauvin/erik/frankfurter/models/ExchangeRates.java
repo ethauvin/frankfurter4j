@@ -32,10 +32,11 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import org.jspecify.annotations.NullMarked;
+import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -47,7 +48,6 @@ import java.util.Optional;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@NullMarked
 public final class ExchangeRates implements RatesResult {
 
     private final List<Rate> rates;
@@ -72,7 +72,8 @@ public final class ExchangeRates implements RatesResult {
      * @param quote the ISO 4217 quote currency
      * @return an optional containing the matching rate
      */
-    public Optional<Rate> find(String quote) {
+    public Optional<Rate> find(@NonNull String quote) {
+        Objects.requireNonNull(quote, "quote must not be null");
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .findFirst();

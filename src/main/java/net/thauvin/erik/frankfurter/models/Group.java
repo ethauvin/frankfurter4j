@@ -33,19 +33,23 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
-import org.jspecify.annotations.NullMarked;
+import edu.umd.cs.findbugs.annotations.NonNull;
+
+import java.util.Objects;
 
 /**
  * Represents the time period by which exchange rates can be downsampled.
  *
- * <p>Used as an optional query parameter when requesting rates over a date range.
- * When specified, rates are aggregated over the given time period rather than
- * returned as daily values.</p>
+ * <p>Used as an optional query parameter when requesting rates over a date
+ * range. When specified, rates are aggregated over the given time period
+ * rather than returned as daily values.</p>
  *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * <p>The API accepts the lowercase string values {@code "week"} and
+ * {@code "month"} for this parameter.</p>
+ *
+ * @author Erik C. Thauvin
  * @since 1.0
  */
-@NullMarked
 public enum Group {
 
     /**
@@ -60,17 +64,30 @@ public enum Group {
     @SerializedName("month")
     MONTH("month");
 
+    @NonNull
     private final String value;
 
-    Group(String value) {
-        this.value = value;
+    /**
+     * Creates a new grouping value.
+     *
+     * <p>The constructor enforces that the internal string representation is
+     * never {@code null}, ensuring that {@link #value()} always returns a
+     * valid API parameter.</p>
+     *
+     * @param value the lowercase API value for this grouping period
+     * @throws NullPointerException if {@code value} is {@code null}
+     */
+    Group(@NonNull String value) {
+        this.value = Objects.requireNonNull(value, "value must not be null");
     }
 
     /**
-     * Returns the API query parameter value for this group (e.g. {@code "week"}, {@code "month"}).
+     * Returns the API query parameter value for this group (e.g.
+     * {@code "week"}, {@code "month"}).
      *
      * @return the lowercase string value used in query strings
      */
+    @NonNull
     public String value() {
         return value;
     }
