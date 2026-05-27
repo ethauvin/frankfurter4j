@@ -47,7 +47,7 @@ jobs:
 
       - name: Download dependencies
         if: steps.check-cache.outputs.cache_exists == 'false'
-        run: ./bld download
+        run: ./bld download purge
 
       - name: Update dependencies  
         if: steps.check-cache.outputs.cache_exists == 'true'
