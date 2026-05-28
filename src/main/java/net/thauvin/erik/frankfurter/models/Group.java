@@ -34,6 +34,7 @@ package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import net.thauvin.erik.frankfurter.Validation;
 
 import java.util.Objects;
 
@@ -78,7 +79,7 @@ public enum Group {
      * @throws NullPointerException if {@code value} is {@code null}
      */
     Group(@NonNull String value) {
-        this.value = Objects.requireNonNull(value, "value must not be null");
+        this.value = Objects.requireNonNull(value, Validation.formatNullMessage("value"));
     }
 
     /**

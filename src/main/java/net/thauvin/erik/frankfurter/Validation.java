@@ -38,6 +38,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -63,6 +64,21 @@ public final class Validation {
     }
 
     /**
+     * Appends a standard "must not be null" message to the given field description.
+     * <p>
+     * This is typically used for constructing exception messages when a required
+     * parameter is {@code null}. Pass a descriptive field name, not the value itself.
+     *
+     * @param fieldName the name or description of the field being checked; must not be {@code null}
+     * @return a string consisting of the given field name followed by " must not be null"
+     * @throws NullPointerException if {@code fieldName} is {@code null}
+     */
+    public static String formatNullMessage(@NonNull String fieldName) {
+        Objects.requireNonNull(fieldName, "fieldName must not be null");
+        return fieldName + " must not be null";
+    }
+
+    /**
      * Checks if a string is null or blank.
      *
      * @param s the string to check
@@ -72,6 +88,23 @@ public final class Validation {
         return s == null || s.isBlank();
     }
 
+    /**
+     * Ensures that the given varargs array and all of its elements are non‑null.
+     *
+     * <p>This method delegates to the list‑based validator after converting the
+     * varargs array to a list using {@link List#of(Object[])}. The exception
+     * semantics and messages are identical to the list‑based version.</p>
+     *
+     * @param fieldName a descriptive name for the parameter being validated
+     * @param values    the array to validate
+     * @throws NullPointerException if the array or any element is {@code null}
+     */
+    public static void requireAllNonNull(@NonNull String fieldName, @NonNull String... values) {
+        Objects.requireNonNull(values, formatNullMessage(fieldName));
+
+        // Delegate to the list-based version
+        requireAllNonNull(List.of(values), fieldName);
+    }
 
     /**
      * Ensures that the given collection and all of its elements are non‑null.
@@ -90,36 +123,15 @@ public final class Validation {
     @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
     public static <T> void requireAllNonNull(@NonNull Collection<T> values,
                                              @NonNull String fieldName) {
-        Objects.requireNonNull(fieldName, "fieldName must not be null");
-        Objects.requireNonNull(values, fieldName + " must not be null");
+        Objects.requireNonNull(values, formatNullMessage(fieldName));
 
         int i = 0;
         for (T v : values) {
             if (v == null) {
-                throw new NullPointerException(fieldName + "[" + i + "] must not be null");
+                throw new NullPointerException(formatNullMessage(fieldName + '[' + i + ']'));
             }
             i++;
         }
-    }
-
-
-    /**
-     * Ensures that the given varargs array and all of its elements are non‑null.
-     *
-     * <p>This method delegates to the list‑based validator after converting the
-     * varargs array to a list using {@link List#of(Object[])}. The exception
-     * semantics and messages are identical to the list‑based version.</p>
-     *
-     * @param fieldName a descriptive name for the parameter being validated
-     * @param values    the array to validate
-     * @throws NullPointerException if the array or any element is {@code null}
-     */
-    public static void requireAllNonNull(@NonNull String fieldName, @NonNull String... values) {
-        Objects.requireNonNull(fieldName, "fieldName must not be null");
-        Objects.requireNonNull(values, fieldName + " must not be null");
-
-        // Delegate to the list-based version
-        requireAllNonNull(List.of(values), fieldName);
     }
 
     /**
@@ -136,17 +148,17 @@ public final class Validation {
      * @throws NullPointerException     if the {@code code} or {@code field} are {@code null}
      */
     public static String requireIsoCurrency(@NonNull String code, @NonNull String field) {
-        Objects.requireNonNull(field, "field must not be null");
-        Objects.requireNonNull(code, field + " currency must not be null");
+        Objects.requireNonNull(code, formatNullMessage(field + " currency"));
 
         if (code.isBlank()) {
             throw new IllegalArgumentException(field + " currency must not be blank");
         }
-        if (code.length() != 3) {
+
+        if (!code.matches("[A-Za-z]{3}")) {
             throw new IllegalArgumentException(field + " currency must be a 3-letter ISO code");
         }
 
-        return code;
+        return code.toUpperCase(Locale.ROOT);
     }
 
     /**
@@ -162,8 +174,7 @@ public final class Validation {
      * @throws IllegalArgumentException if the date is earlier than the minimum supported date
      */
     public static LocalDate requireSupportedDate(@NonNull LocalDate date, @NonNull String field) {
-        Objects.requireNonNull(field, "field must not be null");
-        Objects.requireNonNull(date, field + " must not be null");
+        Objects.requireNonNull(date, formatNullMessage(field));
 
         if (date.isBefore(MIN_SUPPORTED_DATE)) {
             throw new IllegalArgumentException(field + " must not be earlier than " + MIN_SUPPORTED_DATE);

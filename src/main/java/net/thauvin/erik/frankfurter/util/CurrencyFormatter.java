@@ -279,7 +279,7 @@ public final class CurrencyFormatter {
      */
     @NonNull
     public static String format(double amount, @NonNull Locale locale, boolean rounded) {
-        Objects.requireNonNull(locale, "locale must not be null");
+        Objects.requireNonNull(locale, Validation.formatNullMessage("locale"));
 
         var formatter = NumberFormat.getCurrencyInstance(locale);
 

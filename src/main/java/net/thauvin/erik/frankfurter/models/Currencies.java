@@ -77,7 +77,7 @@ public final class Currencies implements CurrenciesResult {
      */
     @NonNull
     public static Currencies fromJson(@NonNull String json) {
-        Objects.requireNonNull(json, "json must not be null");
+        Objects.requireNonNull(json, Validation.formatNullMessage("json"));
 
         Type type = new TypeToken<List<Currency>>() {
         }.getType();
@@ -95,7 +95,7 @@ public final class Currencies implements CurrenciesResult {
      */
     @NonNull
     public Optional<Currency> find(@NonNull String iso) {
-        Objects.requireNonNull(iso, "iso must not be null");
+        Objects.requireNonNull(iso, Validation.formatNullMessage("iso"));
 
         return list.stream()
                 .filter(c -> c.isoCode().equalsIgnoreCase(iso))
@@ -127,7 +127,7 @@ public final class Currencies implements CurrenciesResult {
      */
     @NonNull
     public List<Currency> searchByName(@NonNull String name) {
-        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(name, Validation.formatNullMessage("name"));
 
         var n = name.toLowerCase();
         return list.stream()

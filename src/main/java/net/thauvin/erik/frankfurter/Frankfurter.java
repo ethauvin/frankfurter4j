@@ -91,13 +91,13 @@ public final class Frankfurter {
      * @param baseUri the base API URI (must not be null)
      */
     public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri) {
-        this.client = Objects.requireNonNull(client, "client must not be null");
+        this.client = Objects.requireNonNull(client, Validation.formatNullMessage("client"));
         this.baseUri = normalizeBase(baseUri);
     }
 
     @NonNull
     private static URI normalizeBase(@NonNull URI base) {
-        Objects.requireNonNull(base, "base must not be null");
+        Objects.requireNonNull(base, Validation.formatNullMessage("base"));
         return base.resolve("./");
     }
 
@@ -184,7 +184,7 @@ public final class Frankfurter {
     @NonNull
     public RateResult getRate(@NonNull RateConfig config)
             throws IOException, InterruptedException {
-        Objects.requireNonNull(config, "config must not be null");
+        Objects.requireNonNull(config, Validation.formatNullMessage("config"));
 
         var uri = config.applyTo(baseUri);
         var response = sendGet(uri);
@@ -207,7 +207,7 @@ public final class Frankfurter {
     @NonNull
     public RatesResult getRates(@NonNull RatesConfig config)
             throws IOException, InterruptedException {
-        Objects.requireNonNull(config, "config must not be null");
+        Objects.requireNonNull(config, Validation.formatNullMessage("config"));
 
         var uri = config.applyTo(baseUri.resolve("rates"));
         var response = sendGet(uri);
@@ -225,7 +225,7 @@ public final class Frankfurter {
     @NonNull
     private HttpResponse<String> sendGet(@NonNull URI uri)
             throws IOException, InterruptedException {
-        Objects.requireNonNull(uri, "uri must not be null");
+        Objects.requireNonNull(uri, Validation.formatNullMessage("uri"));
 
         var request = HttpRequest.newBuilder(uri)
                 .GET()

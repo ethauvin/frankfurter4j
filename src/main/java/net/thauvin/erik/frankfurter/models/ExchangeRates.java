@@ -33,6 +33,7 @@
 package net.thauvin.erik.frankfurter.models;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import net.thauvin.erik.frankfurter.Validation;
 
 import java.util.Collection;
 import java.util.List;
@@ -73,7 +74,7 @@ public final class ExchangeRates implements RatesResult {
      * @return an optional containing the matching rate
      */
     public Optional<Rate> find(@NonNull String quote) {
-        Objects.requireNonNull(quote, "quote must not be null");
+        Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .findFirst();

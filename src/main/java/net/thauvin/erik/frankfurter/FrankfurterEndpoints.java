@@ -52,7 +52,7 @@ import java.util.Objects;
  */
 public final class FrankfurterEndpoints {
 
-    public static final String JSON_MUST_NOT_BE_NULL = "json must not be null";
+    public static final String JSON_MUST_NOT_BE_NULL = Validation.formatNullMessage("json");
     @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())

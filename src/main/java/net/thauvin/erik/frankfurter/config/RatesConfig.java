@@ -55,7 +55,7 @@ public final class RatesConfig {
 
     @SuppressFBWarnings("DMC_DUBIOUS_MAP_COLLECTION")
     private RatesConfig(@NonNull Map<String, String> params) {
-        this.params = Objects.requireNonNull(params, "params must not be null");
+        this.params = Objects.requireNonNull(params, Validation.formatNullMessage("params"));
     }
 
     @NonNull
@@ -72,7 +72,7 @@ public final class RatesConfig {
      */
     @NonNull
     public URI applyTo(@NonNull URI base) {
-        Objects.requireNonNull(base, "base must not be null");
+        Objects.requireNonNull(base, Validation.formatNullMessage("base"));
 
         if (params.isEmpty()) {
             return base;
@@ -200,7 +200,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder group(@NonNull Group group) {
-            this.group = Objects.requireNonNull(group, "group must not be null");
+            this.group = Objects.requireNonNull(group, Validation.formatNullMessage("group"));
             return this;
         }
 

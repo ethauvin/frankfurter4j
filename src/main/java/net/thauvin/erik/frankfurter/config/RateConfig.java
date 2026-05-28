@@ -64,10 +64,10 @@ public final class RateConfig {
                        @Nullable LocalDate date,
                        @NonNull String[] providers) {
 
-        this.base = Objects.requireNonNull(base, "base must not be null");
-        this.quote = Objects.requireNonNull(quote, "quote must not be null");
+        this.base = Objects.requireNonNull(base, Validation.formatNullMessage("base"));
+        this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
         this.date = date;
-        this.providers = Objects.requireNonNull(providers, "providers must not be null");
+        this.providers = Objects.requireNonNull(providers, Validation.formatNullMessage("providers"));
     }
 
     /**
@@ -75,7 +75,7 @@ public final class RateConfig {
      */
     @NonNull
     public URI applyTo(@NonNull URI baseUri) {
-        Objects.requireNonNull(baseUri, "baseUri must not be null");
+        Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
         var path = "rate/" + base + "/" + quote;
         var uri = baseUri.resolve(path);
