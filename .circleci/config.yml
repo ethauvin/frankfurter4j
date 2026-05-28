@@ -4,9 +4,34 @@ commands:
   build_and_test:
     steps:
       - checkout
+      - restore_cache:
+          name: Restore bld dependencies
+          keys:
+            - bld-deps-{{ arch }}-{{ checksum "lib/bld/bld-wrapper.properties" }}
+            - bld-deps-{{ arch }}-
       - run:
           name: Download dependencies
-          command: ./bld download
+          command: |
+            if [ ! -f "lib/bld/bld.cache" ]; then
+              echo "No cache found - downloading dependencies"
+              ./bld download purge
+            else
+              echo "Cache found -> skipping download"
+            fi
+      - run:
+          name: Update dependencies
+          command: |
+            if [ -f "lib/bld/bld.cache" ]; then
+              echo "Cache found - running updates"
+              ./bld updates
+            else
+              echo "No cache -> skipping updates"
+            fi
+      - save_cache:
+          name: Save bld dependencies
+          key: bld-deps-{{ arch }}-{{ checksum "lib/bld/bld-wrapper.properties" }}
+          paths:
+            - lib
       - run:
           name: Compile source
           command: ./bld compile
@@ -39,4 +64,3 @@ workflows:
     jobs:
       - bld_jdk17
       - bld_jdk21
-
