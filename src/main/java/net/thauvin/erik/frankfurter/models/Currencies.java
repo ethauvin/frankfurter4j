@@ -36,8 +36,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.Validation;
-import net.thauvin.erik.frankfurter.json.LocalDateAdapter;
+import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.lang.reflect.Type;
 import java.util.Collection;

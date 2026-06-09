@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter.util;
+package net.thauvin.erik.frankfurter.internal;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

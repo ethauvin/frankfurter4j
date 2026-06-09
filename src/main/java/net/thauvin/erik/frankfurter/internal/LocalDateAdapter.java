@@ -1,5 +1,5 @@
 /*
- * package-info.java
+ * LocalDateAdapter.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,10 +30,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package net.thauvin.erik.frankfurter.internal;
+
+import com.google.gson.*;
+
+import java.lang.reflect.Type;
+import java.time.LocalDate;
+
 /**
- * Contains utility classes that support formatting and presentation of
- * Frankfurter API data.
+ * Gson adapter for serializing and deserializing {@link LocalDate} values.
  *
- * <p>These helpers are independent of the core API client and models.</p>
+ * <p>This adapter reads and writes ISO‑8601 date strings such as
+ * {@code "2026-04-08"}. It is used internally by the Frankfurter client to
+ * ensure consistent date handling across all JSON payloads.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
-package net.thauvin.erik.frankfurter.util;
+public final class LocalDateAdapter implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {
+
+    /**
+     * Deserializes an ISO‑8601 date string into a {@link LocalDate}.
+     *
+     * @param json the JSON element containing the date string
+     * @param type the target type (ignored)
+     * @param ctx  the deserialization context (ignored)
+     * @return the parsed {@link LocalDate}
+     */
+    @Override
+    public LocalDate deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) {
+        return LocalDate.parse(json.getAsString());
+    }
+
+    /**
+     * Serializes a {@link LocalDate} into its ISO‑8601 string representation.
+     *
+     * @param date the date to serialize
+     * @param type the target type (ignored)
+     * @param ctx  the serialization context (ignored)
+     * @return a JSON string containing the ISO‑8601 representation of the date
+     */
+    @Override
+    public JsonElement serialize(LocalDate date, Type type, JsonSerializationContext ctx) {
+        return new JsonPrimitive(date.toString());
+    }
+}

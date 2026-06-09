@@ -33,7 +33,7 @@
 package net.thauvin.erik.frankfurter.models;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.Validation;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.util.Collection;
 import java.util.List;

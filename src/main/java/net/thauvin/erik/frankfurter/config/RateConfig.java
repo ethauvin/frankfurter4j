@@ -34,19 +34,28 @@ package net.thauvin.erik.frankfurter.config;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import net.thauvin.erik.frankfurter.Validation;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Immutable configuration for constructing Frankfurter {@code /rate} queries.
+ *
+ * <p>Use {@code new RateConfig.Builder()} to create instances. Only the quote currency is required.
+ * If base is omitted, the API defaults to {@code EUR}.</p>
  */
 public final class RateConfig {
 
-    @NonNull
+    @Nullable
     private final String base;
 
     @Nullable
@@ -59,53 +68,83 @@ public final class RateConfig {
     private final String quote;
 
     @SuppressWarnings("PMD.UseVarargs")
-    private RateConfig(@NonNull String base,
+    private RateConfig(@Nullable String base,
                        @NonNull String quote,
                        @Nullable LocalDate date,
                        @NonNull String[] providers) {
-
-        this.base = Objects.requireNonNull(base, Validation.formatNullMessage("base"));
-        this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
+        this.base = base;
+        this.quote = Objects.requireNonNull(quote, "quote");
         this.date = date;
-        this.providers = Objects.requireNonNull(providers, Validation.formatNullMessage("providers"));
+        this.providers = providers.clone(); // defensive copy
+    }
+
+    @Override
+    public String toString() {
+        return "RateConfig{base=" + base + ", quote=" + quote + ", date=" + date
+                + ", providers=" + Arrays.toString(providers) + '}';
     }
 
     /**
      * Applies this configuration to the given base URI.
+     *
+     * @param baseUri the base URI, e.g. {@code https://api.frankfurter.app/}
+     * @return the fully constructed URI for the rate query
+     * @throws IllegalArgumentException if the resulting URI is invalid
      */
     @NonNull
+    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public URI applyTo(@NonNull URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
-        var path = "rate/" + base + "/" + quote;
-        var uri = baseUri.resolve(path);
-
         var params = new LinkedHashMap<String, String>();
-
         if (date != null) {
-            params.put("date", date.toString());
+            params.put("date", date.toString()); // yyyy-MM-dd is URL-safe
         }
-
         if (providers.length > 0) {
-            params.put("providers", String.join(",", providers));
+            // Encode each provider separately, then join with literal comma
+            var encodedProviders = Arrays.stream(providers)
+                    .map(p -> URLEncoder.encode(p, StandardCharsets.UTF_8))
+                    .collect(Collectors.joining(","));
+            params.put("providers", encodedProviders);
         }
 
-        if (params.isEmpty()) {
-            return uri;
-        }
-
-        var sb = new StringBuilder(uri.toString()).append('?');
-        var first = true;
-
-        for (var e : params.entrySet()) {
-            if (!first) {
-                sb.append('&');
+        try {
+            var basePath = baseUri.getPath();
+            if (basePath == null) {
+                basePath = "/";
+            } else if (!basePath.endsWith("/")) {
+                basePath += "/";
             }
-            first = false;
-            sb.append(e.getKey()).append('=').append(e.getValue());
-        }
 
-        return URI.create(sb.toString());
+            var path = base != null
+                    ? basePath + "rate/" + base + "/" + quote
+                    : basePath + "rate/" + quote;
+
+            if (params.isEmpty()) {
+                return new URI(
+                        baseUri.getScheme(),
+                        baseUri.getAuthority(),
+                        path,
+                        null,
+                        baseUri.getFragment()
+                );
+            }
+
+            // Params already contain encoded values, so don't encode again
+            var query = params.entrySet().stream()
+                    .map(e -> e.getKey() + '=' + e.getValue())
+                    .collect(Collectors.joining("&"));
+
+            return new URI(
+                    baseUri.getScheme(),
+                    baseUri.getAuthority(),
+                    path,
+                    query,
+                    baseUri.getFragment()
+            );
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Failed to build URI for RateConfig", e);
+        }
     }
 
     /**
@@ -113,21 +152,19 @@ public final class RateConfig {
      */
     public static final class Builder {
 
-        @Nullable
-        private String base; // optional, but never null once set
-
-
-        @Nullable
-        private LocalDate date; // optional, but never null once set
-
-        @NonNull
+        private String base;
+        private LocalDate date;
         private String[] providers = new String[0];
-
-        @Nullable
-        private String quote; // optional, but never null once set
+        private String quote;
 
         /**
-         * Sets the base currency.
+         * Sets the base currency. Optional.
+         *
+         * <p>If not set, the Frankfurter API defaults to {@code EUR}.</p>
+         *
+         * @param base 3-letter ISO 4217 currency code, e.g. "USD"
+         * @return this builder
+         * @throws IllegalArgumentException if blank or not 3 letters
          */
         @NonNull
         public Builder base(@NonNull String base) {
@@ -137,41 +174,56 @@ public final class RateConfig {
 
         /**
          * Builds the configuration.
+         *
+         * @return the immutable config
+         * @throws IllegalStateException    if quote currency not set
+         * @throws IllegalArgumentException if base and quote are the same
          */
         @NonNull
         public RateConfig build() {
-            if (base == null) {
-                throw new IllegalArgumentException("base currency is required");
-            }
             if (quote == null) {
-                throw new IllegalArgumentException("quote currency is required");
+                throw new IllegalStateException("quote currency is required");
             }
-
-            return new RateConfig(base, quote, date, providers.clone());
+            if (base != null && base.equals(quote)) {
+                throw new IllegalArgumentException("base and quote currencies must be different");
+            }
+            return new RateConfig(base, quote, date, providers);
         }
 
         /**
          * Sets an optional historical date.
+         *
+         * @param date the date to query, must not be before 1994-01-04
+         * @return this builder
+         * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
         public Builder date(@NonNull LocalDate date) {
             this.date = Validation.requireSupportedDate(date, "date");
-
             return this;
         }
 
         /**
          * Sets optional provider filters.
+         *
+         * <p>Blank entries are ignored. Duplicates are removed.</p>
+         *
+         * @param providers provider IDs, e.g. "ECB", "BANXICO"
+         * @return this builder
+         * @throws NullPointerException if array or any element is null
          */
         @NonNull
         public Builder providers(@NonNull String... providers) {
-            Validation.requireAllNonNull("providers", providers);
-            this.providers = providers.clone();
+            this.providers = Validation.requireNonBlankDistinct("providers", providers);
             return this;
         }
 
-        /**
-         * Sets the quote currency.
+        /**ecb
+         * Sets the quote currency. Required.
+         *
+         * @param quote 3-letter ISO 4217 currency code, e.g. "EUR"
+         * @return this builder
+         * @throws IllegalArgumentException if blank or not 3 letters
          */
         @NonNull
         public Builder quote(@NonNull String quote) {

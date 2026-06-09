@@ -70,7 +70,7 @@ public class Frankfurter4jBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES);
+        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS);
 
         var junit = version(6, 1, 0);
         var gson = version(2, 14, 0);
@@ -80,10 +80,10 @@ public class Frankfurter4jBuild extends Project {
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(provided)
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
-                        version(4, 9, 8)));
+                        version(4, 10, 1)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
-                        version(1, 0, 1)))
+                        version(1, 1, 0, "SNAPSHOT")))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 23, 0)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))

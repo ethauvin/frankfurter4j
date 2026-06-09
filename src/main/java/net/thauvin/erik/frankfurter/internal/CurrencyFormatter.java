@@ -30,10 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter.util;
+package net.thauvin.erik.frankfurter.internal;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.Validation;
 
 import java.text.NumberFormat;
 import java.util.Locale;

@@ -45,6 +45,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class CurrencyTest {
 
     @Nested
@@ -62,22 +63,36 @@ class CurrencyTest {
         }
 
         @ParameterizedTest
-        @NullSource
         @EmptySource
         @ValueSource(strings = {"  "})
-        @DisplayName("rejects null or blank isoCode")
+        @DisplayName("rejects blank isoCode")
         void rejectsBlankIso(String iso) {
             assertThrows(IllegalArgumentException.class,
                     () -> new Currency(iso, "123", "Name", "$", null, null));
         }
 
         @ParameterizedTest
-        @NullSource
         @EmptySource
         @ValueSource(strings = {"  "})
-        @DisplayName("rejects null or blank name")
+        @DisplayName("rejects blank name")
         void rejectsBlankName(String name) {
             assertThrows(IllegalArgumentException.class,
+                    () -> new Currency("USD", "123", name, "$", null, null));
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @DisplayName("rejects null isoCode")
+        void rejectsNullIso(String iso) {
+            assertThrows(NullPointerException.class,
+                    () -> new Currency(iso, "123", "Name", "$", null, null));
+        }
+
+        @ParameterizedTest
+        @NullSource
+        @DisplayName("rejects null name")
+        void rejectsNullName(String name) {
+            assertThrows(NullPointerException.class,
                     () -> new Currency("USD", "123", name, "$", null, null));
         }
     }

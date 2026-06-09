@@ -31,10 +31,11 @@
  */
 
 /**
- * Contains immutable model types representing Frankfurter API responses.
- *
- * <p>These include currencies, providers, exchange rates, and error responses.
+ * Immutable model types representing Frankfurter API responses.
+ * <p>
+ * These include currencies, providers, exchange rates, and error responses.
+ * <p>
  * All model types are designed for safe deserialization and predictable
- * behavior.</p>
+ * behavior.
  */
 package net.thauvin.erik.frankfurter.models;

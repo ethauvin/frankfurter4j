@@ -34,6 +34,7 @@ package net.thauvin.erik.frankfurter.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

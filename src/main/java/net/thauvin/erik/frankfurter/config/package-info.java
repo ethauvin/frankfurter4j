@@ -31,7 +31,6 @@
  */
 
 /**
- * Provides JSON serialization and deserialization helpers used internally
- * by the Frankfurter client.
+ * Configuration builders and options for the Frankfurter currency API client.
  */
 package net.thauvin.erik.frankfurter.config;

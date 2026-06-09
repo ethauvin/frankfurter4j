@@ -32,6 +32,7 @@
 
 package net.thauvin.erik.frankfurter;
 
+import net.thauvin.erik.frankfurter.internal.JsonParsers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ class FrankfurterEndpointsTest {
                 }
                 """;
 
-        var r = FrankfurterEndpoints.parseSingleRate(json);
+        var r = JsonParsers.parseSingleRate(json);
 
         assertEquals(LocalDate.parse("2024-01-01"), r.date());
         assertEquals("USD", r.base());
@@ -69,7 +70,7 @@ class FrankfurterEndpointsTest {
         @Test
         @DisplayName("falls back to raw message on parse failure")
         void fallback() {
-            var e = FrankfurterEndpoints.parseError("not-json", 500);
+            var e = JsonParsers.parseError("not-json", 500);
 
             assertEquals(500, e.status());
             assertEquals("not-json", e.message());
@@ -79,7 +80,7 @@ class FrankfurterEndpointsTest {
         @DisplayName("parses valid error JSON")
         void parsesError() {
             var json = "{\"status\":400,\"message\":\"Bad request\"}";
-            var e = FrankfurterEndpoints.parseError(json, 400);
+            var e = JsonParsers.parseError(json, 400);
 
             assertEquals(400, e.status());
             assertEquals("Bad request", e.message());

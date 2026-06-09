@@ -1,5 +1,5 @@
 /*
- * LocalDateAdapter.java
+ * package-info.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,48 +30,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter.json;
-
-import com.google.gson.*;
-
-import java.lang.reflect.Type;
-import java.time.LocalDate;
-
 /**
- * Gson adapter for serializing and deserializing {@link LocalDate} values.
+ * Internal implementation details for the Frankfurter API client.
+ * <p>
+ * This package contains helper classes for JSON parsing, input validation,
+ * type adapters, and data formatting.
+ * <p>
+ * These classes are not part of the public API and may change or be removed
+ * without notice.
  *
- * <p>This adapter reads and writes ISO‑8601 date strings such as
- * {@code "2026-04-08"}. It is used internally by the Frankfurter client to
- * ensure consistent date handling across all JSON payloads.</p>
- *
- * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @apiNote Internal use only. No compatibility guarantees are provided.
  * @since 1.0
  */
-public final class LocalDateAdapter implements JsonDeserializer<LocalDate>, JsonSerializer<LocalDate> {
+package net.thauvin.erik.frankfurter.internal;
 
-    /**
-     * Deserializes an ISO‑8601 date string into a {@link LocalDate}.
-     *
-     * @param json the JSON element containing the date string
-     * @param type the target type (ignored)
-     * @param ctx  the deserialization context (ignored)
-     * @return the parsed {@link LocalDate}
-     */
-    @Override
-    public LocalDate deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) {
-        return LocalDate.parse(json.getAsString());
-    }
-
-    /**
-     * Serializes a {@link LocalDate} into its ISO‑8601 string representation.
-     *
-     * @param date the date to serialize
-     * @param type the target type (ignored)
-     * @param ctx  the serialization context (ignored)
-     * @return a JSON string containing the ISO‑8601 representation of the date
-     */
-    @Override
-    public JsonElement serialize(LocalDate date, Type type, JsonSerializationContext ctx) {
-        return new JsonPrimitive(date.toString());
-    }
-}

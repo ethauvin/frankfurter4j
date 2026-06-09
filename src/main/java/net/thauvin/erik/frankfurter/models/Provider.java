@@ -35,7 +35,7 @@ package net.thauvin.erik.frankfurter.models;
 import com.google.gson.annotations.SerializedName;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import net.thauvin.erik.frankfurter.Validation;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -103,16 +103,13 @@ public record Provider(
      * @param startDate   the first date for which data is available, or {@code null}
      * @param endDate     the last date for which data is available, or {@code null}
      * @param currencies  the list of supported currencies, or {@code null}
-     * @throws IllegalArgumentException if {@code key} or {@code name} is blank
+     * @throws IllegalArgumentException if {@code key} or {@code name} are blank
+     * @throws NullPointerException     if {@code key} or {@code name} are {@code null}
      */
     @SuppressWarnings("ConstantValue")
     public Provider {
-        if (Validation.isNullOrBlank(key)) {
-            throw new IllegalArgumentException("key must not be blank");
-        }
-        if (Validation.isNullOrBlank(name)) {
-            throw new IllegalArgumentException("name must not be blank");
-        }
+        Validation.requireNonNullOrBlank("key", key);
+        Validation.requireNonNullOrBlank("name", name);
 
         // Normalize null → empty list (API always provides an array, but defensive)
         currencies = currencies == null ? List.of() : List.copyOf(currencies);

@@ -34,16 +34,18 @@ package net.thauvin.erik.frankfurter.config;
 
 import com.uwyn.urlencoder.UrlEncoder;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import net.thauvin.erik.frankfurter.Validation;
+import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.Group;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Immutable configuration for constructing Frankfurter {@code /rates} queries.
@@ -53,32 +55,43 @@ public final class RatesConfig {
     @NonNull
     private final Map<String, String> params;
 
-    @SuppressFBWarnings("DMC_DUBIOUS_MAP_COLLECTION")
     private RatesConfig(@NonNull Map<String, String> params) {
-        this.params = Objects.requireNonNull(params, Validation.formatNullMessage("params"));
+        this.params = params; // already unmodifiable from Map.copyOf
     }
 
+    @Override
+    public String toString() {
+        return "RatesConfig" + params;
+    }
+
+    /**
+     * URL-encodes a string using UTF-8.
+     *
+     * @param s the string to encode
+     * @return the encoded string
+     */
     @NonNull
     private static String encode(@NonNull String s) {
-        Objects.requireNonNull(s, "encode string must not be null");
         return UrlEncoder.encode(s);
     }
 
     /**
      * Applies this configuration to the given base URI.
      *
-     * @param base the base API endpoint
+     * @param baseUri the base API endpoint
      * @return a new URI with the query parameters appended
+     * @throws IllegalArgumentException if the URI cannot be built
      */
     @NonNull
-    public URI applyTo(@NonNull URI base) {
-        Objects.requireNonNull(base, Validation.formatNullMessage("base"));
+    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
+    public URI applyTo(@NonNull URI baseUri) {
+        Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
         if (params.isEmpty()) {
-            return base;
+            return baseUri;
         }
 
-        var sb = new StringBuilder(base.toString()).append('?');
+        var sb = new StringBuilder();
         var first = true;
 
         for (var e : params.entrySet()) {
@@ -89,10 +102,20 @@ public final class RatesConfig {
 
             sb.append(encode(e.getKey()))
                     .append('=')
-                    .append(encode(e.getValue()));
+                    .append(e.getValue()); // values already encoded in build()
         }
 
-        return URI.create(sb.toString());
+        try {
+            return new URI(
+                    baseUri.getScheme(),
+                    baseUri.getAuthority(),
+                    baseUri.getPath(),
+                    sb.toString(),
+                    baseUri.getFragment()
+            );
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Failed to build URI for RatesConfig", e);
+        }
     }
 
     /**
@@ -100,29 +123,22 @@ public final class RatesConfig {
      */
     public static final class Builder {
 
-        @Nullable
-        private String base; // optional, but never null once set
-
-        @Nullable
-        private LocalDate date; // optional, but never null once set
-
-        @Nullable
-        private LocalDate from; // optional, but never null once set
-
-        @Nullable
-        private Group group; // optional, but never null once set
-
-        @NonNull
+        private String base;
+        private LocalDate date;
+        private LocalDate from;
+        private Group group;
         private String[] providers = new String[0];
-
-        @NonNull
         private String[] quotes = new String[0];
-
-        @Nullable
-        private LocalDate to; // optional, but never null once set
+        private LocalDate to;
 
         /**
-         * Sets the base currency.
+         * Sets the base currency. Optional.
+         *
+         * <p>If not set, the Frankfurter API defaults to {@code EUR}.</p>
+         *
+         * @param base 3-letter ISO 4217 currency code, e.g. "USD"
+         * @return this builder
+         * @throws IllegalArgumentException if blank or not 3 letters
          */
         @NonNull
         public Builder base(@NonNull String base) {
@@ -132,46 +148,54 @@ public final class RatesConfig {
 
         /**
          * Builds and returns an immutable configuration.
+         *
+         * @return the immutable config
+         * @throws IllegalArgumentException if date is combined with from/to,
+         *                                  or if to is before from
+         * @throws IllegalStateException    if group is set without a date or date range
          */
         @NonNull
         public RatesConfig build() {
-
             if (date != null && (from != null || to != null)) {
                 throw new IllegalArgumentException("date is mutually exclusive with from and to");
             }
-
             if (from != null && to != null && to.isBefore(from)) {
                 throw new IllegalArgumentException("to must be on or after from");
+            }
+            if (group != null && from == null && to == null && date == null) {
+                throw new IllegalStateException("group requires a date or date range");
             }
 
             var params = new LinkedHashMap<String, String>();
 
-            if (!Validation.isNullOrBlank(base)) {
-                params.put("base", base);
+            if (base != null) {
+                params.put("base", base); // ISO codes are URL-safe, no encode needed
             }
-
             if (quotes.length > 0) {
-                params.put("quotes", String.join(",", quotes));
+                // Encode each quote, then join with literal comma
+                var encodedQuotes = Arrays.stream(quotes)
+                        .map(UrlEncoder::encode)
+                        .collect(Collectors.joining(","));
+                params.put("quotes", encodedQuotes);
             }
-
             if (date != null) {
-                params.put("date", date.toString());
+                params.put("date", date.toString()); // yyyy-MM-dd is URL-safe
             }
-
             if (from != null) {
-                params.put("from", from.toString());
+                params.put("from", from.toString()); // yyyy-MM-dd is URL-safe
             }
-
             if (to != null) {
-                params.put("to", to.toString());
+                params.put("to", to.toString()); // yyyy-MM-dd is URL-safe
             }
-
             if (group != null) {
-                params.put("group", group.value());
+                params.put("group", group.value()); // enum values are URL-safe
             }
-
             if (providers.length > 0) {
-                params.put("providers", String.join(",", providers));
+                // Encode each provider, then join with literal comma
+                var encodedProviders = Arrays.stream(providers)
+                        .map(UrlEncoder::encode)
+                        .collect(Collectors.joining(","));
+                params.put("providers", encodedProviders);
             }
 
             return new RatesConfig(Map.copyOf(params));
@@ -179,6 +203,10 @@ public final class RatesConfig {
 
         /**
          * Sets a single date for the rate query.
+         *
+         * @param date the date to query, must not be before 1994-01-04
+         * @return this builder
+         * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
         public Builder date(@NonNull LocalDate date) {
@@ -188,6 +216,10 @@ public final class RatesConfig {
 
         /**
          * Sets the start of a date range query.
+         *
+         * @param from the start date, must not be before 1994-01-04
+         * @return this builder
+         * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
         public Builder from(@NonNull LocalDate from) {
@@ -197,6 +229,9 @@ public final class RatesConfig {
 
         /**
          * Sets the grouping period.
+         *
+         * @param group the grouping, e.g. DAY, MONTH, YEAR
+         * @return this builder
          */
         @NonNull
         public Builder group(@NonNull Group group) {
@@ -206,26 +241,41 @@ public final class RatesConfig {
 
         /**
          * Sets one or more providers.
+         *
+         * <p>Blank entries are ignored. Duplicates are removed.</p>
+         *
+         * @param providers provider IDs, e.g. "ECB", "BANXICO"
+         * @return this builder
+         * @throws NullPointerException if array or any element is null
          */
         @NonNull
         public Builder providers(@NonNull String... providers) {
-            Validation.requireAllNonNull("providers", providers);
-            this.providers = providers.clone();
+            this.providers = Validation.requireNonBlankDistinct("providers", providers);
             return this;
         }
 
         /**
          * Sets one or more quote currencies.
+         *
+         * <p>Blank entries are ignored. Duplicates are removed.</p>
+         *
+         * @param quotes 3-letter ISO 4217 currency codes, e.g. "USD", "GBP"
+         * @return this builder
+         * @throws NullPointerException     if array or any element is null
+         * @throws IllegalArgumentException if any quote is not 3 letters
          */
         @NonNull
         public Builder quotes(@NonNull String... quotes) {
-            Validation.requireAllNonNull("quotes", quotes);
-            this.quotes = quotes.clone();
+            this.quotes = Validation.requireIsoCurrencyArray("quotes", quotes);
             return this;
         }
 
         /**
          * Sets the end of a date range query.
+         *
+         * @param to the end date, must not be before 1994-01-04
+         * @return this builder
+         * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
         public Builder to(@NonNull LocalDate to) {

@@ -34,7 +34,7 @@ package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import net.thauvin.erik.frankfurter.Validation;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.time.LocalDate;
 
@@ -79,14 +79,11 @@ public record Currency(
      * @param symbol     the currency symbol, or {@code null}
      * @param startDate  the first date for which data is available, or {@code null}
      * @param endDate    the last date for which data is available, or {@code null}
-     * @throws IllegalArgumentException if {@code isoCode} or {@code name} is blank
+     * @throws IllegalArgumentException if {@code isoCode} or {@code name} are blank
+     * @throws NullPointerException     if {@code isoCode} or {@code name} are {@code null}
      */
     public Currency {
-        if (Validation.isNullOrBlank(isoCode)) {
-            throw new IllegalArgumentException("isoCode must not be blank");
-        }
-        if (Validation.isNullOrBlank(name)) {
-            throw new IllegalArgumentException("name must not be blank");
-        }
+        Validation.requireNonNullOrBlank("isoCode", isoCode);
+        Validation.requireNonNullOrBlank("name", name);
     }
 }

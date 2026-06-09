@@ -35,6 +35,8 @@ package net.thauvin.erik.frankfurter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.config.RateConfig;
 import net.thauvin.erik.frankfurter.config.RatesConfig;
+import net.thauvin.erik.frankfurter.internal.JsonParsers;
+import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.*;
 
 import java.io.IOException;
@@ -130,10 +132,10 @@ public final class Frankfurter {
         var response = sendGet(uri);
 
         if (response.statusCode() != 200) {
-            return FrankfurterEndpoints.parseError(response.body(), response.statusCode());
+            return JsonParsers.parseError(response.body(), response.statusCode());
         }
 
-        return FrankfurterEndpoints.parseCurrencies(response.body());
+        return JsonParsers.parseCurrencies(response.body());
     }
 
     /**
@@ -150,10 +152,10 @@ public final class Frankfurter {
         var response = sendGet(uri);
 
         if (response.statusCode() != 200) {
-            return FrankfurterEndpoints.parseError(response.body(), response.statusCode());
+            return JsonParsers.parseError(response.body(), response.statusCode());
         }
 
-        return FrankfurterEndpoints.parseCurrency(response.body());
+        return JsonParsers.parseCurrency(response.body());
     }
 
     /**
@@ -165,10 +167,10 @@ public final class Frankfurter {
         var response = sendGet(uri);
 
         if (response.statusCode() != 200) {
-            return FrankfurterEndpoints.parseError(response.body(), response.statusCode());
+            return JsonParsers.parseError(response.body(), response.statusCode());
         }
 
-        return FrankfurterEndpoints.parseProviders(response.body());
+        return JsonParsers.parseProviders(response.body());
     }
 
     @NonNull
@@ -190,10 +192,10 @@ public final class Frankfurter {
         var response = sendGet(uri);
 
         if (response.statusCode() != 200) {
-            return FrankfurterEndpoints.parseError(response.body(), response.statusCode());
+            return JsonParsers.parseError(response.body(), response.statusCode());
         }
 
-        return FrankfurterEndpoints.parseSingleRate(response.body());
+        return JsonParsers.parseSingleRate(response.body());
     }
 
     @NonNull
@@ -210,13 +212,14 @@ public final class Frankfurter {
         Objects.requireNonNull(config, Validation.formatNullMessage("config"));
 
         var uri = config.applyTo(baseUri.resolve("rates"));
+
         var response = sendGet(uri);
 
         if (response.statusCode() != 200) {
-            return FrankfurterEndpoints.parseError(response.body(), response.statusCode());
+            return JsonParsers.parseError(response.body(), response.statusCode());
         }
 
-        return FrankfurterEndpoints.parseRates(response.body());
+        return JsonParsers.parseRates(response.body());
     }
 
     /**

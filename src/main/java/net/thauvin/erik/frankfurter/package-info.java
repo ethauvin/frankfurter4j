@@ -31,9 +31,6 @@
  */
 
 /**
- * Provides the main entry points for interacting with the Frankfurter.dev API.
- *
- * <p>This package contains the {@link net.thauvin.erik.frankfurter.Frankfurter}
- * client, configuration utilities, and JSON parsing helpers.</p>
+ * Main entry points for interacting with the Frankfurter.dev API.
  */
 package net.thauvin.erik.frankfurter;

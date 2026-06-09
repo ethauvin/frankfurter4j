@@ -30,16 +30,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter;
+package net.thauvin.erik.frankfurter.internal;
 
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Internal validation helpers used throughout the Frankfurter client.
@@ -76,16 +74,6 @@ public final class Validation {
     public static String formatNullMessage(@NonNull String fieldName) {
         Objects.requireNonNull(fieldName, "fieldName must not be null");
         return fieldName + " must not be null";
-    }
-
-    /**
-     * Checks if a string is null or blank.
-     *
-     * @param s the string to check
-     * @return {@code true} if the string is null or blank, {@code false} otherwise
-     */
-    public static boolean isNullOrBlank(String s) {
-        return s == null || s.isBlank();
     }
 
     /**
@@ -159,6 +147,75 @@ public final class Validation {
         }
 
         return code.toUpperCase(Locale.ROOT);
+    }
+
+    /**
+     * Validates an array of ISO currency codes, filters out blanks, trims, uppercases, and removes duplicates.
+     *
+     * @param name   the parameter name for error messages
+     * @param values the currency codes to validate and clean
+     * @return a new array with validated, normalized currency codes
+     * @throws NullPointerException     if array or any element is null
+     * @throws IllegalArgumentException if any code is blank or not 3 letters
+     */
+    @NonNull
+    @SuppressWarnings("PMD.UseVarargs")
+    public static String[] requireIsoCurrencyArray(@NonNull String name, @NonNull String[] values) {
+        Objects.requireNonNull(values, formatNullMessage(name));
+        requireAllNonNull(name, values);
+        return Arrays.stream(values)
+                .filter(Predicate.not(String::isBlank))
+                .map(code -> requireIsoCurrency(code, name))
+                .distinct()
+                .toArray(String[]::new);
+    }
+
+    /**
+     * Validates an array of strings, filters out blanks, trims, and removes duplicates.
+     *
+     * @param name   the parameter name for error messages
+     * @param values the array to validate and clean
+     * @return a new array with blanks removed, values trimmed, and duplicates removed
+     * @throws NullPointerException if array or any element is null
+     */
+    @NonNull
+    @SuppressWarnings("PMD.UseVarargs")
+    public static String[] requireNonBlankDistinct(@NonNull String name, @NonNull String[] values) {
+        Objects.requireNonNull(values, formatNullMessage(name));
+        requireAllNonNull(name, values);
+        return Arrays.stream(values)
+                .filter(Predicate.not(String::isBlank))
+                .map(String::trim)
+                .distinct()
+                .toArray(String[]::new);
+    }
+
+    /**
+     * Checks that the specified string is neither {@code null} nor blank.
+     *
+     * @param name  the name of the parameter being checked, used in exception messages.
+     *              Must not be {@code null} or blank itself.
+     * @param value the string value to validate
+     * @return {@code value} if it is not {@code null} and not blank
+     * @throws NullPointerException     if {@code value} is {@code null}
+     * @throws IllegalArgumentException if {@code value} is blank
+     * @throws IllegalArgumentException if {@code name} is {@code null} or blank
+     * @since 17
+     */
+    public static String requireNonNullOrBlank(String name, String value) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        if (name.isBlank()) {
+            throw new IllegalArgumentException(" must not be blank");
+        }
+
+        Objects.requireNonNull(value, name + " must not be null");
+
+        if (value.isBlank()) {
+            throw new IllegalArgumentException(name + " must not be blank");
+        }
+
+        return value;
     }
 
     /**

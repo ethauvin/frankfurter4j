@@ -34,7 +34,7 @@ package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.Validation;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.util.Objects;
 

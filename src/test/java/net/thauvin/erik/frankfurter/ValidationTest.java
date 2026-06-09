@@ -7,16 +7,16 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ *   Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
  *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
  *
- * Neither the name of this project nor the names of its contributors may be
- * used to endorse or promote products derived from this software without
- * specific prior written permission.
+ *   Neither the name of this project nor the names of its contributors may be
+ *   used to endorse or promote products derived from this software without
+ *   specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -32,6 +32,7 @@
 
 package net.thauvin.erik.frankfurter;
 
+import net.thauvin.erik.frankfurter.internal.Validation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"NullableProblems", "DataFlowIssue", "ConstantValue", "PMD.AvoidDuplicateLiterals",
+@SuppressWarnings({"NullableProblems", "DataFlowIssue", "PMD.AvoidDuplicateLiterals",
         "PMD.UnitTestShouldIncludeAssert"})
 final class ValidationTest {
 
@@ -64,29 +65,6 @@ final class ValidationTest {
         void throwsForNullFieldName() {
             assertThrows(NullPointerException.class,
                     () -> Validation.formatNullMessage(null));
-        }
-    }
-
-    @Nested
-    @DisplayName("isNullOrBlank")
-    class IsNullOrBlankTests {
-
-        @Test
-        @DisplayName("returns false for non-blank")
-        void returnsFalseForNonBlank() {
-            assertFalse(Validation.isNullOrBlank("USD"));
-        }
-
-        @Test
-        @DisplayName("returns true for blank")
-        void returnsTrueForBlank() {
-            assertTrue(Validation.isNullOrBlank(" "));
-        }
-
-        @Test
-        @DisplayName("returns true for null")
-        void returnsTrueForNull() {
-            assertTrue(Validation.isNullOrBlank(null));
         }
     }
 
@@ -216,6 +194,30 @@ final class ValidationTest {
                     () -> Validation.requireIsoCurrency("US", "base"));
             assertThrows(IllegalArgumentException.class,
                     () -> Validation.requireIsoCurrency("USDD", "base"));
+        }
+    }
+
+    @Nested
+    @DisplayName("requireNonNullOrBlank")
+    class RequireNonNullOrBlankTests {
+
+        @Test
+        @DisplayName("does not throw for non-blank")
+        void returnsFalseForNonBlank() {
+            assertDoesNotThrow(() -> Validation.requireNonNullOrBlank("usd", "USD"));
+        }
+
+        @Test
+        @DisplayName("throws IAE for null")
+        void returnsTrueForBlank() {
+            assertThrows(IllegalArgumentException.class, () -> Validation.requireNonNullOrBlank("blank", " "));
+
+        }
+
+        @Test
+        @DisplayName("throws NPE for null")
+        void returnsTrueForNull() {
+            assertThrows(NullPointerException.class, () -> Validation.requireNonNullOrBlank("null", null));
         }
     }
 

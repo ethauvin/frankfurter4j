@@ -85,7 +85,7 @@ class RateConfigTest {
         @DisplayName("build with empty providers list")
         void buildWithEmptyProviders() {
             var b = new RateConfig.Builder().providers(List.of("").toArray(new String[0]));
-            assertThrows(IllegalArgumentException.class, b::build);
+            assertThrows(IllegalStateException.class, b::build);
         }
 
         @Test
@@ -105,10 +105,10 @@ class RateConfigTest {
         @DisplayName("requires base and quote")
         void requiresBaseAndQuote() {
             var b = new RateConfig.Builder();
-            assertThrows(IllegalArgumentException.class, b::build);
+            assertThrows(IllegalStateException.class, b::build);
 
             b.base("USD");
-            assertThrows(IllegalArgumentException.class, b::build);
+            assertThrows(IllegalStateException.class, b::build);
 
             b.quote("EUR");
             assertDoesNotThrow(b::build);

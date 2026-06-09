@@ -33,18 +33,20 @@
 package net.thauvin.erik.frankfurter.models;
 
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class ProviderTest {
 
     @ParameterizedTest
-    @NullAndEmptySource
-    void nullKey(String key) {
+    @EmptySource
+    void emptyKey(String key) {
         assertThrows(IllegalArgumentException.class, () ->
                 new Provider(
                         key,
@@ -59,9 +61,41 @@ class ProviderTest {
     }
 
     @ParameterizedTest
-    @NullAndEmptySource
-    void nullName(String name) {
+    @EmptySource
+    void emptyName(String name) {
         assertThrows(IllegalArgumentException.class, () ->
+                new Provider(
+                        "key",
+                        name,
+                        "desc",
+                        "url",
+                        "terms",
+                        LocalDate.now(),
+                        LocalDate.now(),
+                        List.of("USD")
+                ));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void nullKey(String key) {
+        assertThrows(NullPointerException.class, () ->
+                new Provider(
+                        key,
+                        "name",
+                        "desc",
+                        "url",
+                        "terms",
+                        LocalDate.now(),
+                        LocalDate.now(),
+                        List.of("USD")
+                ));
+    }
+
+    @ParameterizedTest
+    @NullSource
+    void nullName(String name) {
+        assertThrows(NullPointerException.class, () ->
                 new Provider(
                         "key",
                         name,

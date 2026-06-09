@@ -1,5 +1,5 @@
 /*
- * FrankfurterEndpoints.java
+ * JsonParsers.java
  *
  * Copyright (c) 2025-2026 Erik C. Thauvin (erik@thauvin.net)
  * All rights reserved.
@@ -30,13 +30,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter;
+package net.thauvin.erik.frankfurter.internal;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.json.LocalDateAdapter;
+import net.thauvin.erik.frankfurter.Frankfurter;
 import net.thauvin.erik.frankfurter.models.*;
 
 import java.lang.reflect.Type;
@@ -50,9 +50,10 @@ import java.util.Objects;
  * <p>These methods convert raw JSON strings into strongly typed model objects.
  * They are used internally by {@link Frankfurter}.</p>
  */
-public final class FrankfurterEndpoints {
+public final class JsonParsers {
 
     public static final String JSON_MUST_NOT_BE_NULL = Validation.formatNullMessage("json");
+
     @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -61,7 +62,7 @@ public final class FrankfurterEndpoints {
     /**
      * You can't call the constructor.
      */
-    private FrankfurterEndpoints() {
+    private JsonParsers() {
     }
 
     /**
