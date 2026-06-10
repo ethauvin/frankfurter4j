@@ -5,31 +5,14 @@ commands:
     steps:
       - checkout
       - restore_cache:
-          name: Restore bld dependencies
           keys:
-            - bld-deps-{{ arch }}-{{ checksum "lib/bld/bld-wrapper.properties" }}
+            - bld-deps-{{ arch }}-{{ .Branch }}
             - bld-deps-{{ arch }}-
       - run:
           name: Download dependencies
-          command: |
-            if [ ! -f "lib/bld/bld.cache" ]; then
-              echo "No cache found - downloading dependencies"
-              ./bld download purge
-            else
-              echo "Cache found -> skipping download"
-            fi
-      - run:
-          name: Update dependencies
-          command: |
-            if [ -f "lib/bld/bld.cache" ]; then
-              echo "Cache found - running updates"
-              ./bld updates
-            else
-              echo "No cache -> skipping updates"
-            fi
+          command: ./bld clean download
       - save_cache:
-          name: Save bld dependencies
-          key: bld-deps-{{ arch }}-{{ checksum "lib/bld/bld-wrapper.properties" }}
+          key: bld-deps-{{ arch }}-{{ .Branch }}
           paths:
             - lib
       - run:
@@ -46,6 +29,7 @@ commands:
           path: build/test-results/test/
       - store_artifacts:
           path: build/reports/jacoco/test/html
+
 jobs:
   bld_jdk17:
     docker:

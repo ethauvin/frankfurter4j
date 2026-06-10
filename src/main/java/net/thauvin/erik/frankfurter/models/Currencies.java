@@ -34,16 +34,14 @@ package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Represents the set of currencies returned by the Frankfurter API.
@@ -63,10 +61,27 @@ public final class Currencies implements CurrenciesResult {
      * Creates a new immutable container for the given list of currencies.
      *
      * @param list the list of currency entries
+     * @throws NullPointerException if list is null or contains null elements
      */
     public Currencies(@NonNull Collection<Currency> list) {
         Validation.requireAllNonNull(list, "currencies");
         this.list = List.copyOf(list);
+    }
+
+    @Override
+    public int hashCode() {
+        return list.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof Currencies that && list.equals(that.list);
+    }
+
+
+    @Override
+    public String toString() {
+        return "Currencies" + list;
     }
 
     /**
@@ -74,17 +89,20 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param json the JSON response
      * @return the parsed currencies
+     * @throws NullPointerException     if json is null
+     * @throws IllegalArgumentException if json is malformed
      */
     @NonNull
     public static Currencies fromJson(@NonNull String json) {
         Objects.requireNonNull(json, Validation.formatNullMessage("json"));
-
-        Type type = new TypeToken<List<Currency>>() {
-        }.getType();
-        List<Currency> list = GSON.fromJson(json, type);
-
-        // Gson guarantees non-null list unless JSON itself is null (already checked)
-        return new Currencies(list);
+        try {
+            Type type = new TypeToken<List<Currency>>() {
+            }.getType();
+            List<Currency> list = Objects.requireNonNullElse(GSON.fromJson(json, type), List.of());
+            return new Currencies(list);
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Invalid currencies JSON: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -92,11 +110,11 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param iso the ISO 4217 currency code
      * @return an optional containing the matching currency
+     * @throws NullPointerException if iso is null
      */
     @NonNull
     public Optional<Currency> find(@NonNull String iso) {
         Objects.requireNonNull(iso, Validation.formatNullMessage("iso"));
-
         return list.stream()
                 .filter(c -> c.isoCode().equalsIgnoreCase(iso))
                 .findFirst();
@@ -112,7 +130,7 @@ public final class Currencies implements CurrenciesResult {
     /**
      * Returns all currency entries.
      *
-     * @return the list of currencies
+     * @return an unmodifiable list of currencies
      */
     @NonNull
     public List<Currency> list() {
@@ -124,14 +142,14 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param name the substring to match
      * @return the list of matching currencies
+     * @throws NullPointerException if name is null
      */
     @NonNull
     public List<Currency> searchByName(@NonNull String name) {
         Objects.requireNonNull(name, Validation.formatNullMessage("name"));
-
-        var n = name.toLowerCase();
+        var n = name.toLowerCase(Locale.ROOT);
         return list.stream()
-                .filter(c -> c.name().toLowerCase().contains(n))
+                .filter(c -> c.name().toLowerCase(Locale.ROOT).contains(n))
                 .toList();
     }
 

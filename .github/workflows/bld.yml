@@ -31,27 +31,11 @@ jobs:
         uses: actions/cache@v5
         with:
           path: lib
-          key: ${{ runner.os }}-bld-${{ hashFiles('lib/bld/bld-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-bld-
-
-      - name: Check for bld cache
-        id: check-cache
-        shell: bash
-        run: |
-          if [ -f "lib/bld/bld.cache" ]; then
-            echo "cache_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "cache_exists=false" >> $GITHUB_OUTPUT
-          fi
+          key: ${{ runner.os }}-bld-java${{ matrix.java-version}}-lib
+          restore-keys: ${{ runner.os }}-bld-java${{ matrix.java-version}}-lib
 
       - name: Download dependencies
-        if: steps.check-cache.outputs.cache_exists == 'false'
-        run: ./bld download purge
-
-      - name: Update dependencies  
-        if: steps.check-cache.outputs.cache_exists == 'true'
-        run: ./bld updates
+        run: ./bld clean download
 
       - name: Compile source
         run: ./bld compile
