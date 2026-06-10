@@ -46,43 +46,11 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * {@link RatesResult}, {@link RateResult}) so callers can uniformly handle
  * success and error outcomes.</p>
  *
+ * @param status  the HTTP status code returned by the API
+ * @param message the error message, or {@code null} if none was provided
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@SuppressWarnings("ClassCanBeRecord")
-public final class ErrorResponse
+public record ErrorResponse(int status, @Nullable String message)
         implements CurrenciesResult, CurrencyResult, ProvidersResult, RatesResult, RateResult {
-
-    private final String message;
-    private final int status;
-
-    /**
-     * Creates a new error response.
-     *
-     * @param status  the HTTP status code returned by the API
-     * @param message the error message, or {@code null} if none was provided
-     */
-    public ErrorResponse(int status, @Nullable String message) {
-        this.status = status;
-        this.message = message;
-    }
-
-    /**
-     * Returns the error message provided by the API.
-     *
-     * @return the error message, or {@code null} if none was provided
-     */
-    @Nullable
-    public String message() {
-        return message;
-    }
-
-    /**
-     * Returns the HTTP status code associated with this error.
-     *
-     * @return the HTTP status code
-     */
-    public int status() {
-        return status;
-    }
 }
