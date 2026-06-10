@@ -35,12 +35,11 @@ package net.thauvin.erik.frankfurter.models;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 
-import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents the set of providers returned by the Frankfurter {@code /providers} endpoint.
@@ -52,7 +51,7 @@ import java.util.List;
  * @since 1.0
  */
 @SuppressWarnings("ClassCanBeRecord")
-public final class Providers implements ProvidersResult {
+public final class Providers implements ProvidersResult, Iterable<Provider> {
 
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -66,7 +65,18 @@ public final class Providers implements ProvidersResult {
      * @param list the list of provider entries
      */
     public Providers(Collection<Provider> list) {
-        this.list = List.copyOf(list);
+        this.list = list == null ? List.of() : List.copyOf(list);
+    }
+
+    @Override
+    @NonNull
+    public Iterator<Provider> iterator() {
+        return list.iterator();
+    }
+
+    @Override
+    public String toString() {
+        return "Providers" + list;
     }
 
     /**
@@ -76,10 +86,10 @@ public final class Providers implements ProvidersResult {
      * @return the parsed providers
      */
     public static Providers fromJson(String json) {
-        Type type = new TypeToken<List<Provider>>() {
+        var type = new TypeToken<List<Provider>>() {
         }.getType();
         List<Provider> list = GSON.fromJson(json, type);
-        return new Providers(list);
+        return new Providers(list == null ? List.of() : list);
     }
 
     /**
@@ -88,9 +98,12 @@ public final class Providers implements ProvidersResult {
      * @param key the provider key
      * @return an optional containing the matching provider
      */
-    public java.util.Optional<Provider> find(String key) {
+    public Optional<Provider> find(String key) {
+        if (key == null || key.isBlank()) {
+            return Optional.empty();
+        }
         return list.stream()
-                .filter(p -> p.key().equalsIgnoreCase(key))
+                .filter(p -> key.equalsIgnoreCase(p.key()))
                 .findFirst();
     }
 
@@ -119,9 +132,12 @@ public final class Providers implements ProvidersResult {
      * @return the list of matching providers
      */
     public List<Provider> searchByName(String name) {
-        var n = name.toLowerCase();
+        if (name == null || name.isBlank()) {
+            return List.of();
+        }
+        var n = name.toLowerCase(Locale.ROOT);
         return list.stream()
-                .filter(p -> p.name().toLowerCase().contains(n))
+                .filter(p -> p.name().toLowerCase(Locale.ROOT).contains(n))
                 .toList();
     }
 
