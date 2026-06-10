@@ -127,6 +127,12 @@ public class Frankfurter4jBuild extends Project {
     }
 
     @Override
+    public void compile() throws Exception {
+        genver();
+        super.compile();
+    }
+
+    @Override
     public void test() throws Exception {
         var op = testOperation().fromProject(this);
         op.testToolOptions().reportsDir(testResultsDirectory);
@@ -147,6 +153,15 @@ public class Frankfurter4jBuild extends Project {
 
     public static void main(String[] args) {
         new Frankfurter4jBuild().start(args);
+    }
+
+    @BuildCommand(summary = "Generates version class")
+    public void genver() throws Exception {
+        new GeneratedVersionOperation()
+                .fromProject(this)
+                .packageName(pkg + ".frankfurter.internal")
+                .classTemplate("GeneratedVersion.txt")
+                .execute();
     }
 
     @BuildCommand(summary = "Generates JaCoCo Reports")

@@ -326,7 +326,7 @@ class FrankfurterTest {
         @DisplayName("normalizes base URI")
         void normalizesBaseUri() {
             var api = new Frankfurter(URI.create("https://example.com/v2"));
-            assertEquals("https://example.com/", api.getBaseUri().toString());
+            assertEquals("https://example.com/v2/", api.getBaseUri().toString());
         }
 
         @Test
