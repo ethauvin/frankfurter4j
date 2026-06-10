@@ -70,7 +70,7 @@ class ExchangeRatesConfigTest {
 
         @ParameterizedTest
         @EmptySource
-        @ValueSource(strings = {"  ", "US", "USDD"})
+        @ValueSource(strings = {" ", "  ", "US", "USDD"})
         @DisplayName("rejects invalid ISO codes")
         void rejectsInvalidIso(String code) {
             var b = new RatesConfig.Builder();

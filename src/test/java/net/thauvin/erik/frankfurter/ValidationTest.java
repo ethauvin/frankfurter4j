@@ -57,7 +57,7 @@ final class ValidationTest {
         @Test
         @DisplayName("formats field name correctly")
         void formatsFieldName() {
-            assertEquals("base currency must not be null", Validation.formatNullMessage("base currency"));
+            assertEquals("base currency must not be {@code null}", Validation.formatNullMessage("base currency"));
         }
 
         @Test
@@ -75,16 +75,16 @@ final class ValidationTest {
         @Test
         @DisplayName("accepts a valid collection")
         void acceptsValidCollection() {
-            Validation.requireAllNonNull(List.of("A", "B", "C"), "test");
+            Validation.requireAllNonNull("test", List.of("A", "B", "C"));
         }
 
         @Test
         @DisplayName("exception message includes correct index")
         void exceptionMessageIncludesCorrectIndex() {
             var ex = assertThrows(NullPointerException.class,
-                    () -> Validation.requireAllNonNull(Arrays.asList("A", null, "C"), "test"));
+                    () -> Validation.requireAllNonNull("test", Arrays.asList("A", null, "C")));
 
-            assertEquals("test[1] must not be null", ex.getMessage());
+            assertEquals("test[1] must not be {@code null}", ex.getMessage());
         }
 
         @Test
@@ -98,7 +98,7 @@ final class ValidationTest {
         @DisplayName("throws for null element")
         void throwsForNullElement() {
             assertThrows(NullPointerException.class,
-                    () -> Validation.requireAllNonNull(List.of("A", null, "C"), "test"));
+                    () -> Validation.requireAllNonNull("test", List.of("A", null, "C")));
         }
     }
 
@@ -135,7 +135,7 @@ final class ValidationTest {
         @ValueSource(strings = {"USD", "usd", "EuR", "gbp"})
         @DisplayName("parameterized: accepts valid 3-letter codes and normalizes")
         void acceptsAndNormalizesValidCodes(String input) {
-            String result = Validation.requireIsoCurrency(input, "base");
+            String result = Validation.requireIsoCurrency("base", input);
             assertEquals(input.toUpperCase(Locale.ROOT), result);
             assertEquals(3, result.length());
         }
@@ -143,22 +143,22 @@ final class ValidationTest {
         @Test
         @DisplayName("accepts valid ISO code")
         void acceptsValidIsoCode() {
-            assertEquals("USD", Validation.requireIsoCurrency("USD", "base"));
+            assertEquals("USD", Validation.requireIsoCurrency("base", "USD"));
         }
 
         @Test
         @DisplayName("normalizes lowercase to uppercase")
         void normalizesLowercase() {
-            assertEquals("USD", Validation.requireIsoCurrency("usd", "base"));
-            assertEquals("EUR", Validation.requireIsoCurrency("EuR", "base"));
-            assertEquals("GBP", Validation.requireIsoCurrency("gbp", "target"));
+            assertEquals("USD", Validation.requireIsoCurrency("base", "usd"));
+            assertEquals("EUR", Validation.requireIsoCurrency("base", "EuR"));
+            assertEquals("GBP", Validation.requireIsoCurrency("target", "gbp"));
         }
 
         @Test
         @DisplayName("throws for blank")
         void throwsForBlank() {
             assertThrows(IllegalArgumentException.class,
-                    () -> Validation.requireIsoCurrency(" ", "base"));
+                    () -> Validation.requireIsoCurrency("base", " "));
         }
 
         @ParameterizedTest
@@ -166,14 +166,14 @@ final class ValidationTest {
         @DisplayName("parameterized: throws for invalid codes")
         void throwsForInvalidCodes(String input) {
             assertThrows(IllegalArgumentException.class,
-                    () -> Validation.requireIsoCurrency(input, "base"));
+                    () -> Validation.requireIsoCurrency("base", input));
         }
 
         @Test
         @DisplayName("throws for non-letter characters")
         void throwsForNonLetters() {
             assertThrows(IllegalArgumentException.class,
-                    () -> Validation.requireIsoCurrency("US1", "base"));
+                    () -> Validation.requireIsoCurrency("base", "US1"));
             assertThrows(IllegalArgumentException.class,
                     () -> Validation.requireIsoCurrency("U$D", "base"));
             assertThrows(IllegalArgumentException.class,
@@ -184,16 +184,16 @@ final class ValidationTest {
         @DisplayName("throws for null")
         void throwsForNull() {
             assertThrows(NullPointerException.class,
-                    () -> Validation.requireIsoCurrency(null, "base"));
+                    () -> Validation.requireIsoCurrency("base", null));
         }
 
         @Test
         @DisplayName("throws for wrong length")
         void throwsForWrongLength() {
             assertThrows(IllegalArgumentException.class,
-                    () -> Validation.requireIsoCurrency("US", "base"));
+                    () -> Validation.requireIsoCurrency("base", "US"));
             assertThrows(IllegalArgumentException.class,
-                    () -> Validation.requireIsoCurrency("USDD", "base"));
+                    () -> Validation.requireIsoCurrency("base", "USDD"));
         }
     }
 
@@ -203,20 +203,27 @@ final class ValidationTest {
 
         @Test
         @DisplayName("does not throw for non-blank")
-        void returnsFalseForNonBlank() {
+        void doesNotThrowForNonBlank() {
             assertDoesNotThrow(() -> Validation.requireNonNullOrBlank("usd", "USD"));
         }
 
         @Test
         @DisplayName("throws IAE for null")
-        void returnsTrueForBlank() {
+        void throwsForBlank() {
             assertThrows(IllegalArgumentException.class, () -> Validation.requireNonNullOrBlank("blank", " "));
 
         }
 
         @Test
+        @DisplayName("throws IAE for blank name")
+        void throwsForBlankName() {
+            assertThrows(IllegalArgumentException.class, () -> Validation.requireNonNullOrBlank("", "foo"));
+
+        }
+
+        @Test
         @DisplayName("throws NPE for null")
-        void returnsTrueForNull() {
+        void throwsForNull() {
             assertThrows(NullPointerException.class, () -> Validation.requireNonNullOrBlank("null", null));
         }
     }
@@ -229,21 +236,21 @@ final class ValidationTest {
         @DisplayName("accepts minimum supported date exactly")
         void acceptsMinSupportedDate() {
             var min = LocalDate.of(1994, 1, 4);
-            assertEquals(min, Validation.requireSupportedDate(min, "date"));
+            assertEquals(min, Validation.requireSupportedDate("date", min));
         }
 
         @Test
         @DisplayName("accepts valid date")
         void acceptsValidDate() {
             var date = LocalDate.of(2000, 1, 1);
-            assertEquals(date, Validation.requireSupportedDate(date, "date"));
+            assertEquals(date, Validation.requireSupportedDate("date", date));
         }
 
         @Test
         @DisplayName("throws for null")
         void throwsForNull() {
             assertThrows(NullPointerException.class,
-                    () -> Validation.requireSupportedDate(null, "date"));
+                    () -> Validation.requireSupportedDate("date", null));
         }
 
         @Test
@@ -251,7 +258,7 @@ final class ValidationTest {
         void throwsForTooEarlyDate() {
             var tooEarly = LocalDate.of(1994, 1, 3);
             assertThrows(IllegalArgumentException.class,
-                    () -> Validation.requireSupportedDate(tooEarly, "date"));
+                    () -> Validation.requireSupportedDate("date", tooEarly));
         }
     }
 }

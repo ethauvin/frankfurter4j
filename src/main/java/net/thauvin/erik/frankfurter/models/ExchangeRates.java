@@ -61,7 +61,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code rates} is {@code null}
      */
     public ExchangeRates(Collection<Rate> rates) {
-        Objects.requireNonNull(rates, "rates must not be null");
+        Objects.requireNonNull(rates, "rates must not be {@code null}");
         this.rates = List.copyOf(rates);
     }
 
@@ -100,7 +100,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public Optional<Rate> find(@NonNull String quote) {
-        Objects.requireNonNull(quote, "quote must not be null");
+        Objects.requireNonNull(quote, "quote must not be {@code null}");
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .findFirst();
@@ -116,7 +116,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public List<Rate> findAll(@NonNull String quote) {
-        Objects.requireNonNull(quote, "quote must not be null");
+        Objects.requireNonNull(quote, "quote must not be {@code null}");
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .toList();

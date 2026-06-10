@@ -34,10 +34,7 @@ package net.thauvin.erik.frankfurter;
 
 import rife.bld.BuildCommand;
 import rife.bld.Project;
-import rife.bld.extension.JUnitReporterOperation;
-import rife.bld.extension.JacocoReportOperation;
-import rife.bld.extension.PmdOperation;
-import rife.bld.extension.SpotBugsOperation;
+import rife.bld.extension.*;
 import rife.bld.extension.tools.IOTools;
 import rife.bld.publish.PomBuilder;
 import rife.bld.publish.PublishDeveloper;
@@ -80,7 +77,7 @@ public class Frankfurter4jBuild extends Project {
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(provided)
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
-                        version(4, 10, 1)));
+                        version(4, 10, 2)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
                         version(1, 1, 0, "SNAPSHOT")))

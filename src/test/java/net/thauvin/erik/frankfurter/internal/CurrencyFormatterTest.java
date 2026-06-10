@@ -111,6 +111,7 @@ class CurrencyFormatterTest {
 
         @ParameterizedTest
         @EmptySource
+        @ValueSource(strings = {" ", "  "})
         @DisplayName("rejects null ISO codes")
         void rejectsEmpty(String code) {
             assertThrows(IllegalArgumentException.class,
@@ -119,7 +120,7 @@ class CurrencyFormatterTest {
 
         @ParameterizedTest
         @EmptySource
-        @ValueSource(strings = {"  ", "\t"})
+        @ValueSource(strings = {" ", "  ", "\t"})
         @DisplayName("rejects empty or blank ISO codes")
         void rejectsEmptyOrBlank(String code) {
             assertThrows(IllegalArgumentException.class,

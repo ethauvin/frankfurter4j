@@ -223,10 +223,10 @@ public final class CurrencyFormatter {
     );
 
     /**
-     * You can't call the constructor.
+     * Disables the default constructor.
      */
     private CurrencyFormatter() {
-        throw new AssertionError("No instances for you!");
+        // no-op
     }
 
     /**
@@ -234,9 +234,9 @@ public final class CurrencyFormatter {
      * with the given ISO currency code.
      *
      * @param amount  the numeric amount
-     * @param isoCode the ISO 4217 currency code (must not be null or blank)
+     * @param isoCode the ISO 4217 currency code (must not be {@code null} or blank)
      * @return the formatted currency string
-     * @throws IllegalArgumentException if {@code isoCode} is null, blank, or unknown
+     * @throws IllegalArgumentException if {@code isoCode} is {@code null}, blank, or unknown
      */
     @NonNull
     public static String format(double amount, @NonNull String isoCode) {
@@ -248,14 +248,14 @@ public final class CurrencyFormatter {
      * with the given ISO currency code.
      *
      * @param amount  the numeric amount
-     * @param isoCode the ISO 4217 currency code (must not be null or blank)
+     * @param isoCode the ISO 4217 currency code (must not be {@code null} or blank)
      * @param rounded whether to round to the locale's default fraction digits
      * @return the formatted currency string
-     * @throws IllegalArgumentException if {@code isoCode} is null, blank, or unknown
+     * @throws IllegalArgumentException if {@code isoCode} is {@code null}, blank, or unknown
      */
     @NonNull
     public static String format(double amount, @NonNull String isoCode, boolean rounded) {
-        var code = Validation.requireIsoCurrency(isoCode, "ISO currency code").toUpperCase(Locale.ROOT);
+        var code = Validation.requireIsoCurrency("ISO currency code", isoCode).toUpperCase(Locale.ROOT);
         var locale = LOCALES.get(code);
 
         if (locale == null) {

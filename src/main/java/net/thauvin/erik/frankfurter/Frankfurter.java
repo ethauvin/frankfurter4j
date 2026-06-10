@@ -93,7 +93,7 @@ public final class Frankfurter {
     /**
      * Creates a new client using the given base URI and a default {@link HttpClient}.
      *
-     * @param baseUri the base API URI (must not be null)
+     * @param baseUri the base API URI (must not be {@code null})
      */
     public Frankfurter(@NonNull URI baseUri) {
         this(HttpClient.newHttpClient(), baseUri, DEFAULT_TIMEOUT);
@@ -102,9 +102,9 @@ public final class Frankfurter {
     /**
      * Creates a new client using the given HTTP client, base URI, and timeout.
      *
-     * @param client  the HTTP client to use (must not be null)
-     * @param baseUri the base API URI (must not be null)
-     * @param timeout the request timeout (must not be null)
+     * @param client  the HTTP client to use (must not be {@code null})
+     * @param baseUri the base API URI (must not be {@code null})
+     * @param timeout the request timeout (must not be {@code null})
      */
     public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri, @NonNull Duration timeout) {
         this.client = Objects.requireNonNull(client, Validation.formatNullMessage("client"));
@@ -115,8 +115,8 @@ public final class Frankfurter {
     /**
      * Creates a new client using the given HTTP client and base URI with default timeout.
      *
-     * @param client  the HTTP client to use (must not be null)
-     * @param baseUri the base API URI (must not be null)
+     * @param client  the HTTP client to use (must not be {@code null})
+     * @param baseUri the base API URI (must not be {@code null})
      */
     public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri) {
         this(client, baseUri, DEFAULT_TIMEOUT);
@@ -165,12 +165,12 @@ public final class Frankfurter {
     /**
      * Retrieves metadata for a single currency.
      *
-     * @param code the ISO currency code (must not be null or blank)
+     * @param code the ISO currency code (must not be {@code null} or blank)
      * @throws IOException if a network error occurs
      */
     @NonNull
     public CurrencyResult getCurrency(@NonNull String code) throws IOException {
-        Validation.requireIsoCurrency(code, "code");
+        Validation.requireIsoCurrency("code", code);
         return execute(baseUri.resolve("currency/").resolve(code), JsonParsers::parseCurrency);
     }
 
@@ -187,21 +187,21 @@ public final class Frankfurter {
     /**
      * Retrieves a single exchange rate for the given currency pair.
      *
-     * @param base  the base ISO currency code (must not be null or blank)
-     * @param quote the quote ISO currency code (must not be null or blank)
+     * @param base  the base ISO currency code (must not be {@code null} or blank)
+     * @param quote the quote ISO currency code (must not be {@code null} or blank)
      * @throws IOException if a network error occurs
      */
     @NonNull
     public RateResult getRate(@NonNull String base, @NonNull String quote) throws IOException {
-        Validation.requireIsoCurrency(base, "base");
-        Validation.requireIsoCurrency(quote, "quote");
+        Validation.requireIsoCurrency("base", base);
+        Validation.requireIsoCurrency("quote", quote);
         return getRate(new RateConfig.Builder().base(base).quote(quote).build());
     }
 
     /**
      * Retrieves a single exchange rate using the {@code /rate/{base}/{quote}} endpoint.
      *
-     * @param config the rate configuration (must not be null)
+     * @param config the rate configuration (must not be {@code null})
      * @throws IOException if a network error occurs
      */
     @NonNull
@@ -224,7 +224,7 @@ public final class Frankfurter {
     /**
      * Retrieves exchange rates using the {@code /rates} endpoint.
      *
-     * @param config the rates configuration (must not be null)
+     * @param config the rates configuration (must not be {@code null})
      * @throws IOException if a network error occurs
      */
     @NonNull
@@ -237,7 +237,7 @@ public final class Frankfurter {
     /**
      * Executes a GET request and parses the response.
      *
-     * @param uri           the URI to request (must not be null)
+     * @param uri           the URI to request (must not be {@code null})
      * @param successParser function to parse successful responses
      * @param <T>           the result type
      * @return the parsed result

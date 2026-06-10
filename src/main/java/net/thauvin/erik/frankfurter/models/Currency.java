@@ -47,6 +47,10 @@ import java.time.LocalDate;
  * <p>All fields except {@code isoCode} and {@code name} may be {@code null}
  * depending on the currency and the data available from the API.</p>
  *
+ * <p>Values are stored exactly as returned by the API. No normalization is performed,
+ * as the API is considered authoritative. Validation only ensures non-null/blank
+ * for fields required to identify a currency.</p>
+ *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */

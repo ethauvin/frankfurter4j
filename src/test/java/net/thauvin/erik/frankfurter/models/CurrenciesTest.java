@@ -114,6 +114,7 @@ class CurrenciesTest {
 
         @Test
         @DisplayName("not equals null or other type")
+        @SuppressWarnings("AssertBetweenInconvertibleTypes")
         void notEqualsNullOrOther() {
             var c = new Currency("USD", "840", "US Dollar", "$", null, null);
             var currencies = new Currencies(List.of(c));

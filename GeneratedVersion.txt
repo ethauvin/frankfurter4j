@@ -10,6 +10,7 @@ package {{v packageName/}};
  */
 @Generated
 public final class {{v className/}} {
+
     public static final String PROJECT = "{{v project/}}";
     public static final String VERSION = "{{v version/}}";
 

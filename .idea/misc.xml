@@ -11,6 +11,7 @@
     <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="pmd" />
     <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="pmdCli" />
     <pattern value="net.thauvin.erik.frankfurter.Frankfurter4JBuild" method="pomRoot" />
+    <pattern value="net.thauvin.erik.frankfurter.internal.Generated" method="by" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build" />

@@ -166,7 +166,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder base(@NonNull String base) {
-            this.base = Validation.requireIsoCurrency(base, "base");
+            this.base = Validation.requireIsoCurrency("base", base);
             return this;
         }
 
@@ -197,7 +197,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder date(@NonNull LocalDate date) {
-            this.date = Validation.requireSupportedDate(date, "date");
+            this.date = Validation.requireSupportedDate("date", date);
             return this;
         }
 
@@ -208,7 +208,7 @@ public final class RateConfig {
          *
          * @param providers provider IDs, e.g. "ECB", "BANXICO"
          * @return this builder
-         * @throws NullPointerException if array or any element is null
+         * @throws NullPointerException if array or any element is {@code null}
          */
         @NonNull
         public Builder providers(@NonNull String... providers) {
@@ -225,7 +225,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder quote(@NonNull String quote) {
-            this.quote = Validation.requireIsoCurrency(quote, "quote");
+            this.quote = Validation.requireIsoCurrency("quote", quote);
             return this;
         }
     }

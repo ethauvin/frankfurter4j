@@ -35,6 +35,7 @@ package net.thauvin.erik.frankfurter.models;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -46,6 +47,7 @@ class ProviderTest {
 
     @ParameterizedTest
     @EmptySource
+    @ValueSource(strings = {" ", "  "})
     void emptyKey(String key) {
         assertThrows(IllegalArgumentException.class, () ->
                 new Provider(
@@ -62,6 +64,7 @@ class ProviderTest {
 
     @ParameterizedTest
     @EmptySource
+    @ValueSource(strings = {" ", "  "})
     void emptyName(String name) {
         assertThrows(IllegalArgumentException.class, () ->
                 new Provider(

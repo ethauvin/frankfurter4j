@@ -91,7 +91,7 @@ class RateConfigTest {
         }
 
         @Test
-        @DisplayName("throws NPE when baseUri is null")
+        @DisplayName("throws NPE when baseUri is {@code null}")
         void throwsOnNullBaseUri() {
             var cfg = new RateConfig.Builder().quote("EUR").build();
             assertThrows(NullPointerException.class, () -> cfg.applyTo(null));

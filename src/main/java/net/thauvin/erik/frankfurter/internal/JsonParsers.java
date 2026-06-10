@@ -68,7 +68,7 @@ public final class JsonParsers {
     /**
      * Parses a JSON object of currency entries.
      *
-     * @param json the JSON response (must not be null)
+     * @param json the JSON response (must not be {@code null})
      * @return the parsed currencies (never null)
      */
     @NonNull
@@ -80,7 +80,7 @@ public final class JsonParsers {
     /**
      * Parses a single currency entry.
      *
-     * @param json the JSON response (must not be null)
+     * @param json the JSON response (must not be {@code null})
      * @return the parsed currency (never null)
      */
     @NonNull
@@ -92,7 +92,7 @@ public final class JsonParsers {
     /**
      * Parses an error response.
      *
-     * @param json   the raw JSON or fallback text (must not be null)
+     * @param json   the raw JSON or fallback text (must not be {@code null})
      * @param status the HTTP status code
      * @return the parsed error response (never null)
      */
@@ -110,7 +110,7 @@ public final class JsonParsers {
     /**
      * Parses a JSON object of provider entries.
      *
-     * @param json the JSON response (must not be null)
+     * @param json the JSON response (must not be {@code null})
      * @return the parsed providers (never null)
      */
     @NonNull
@@ -122,7 +122,7 @@ public final class JsonParsers {
     /**
      * Parses a JSON array of rate entries.
      *
-     * @param json the JSON response (must not be null)
+     * @param json the JSON response (must not be {@code null})
      * @return the parsed exchange rates (never null)
      */
     @NonNull
@@ -139,7 +139,7 @@ public final class JsonParsers {
     /**
      * Parses a single rate entry.
      *
-     * @param json the JSON response (must not be null)
+     * @param json the JSON response (must not be {@code null})
      * @return the parsed rate (never null)
      */
     @NonNull

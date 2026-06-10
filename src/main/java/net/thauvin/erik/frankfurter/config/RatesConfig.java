@@ -140,7 +140,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder base(@NonNull String base) {
-            this.base = Validation.requireIsoCurrency(base, "base");
+            this.base = Validation.requireIsoCurrency("base", base);
             return this;
         }
 
@@ -208,7 +208,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder date(@NonNull LocalDate date) {
-            this.date = Validation.requireSupportedDate(date, "date");
+            this.date = Validation.requireSupportedDate("date", date);
             return this;
         }
 
@@ -221,7 +221,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder from(@NonNull LocalDate from) {
-            this.from = Validation.requireSupportedDate(from, "from");
+            this.from = Validation.requireSupportedDate("from", from);
             return this;
         }
 
@@ -244,7 +244,7 @@ public final class RatesConfig {
          *
          * @param providers provider IDs, e.g. "ECB", "BANXICO"
          * @return this builder
-         * @throws NullPointerException if array or any element is null
+         * @throws NullPointerException if array or any element is {@code null}
          */
         @NonNull
         public Builder providers(@NonNull String... providers) {
@@ -259,7 +259,7 @@ public final class RatesConfig {
          *
          * @param quotes 3-letter ISO 4217 currency codes, e.g. "USD", "GBP"
          * @return this builder
-         * @throws NullPointerException     if array or any element is null
+         * @throws NullPointerException     if array or any element is {@code null}
          * @throws IllegalArgumentException if any quote is not 3 letters
          */
         @NonNull
@@ -277,7 +277,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder to(@NonNull LocalDate to) {
-            this.to = Validation.requireSupportedDate(to, "to");
+            this.to = Validation.requireSupportedDate("to", to);
             return this;
         }
     }

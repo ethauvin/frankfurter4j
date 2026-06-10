@@ -44,6 +44,39 @@ import static org.junit.jupiter.api.Assertions.*;
 class RatesConfigTest {
 
     @Nested
+    @DisplayName("Date Validation")
+    class DateValidation {
+
+        @Test
+        @DisplayName("date and from shouldn't be combined")
+        void rejectsCombinedDateAnFrom() {
+            var cfg = new RatesConfig.Builder()
+                    .date(LocalDate.now())
+                    .from(LocalDate.now());
+            assertThrows(IllegalArgumentException.class, cfg::build);
+        }
+
+        @Test
+        @DisplayName("date and to shouldn't be combined")
+        void rejectsCombinedDateAndTo() {
+            var cfg = new RatesConfig.Builder()
+                    .date(LocalDate.now())
+                    .to(LocalDate.now());
+            assertThrows(IllegalArgumentException.class, cfg::build);
+        }
+
+        @Test
+        @DisplayName("dates shouldn't be combined")
+        void rejectsCombinedDates() {
+            var cfg = new RatesConfig.Builder()
+                    .date(LocalDate.now())
+                    .from(LocalDate.now())
+                    .to(LocalDate.now());
+            assertThrows(IllegalArgumentException.class, cfg::build);
+        }
+    }
+
+    @Nested
     @DisplayName("Builder with Group")
     class GroupValidation {
 

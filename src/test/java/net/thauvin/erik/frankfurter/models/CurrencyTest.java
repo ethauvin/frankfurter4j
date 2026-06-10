@@ -64,7 +64,7 @@ class CurrencyTest {
 
         @ParameterizedTest
         @EmptySource
-        @ValueSource(strings = {"  "})
+        @ValueSource(strings = {" ", "  "})
         @DisplayName("rejects blank isoCode")
         void rejectsBlankIso(String iso) {
             assertThrows(IllegalArgumentException.class,
@@ -73,7 +73,7 @@ class CurrencyTest {
 
         @ParameterizedTest
         @EmptySource
-        @ValueSource(strings = {"  "})
+        @ValueSource(strings = {" ", "  "})
         @DisplayName("rejects blank name")
         void rejectsBlankName(String name) {
             assertThrows(IllegalArgumentException.class,

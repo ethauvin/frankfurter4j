@@ -62,18 +62,18 @@ public final class Validation {
     }
 
     /**
-     * Appends a standard "must not be null" message to the given field description.
+     * Appends a standard "must not be {@code null}" message to the given field description.
      * <p>
      * This is typically used for constructing exception messages when a required
      * parameter is {@code null}. Pass a descriptive field name, not the value itself.
      *
-     * @param fieldName the name or description of the field being checked; must not be {@code null}
-     * @return a string consisting of the given field name followed by " must not be null"
-     * @throws NullPointerException if {@code fieldName} is {@code null}
+     * @param name a descriptive name for the parameter being validated
+     * @return a string consisting of the given field name followed by " must not be {@code null}"
+     * @throws NullPointerException if {@code name} is {@code null}
      */
-    public static String formatNullMessage(@NonNull String fieldName) {
-        Objects.requireNonNull(fieldName, "fieldName must not be null");
-        return fieldName + " must not be null";
+    public static String formatNullMessage(@NonNull String name) {
+        Objects.requireNonNull(name, "name must not be {@code null}");
+        return name + " must not be {@code null}";
     }
 
     /**
@@ -83,15 +83,15 @@ public final class Validation {
      * varargs array to a list using {@link List#of(Object[])}. The exception
      * semantics and messages are identical to the list‑based version.</p>
      *
-     * @param fieldName a descriptive name for the parameter being validated
-     * @param values    the array to validate
+     * @param name   a descriptive name for the parameter being validated
+     * @param values the array to validate
      * @throws NullPointerException if the array or any element is {@code null}
      */
-    public static void requireAllNonNull(@NonNull String fieldName, @NonNull String... values) {
-        Objects.requireNonNull(values, formatNullMessage(fieldName));
+    public static void requireAllNonNull(@NonNull String name, @NonNull String... values) {
+        Objects.requireNonNull(values, formatNullMessage(name));
 
         // Delegate to the list-based version
-        requireAllNonNull(List.of(values), fieldName);
+        requireAllNonNull(name, List.of(values));
     }
 
     /**
@@ -103,20 +103,19 @@ public final class Validation {
      * message includes the supplied field name to make validation errors easier
      * to diagnose.</p>
      *
-     * @param fieldName a descriptive name for the parameter being validated
-     * @param values    the collection to validate
-     * @param <T>       the element type
+     * @param name   a descriptive name for the parameter being validated
+     * @param values the collection to validate
+     * @param <T>    the element type
      * @throws NullPointerException if the collection or any element is {@code null}
      */
     @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
-    public static <T> void requireAllNonNull(@NonNull Collection<T> values,
-                                             @NonNull String fieldName) {
-        Objects.requireNonNull(values, formatNullMessage(fieldName));
+    public static <T> void requireAllNonNull(@NonNull String name, @NonNull Collection<T> values) {
+        Objects.requireNonNull(values, formatNullMessage(name));
 
         int i = 0;
         for (T v : values) {
             if (v == null) {
-                throw new NullPointerException(formatNullMessage(fieldName + '[' + i + ']'));
+                throw new NullPointerException(formatNullMessage(name + '[' + i + ']'));
             }
             i++;
         }
@@ -129,21 +128,21 @@ public final class Validation {
      * structural validation; it does not verify that the code corresponds to a
      * known currency.</p>
      *
-     * @param code  the currency code to validate
-     * @param field the field name used in exception messages
+     * @param name a descriptive name for the parameter being validated
+     * @param code the currency code to validate
      * @return the validated currency code
      * @throws IllegalArgumentException if the {@code code} blank, or not three letters
-     * @throws NullPointerException     if the {@code code} or {@code field} are {@code null}
+     * @throws NullPointerException     if the {@code code} or {@code name} are {@code null}
      */
-    public static String requireIsoCurrency(@NonNull String code, @NonNull String field) {
-        Objects.requireNonNull(code, formatNullMessage(field + " currency"));
+    public static String requireIsoCurrency(@NonNull String name, @NonNull String code) {
+        Objects.requireNonNull(code, formatNullMessage(name + " currency"));
 
         if (code.isBlank()) {
-            throw new IllegalArgumentException(field + " currency must not be blank");
+            throw new IllegalArgumentException(name + " currency must not be blank");
         }
 
         if (!code.matches("[A-Za-z]{3}")) {
-            throw new IllegalArgumentException(field + " currency must be a 3-letter ISO code");
+            throw new IllegalArgumentException(name + " currency must be a 3-letter ISO code");
         }
 
         return code.toUpperCase(Locale.ROOT);
@@ -152,10 +151,10 @@ public final class Validation {
     /**
      * Validates an array of ISO currency codes, filters out blanks, trims, uppercases, and removes duplicates.
      *
-     * @param name   the parameter name for error messages
+     * @param name   a descriptive name for the parameter being validated
      * @param values the currency codes to validate and clean
      * @return a new array with validated, normalized currency codes
-     * @throws NullPointerException     if array or any element is null
+     * @throws NullPointerException     if array or any element is {@code null}
      * @throws IllegalArgumentException if any code is blank or not 3 letters
      */
     @NonNull
@@ -165,7 +164,7 @@ public final class Validation {
         requireAllNonNull(name, values);
         return Arrays.stream(values)
                 .filter(Predicate.not(String::isBlank))
-                .map(code -> requireIsoCurrency(code, name))
+                .map(code -> requireIsoCurrency(name, code))
                 .distinct()
                 .toArray(String[]::new);
     }
@@ -173,10 +172,10 @@ public final class Validation {
     /**
      * Validates an array of strings, filters out blanks, trims, and removes duplicates.
      *
-     * @param name   the parameter name for error messages
+     * @param name   a descriptive name for the parameter being validated
      * @param values the array to validate and clean
      * @return a new array with blanks removed, values trimmed, and duplicates removed
-     * @throws NullPointerException if array or any element is null
+     * @throws NullPointerException if array or any element is {@code null}
      */
     @NonNull
     @SuppressWarnings("PMD.UseVarargs")
@@ -193,23 +192,21 @@ public final class Validation {
     /**
      * Checks that the specified string is neither {@code null} nor blank.
      *
-     * @param name  the name of the parameter being checked, used in exception messages.
-     *              Must not be {@code null} or blank itself.
+     * @param name  a descriptive name for the parameter being validated
      * @param value the string value to validate
      * @return {@code value} if it is not {@code null} and not blank
      * @throws NullPointerException     if {@code value} is {@code null}
      * @throws IllegalArgumentException if {@code value} is blank
      * @throws IllegalArgumentException if {@code name} is {@code null} or blank
-     * @since 17
      */
     public static String requireNonNullOrBlank(String name, String value) {
-        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(name, "name must not be {@code null}");
 
         if (name.isBlank()) {
             throw new IllegalArgumentException(" must not be blank");
         }
 
-        Objects.requireNonNull(value, name + " must not be null");
+        Objects.requireNonNull(value, name + " must not be {@code null}");
 
         if (value.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
@@ -225,16 +222,16 @@ public final class Validation {
      * <p>This method enforces the minimum supported date of {@code 1994-01-04}.
      * It does not validate future dates, which are permitted by the API.</p>
      *
-     * @param date  the date to validate
-     * @param field the field name used in exception messages
+     * @param name a descriptive name for the parameter being validated
+     * @param date the date to validate
      * @return the validated date
      * @throws IllegalArgumentException if the date is earlier than the minimum supported date
      */
-    public static LocalDate requireSupportedDate(@NonNull LocalDate date, @NonNull String field) {
-        Objects.requireNonNull(date, formatNullMessage(field));
+    public static LocalDate requireSupportedDate(@NonNull String name, @NonNull LocalDate date) {
+        Objects.requireNonNull(date, formatNullMessage(name));
 
         if (date.isBefore(MIN_SUPPORTED_DATE)) {
-            throw new IllegalArgumentException(field + " must not be earlier than " + MIN_SUPPORTED_DATE);
+            throw new IllegalArgumentException(name + " must not be earlier than " + MIN_SUPPORTED_DATE);
         }
 
         return date;

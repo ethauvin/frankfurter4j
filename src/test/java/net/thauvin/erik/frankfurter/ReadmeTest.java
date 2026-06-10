@@ -50,7 +50,7 @@ import static org.junit.Assert.*;
 class ReadmeTest {
 
     @Test
-    void currencies() throws IOException, InterruptedException {
+    void currencies() throws IOException {
         var client = new Frankfurter();
         var currencies = client.getCurrencies();
 
@@ -63,7 +63,7 @@ class ReadmeTest {
     }
 
     @Test
-    void currency() throws IOException, InterruptedException {
+    void currency() throws IOException {
         var client = new Frankfurter();
         var currency = client.getCurrency("EUR");
 
@@ -76,7 +76,7 @@ class ReadmeTest {
 
     @Test
     @DisabledOnOs(OS.WINDOWS)
-    void currencyFormat() throws IOException, InterruptedException {
+    void currencyFormat() throws IOException {
         var client = new Frankfurter();
         var rate = client.getRate("USD", "GBP");
 
@@ -90,7 +90,7 @@ class ReadmeTest {
     }
 
     @Test
-    void error() throws IOException, InterruptedException {
+    void error() throws IOException {
         var client = new Frankfurter();
         var rate = client.getRate("FOO", "BAR");
 
@@ -102,7 +102,7 @@ class ReadmeTest {
     }
 
     @Test
-    void examples() throws IOException, InterruptedException {
+    void examples() throws IOException {
         var client = new Frankfurter();
 
         var latestRates = client.getRates();
@@ -125,7 +125,7 @@ class ReadmeTest {
     }
 
     @Test
-    void filterByProvider() throws IOException, InterruptedException {
+    void filterByProvider() throws IOException {
         var client = new Frankfurter();
         var filtered = client.getRates(
                 new RatesConfig.Builder()
@@ -142,7 +142,7 @@ class ReadmeTest {
     }
 
     @Test
-    void grouping() throws IOException, InterruptedException {
+    void grouping() throws IOException {
         var client = new Frankfurter();
         var group = client.getRates(
                 new RatesConfig.Builder()
@@ -159,7 +159,7 @@ class ReadmeTest {
     }
 
     @Test
-    void historicalRates() throws IOException, InterruptedException {
+    void historicalRates() throws IOException {
         var client = new Frankfurter();
         var historicalRates = client.getRates(
                 new RatesConfig.Builder().date(LocalDate.parse("1999-01-04")).build()
@@ -173,7 +173,7 @@ class ReadmeTest {
     }
 
     @Test
-    void providers() throws IOException, InterruptedException {
+    void providers() throws IOException {
         var client = new Frankfurter();
         var providers = client.getProviders();
 
@@ -190,7 +190,7 @@ class ReadmeTest {
     }
 
     @Test
-    void rate() throws IOException, InterruptedException {
+    void rate() throws IOException {
         var client = new Frankfurter();
         var rate = client.getRate(
                 new RateConfig.Builder().base("USD").quote("EUR").build()
@@ -218,7 +218,7 @@ class ReadmeTest {
     }
 
     @Test
-    void rates() throws IOException, InterruptedException {
+    void rates() throws IOException {
         var client = new Frankfurter();
         var latestRates = client.getRates();
 
@@ -232,7 +232,7 @@ class ReadmeTest {
     }
 
     @Test
-    void ratesWithQuotes() throws IOException, InterruptedException {
+    void ratesWithQuotes() throws IOException {
         var client = new Frankfurter();
         var latestResult = client.getRates(
                 new RatesConfig.Builder().base("USD").quotes("EUR", "GBP").build()
@@ -249,7 +249,7 @@ class ReadmeTest {
     }
 
     @Test
-    void timeSeries() throws IOException, InterruptedException {
+    void timeSeries() throws IOException {
         var client = new Frankfurter();
         var timeSeries = client.getRates(
                 new RatesConfig.Builder()

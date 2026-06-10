@@ -61,10 +61,10 @@ public final class Currencies implements CurrenciesResult {
      * Creates a new immutable container for the given list of currencies.
      *
      * @param list the list of currency entries
-     * @throws NullPointerException if list is null or contains null elements
+     * @throws NullPointerException if list is {@code null} or contains null elements
      */
     public Currencies(@NonNull Collection<Currency> list) {
-        Validation.requireAllNonNull(list, "currencies");
+        Validation.requireAllNonNull("currencies", list);
         this.list = List.copyOf(list);
     }
 
@@ -89,7 +89,7 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param json the JSON response
      * @return the parsed currencies
-     * @throws NullPointerException     if json is null
+     * @throws NullPointerException     if json is {@code null}
      * @throws IllegalArgumentException if json is malformed
      */
     @NonNull
@@ -110,7 +110,7 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param iso the ISO 4217 currency code
      * @return an optional containing the matching currency
-     * @throws NullPointerException if iso is null
+     * @throws NullPointerException if iso is {@code null}
      */
     @NonNull
     public Optional<Currency> find(@NonNull String iso) {
@@ -142,7 +142,7 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param name the substring to match
      * @return the list of matching currencies
-     * @throws NullPointerException if name is null
+     * @throws NullPointerException if name is {@code null}
      */
     @NonNull
     public List<Currency> searchByName(@NonNull String name) {

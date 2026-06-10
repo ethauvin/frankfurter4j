@@ -53,4 +53,5 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  */
 public record ErrorResponse(int status, @Nullable String message)
         implements CurrenciesResult, CurrencyResult, ProvidersResult, RatesResult, RateResult {
+
 }
