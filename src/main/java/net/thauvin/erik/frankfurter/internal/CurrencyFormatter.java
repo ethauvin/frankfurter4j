@@ -34,6 +34,7 @@ package net.thauvin.erik.frankfurter.internal;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
@@ -46,7 +47,8 @@ import java.util.Objects;
  * decimal separators, and symbol placement.
  *
  * <p>This class is thread‑safe. All state is immutable and formatting
- * operations create new {@link NumberFormat} instances.</p>
+ * operations create new {@link NumberFormat} instances, so no external
+ * synchronization is required.</p>
  */
 public final class CurrencyFormatter {
 
@@ -224,6 +226,7 @@ public final class CurrencyFormatter {
      * You can't call the constructor.
      */
     private CurrencyFormatter() {
+        throw new AssertionError("No instances for you!");
     }
 
     /**
@@ -263,27 +266,45 @@ public final class CurrencyFormatter {
     }
 
     /**
-     * Formats a monetary amount using the given locale.
+     * Formats a monetary amount using the given locale's currency and conventions.
      *
-     * <p>This method is the core formatter used by all ISO‑based overloads.
-     * It applies the locale's currency symbol, grouping rules, and decimal
-     * separators. When {@code rounded} is {@code false}, the formatter
-     * preserves full precision by disabling rounding.</p>
+     * <p>This is the core formatter used by all ISO‑based overloads. It applies the
+     * locale's default currency, symbol placement, grouping rules, and decimal
+     * separators.</p>
      *
-     * @param amount  the numeric amount
-     * @param locale  the locale whose currency formatting rules to apply (must not be null)
-     * @param rounded whether to round to the locale's default fraction digits
-     * @return the formatted currency string
-     * @throws NullPointerException if {@code locale} is null
+     * <p><strong>Warning:</strong> The currency is determined by {@code locale}, not by any
+     * ISO code. For example, {@code format(100, Locale.JAPAN, false)} produces
+     * {@code "￥100"}, not a USD amount formatted with Japanese conventions. To format a
+     * specific currency using a different locale's style, create a {@link NumberFormat}
+     * and call {@link NumberFormat#setCurrency setCurrency} yourself.</p>
+     *
+     * <p>When {@code rounded} is {@code true}, the formatter rounds to the currency's
+     * default fraction digits using {@link java.math.RoundingMode#HALF_UP HALF_UP}.
+     * When {@code false}, rounding is still applied, but the maximum fraction digits are
+     * increased to {@code 15} to preserve precision while avoiding the excessive decimal
+     * places you would get from a raw {@code double}. This is especially useful for
+     * currencies like {@code JPY} that normally have {@code 0} fraction digits.</p>
+     *
+     * <p>This method is thread‑safe. A new {@link NumberFormat} instance is created on
+     * each call, so no external synchronization is required.</p>
+     *
+     * @param amount  the numeric amount to format
+     * @param locale  the locale whose currency and formatting rules to apply; must not be {@code null}
+     * @param rounded {@code true} to round to the currency's default fraction digits,
+     *                {@code false} to allow up to 15 fraction digits for extra precision
+     * @return the formatted currency string, never {@code null}
+     * @throws NullPointerException if {@code locale} is {@code null}
      */
     @NonNull
     public static String format(double amount, @NonNull Locale locale, boolean rounded) {
         Objects.requireNonNull(locale, Validation.formatNullMessage("locale"));
-
         var formatter = NumberFormat.getCurrencyInstance(locale);
 
-        if (!rounded) {
-            formatter.setMaximumFractionDigits(Integer.MAX_VALUE);
+        if (rounded) {
+            formatter.setRoundingMode(RoundingMode.HALF_UP);
+            // uses currency.getDefaultFractionDigits() by default
+        } else {
+            formatter.setMaximumFractionDigits(15); // cap precision, avoids 0.30000000000000004 issues
         }
 
         return formatter.format(amount);
