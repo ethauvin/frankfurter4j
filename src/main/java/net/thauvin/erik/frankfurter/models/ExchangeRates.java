@@ -33,7 +33,6 @@
 package net.thauvin.erik.frankfurter.models;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,8 +42,10 @@ import java.util.Optional;
 /**
  * Represents a list of exchange rates returned by the Frankfurter API.
  *
- * <p>The API returns a JSON array of rate objects. This wrapper provides
- * convenience methods for searching and inspecting the returned rates.</p>
+ * <p>The API returns a JSON array of rate objects. For time series or grouped queries,
+ * the same quote currency may appear multiple times with different dates.</p>
+ *
+ * <p>This class is immutable and thread-safe.</p>
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
@@ -57,27 +58,68 @@ public final class ExchangeRates implements RatesResult {
      * Creates a new immutable container for the given list of rates.
      *
      * @param rates the list of rate entries
+     * @throws NullPointerException if {@code rates} is {@code null}
      */
     public ExchangeRates(Collection<Rate> rates) {
+        Objects.requireNonNull(rates, "rates must not be null");
         this.rates = List.copyOf(rates);
     }
 
     @Override
+    public int hashCode() {
+        return rates.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof ExchangeRates that && rates.equals(that.rates);
+    }
+
+    @Override
     public String toString() {
-        return "ExchangeRates{rates=" + rates + '}';
+        return "ExchangeRates{size=" + rates.size() + ", rates=" + rates + '}';
+    }
+
+    /**
+     * Returns an empty {@code ExchangeRates} instance.
+     *
+     * @return an empty instance
+     */
+    public static ExchangeRates empty() {
+        return new ExchangeRates(List.of());
     }
 
     /**
      * Finds the first entry matching the given quote currency.
+     * <p>When rates contain multiple entries per currency, e.g. time series data,
+     * this returns the first match in iteration order. The API typically returns
+     * time series in chronological order.</p>
      *
      * @param quote the ISO 4217 quote currency
-     * @return an optional containing the matching rate
+     * @return an optional containing the first matching rate
+     * @throws NullPointerException if {@code quote} is {@code null}
      */
     public Optional<Rate> find(@NonNull String quote) {
-        Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
+        Objects.requireNonNull(quote, "quote must not be null");
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .findFirst();
+    }
+
+    /**
+     * Returns all rate entries matching the given quote currency.
+     * <p>Useful for time series where the same currency appears multiple times
+     * with different dates.</p>
+     *
+     * @param quote the ISO 4217 quote currency
+     * @return unmodifiable list of matching rates, empty if none found
+     * @throws NullPointerException if {@code quote} is {@code null}
+     */
+    public List<Rate> findAll(@NonNull String quote) {
+        Objects.requireNonNull(quote, "quote must not be null");
+        return rates.stream()
+                .filter(r -> r.quote().equalsIgnoreCase(quote))
+                .toList();
     }
 
     /**
@@ -90,7 +132,7 @@ public final class ExchangeRates implements RatesResult {
     }
 
     /**
-     * Returns all rate entries.
+     * Returns an unmodifiable list of all rate entries.
      *
      * @return the list of rates
      */
