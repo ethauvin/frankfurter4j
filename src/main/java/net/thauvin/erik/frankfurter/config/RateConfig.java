@@ -34,7 +34,6 @@ package net.thauvin.erik.frankfurter.config;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.net.URI;
@@ -92,7 +91,6 @@ public final class RateConfig {
      * @throws IllegalArgumentException if the resulting URI is invalid
      */
     @NonNull
-    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public URI applyTo(@NonNull URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
@@ -218,7 +216,7 @@ public final class RateConfig {
             return this;
         }
 
-        /**ecb
+        /**
          * Sets the quote currency. Required.
          *
          * @param quote 3-letter ISO 4217 currency code, e.g. "EUR"

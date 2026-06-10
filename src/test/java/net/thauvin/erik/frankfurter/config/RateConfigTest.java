@@ -40,21 +40,23 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals", "DataFlowIssue"})
 class RateConfigTest {
+
+    private static final URI BASE_URI = URI.create("https://api.example.com/");
 
     @Nested
     @DisplayName("applyTo()")
     class ApplyToTests {
 
         @Test
-        @DisplayName("constructs correct URI")
-        void constructsUri() {
+        @DisplayName("constructs URI with base, date and providers")
+        void constructsFullUri() {
             var cfg = new RateConfig.Builder()
                     .base("USD")
                     .quote("EUR")
@@ -62,11 +64,91 @@ class RateConfigTest {
                     .providers("ECB", "BAM")
                     .build();
 
+            var uri = cfg.applyTo(BASE_URI);
+
+            assertEquals("https://api.example.com/rate/USD/EUR?date=2024-01-01&providers=ECB,BAM", uri.toString());
+        }
+
+        @Test
+        @DisplayName("constructs URI with only quote")
+        void constructsMinimalUri() {
+            var cfg = new RateConfig.Builder()
+                    .quote("EUR")
+                    .build();
+
+            var uri = cfg.applyTo(BASE_URI);
+
+            assertEquals("https://api.example.com/rate/EUR", uri.toString());
+        }
+
+        @Test
+        @DisplayName("preserves fragment from baseUri")
+        void preservesFragment() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            var uri = cfg.applyTo(URI.create("https://api.example.com/#section"));
+
+            assertEquals("https://api.example.com/rate/EUR#section", uri.toString());
+        }
+
+        @Test
+        @DisplayName("throws NPE when baseUri is null")
+        void throwsOnNullBaseUri() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            assertThrows(NullPointerException.class, () -> cfg.applyTo(null));
+        }
+    }
+
+    @Nested
+    @DisplayName("applyTo() basePath handling")
+    class BasePathTests {
+
+        @Test
+        @DisplayName("handles empty path by treating as /")
+        void handlesEmptyPath() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            // URI.create("https://host").getPath() == ""
+            var uri = cfg.applyTo(URI.create("https://api.example.com"));
+
+            assertEquals("https://api.example.com/rate/EUR", uri.toString());
+        }
+
+        @Test
+        @DisplayName("handles path without trailing slash")
+        void handlesNoTrailingSlash() {
+            var cfg = new RateConfig.Builder().base("USD").quote("EUR").build();
+            var uri = cfg.applyTo(URI.create("https://api.example.com/v1"));
+
+            assertEquals("https://api.example.com/v1/rate/USD/EUR", uri.toString());
+        }
+
+        @Test
+        @DisplayName("handles null path from URI constructor")
+        void handlesNullPath() throws URISyntaxException {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            // This actually gives getPath() == null
+            var baseUri = new URI("https", "api.example.com", null, null, null);
+            var uri = cfg.applyTo(baseUri);
+
+            assertEquals("https://api.example.com/rate/EUR", uri.toString());
+        }
+
+        @Test
+        @DisplayName("handles root path /")
+        void handlesRootPath() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
             var uri = cfg.applyTo(URI.create("https://api.example.com/"));
 
-            assertTrue(uri.toString().contains("/rate/USD/EUR"));
-            assertTrue(uri.toString().contains("date=2024-01-01"));
-            assertTrue(uri.toString().contains("providers=ECB,BAM"));
+            assertEquals("https://api.example.com/rate/EUR", uri.toString());
+        }
+
+        @Test
+        @DisplayName("handles path with trailing slash")
+        void handlesTrailingSlash() {
+            var cfg = new RateConfig.Builder().base("USD").quote("EUR").build();
+            var uri = cfg.applyTo(URI.create("https://api.example.com/v1/"));
+
+            assertEquals("https://api.example.com/v1/rate/USD/EUR", uri.toString());
+            assertFalse(uri.toString().contains("v1//rate"), "Should not have double slash");
         }
     }
 
@@ -75,21 +157,19 @@ class RateConfigTest {
     class BuildTests {
 
         @Test
-        @DisplayName("build with blank base")
-        void buildWithBlankBase() {
-            var b = new RateConfig.Builder();
-            assertThrows(IllegalArgumentException.class, () -> b.base(" "));
+        @DisplayName("allows empty providers array")
+        void allowsEmptyProviders() {
+            var cfg = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers() // empty varargs
+                    .build();
+
+            assertNotNull(cfg);
+            assertFalse(cfg.applyTo(BASE_URI).toString().contains("providers"));
         }
 
         @Test
-        @DisplayName("build with empty providers list")
-        void buildWithEmptyProviders() {
-            var b = new RateConfig.Builder().providers(List.of("").toArray(new String[0]));
-            assertThrows(IllegalStateException.class, b::build);
-        }
-
-        @Test
-        @DisplayName("builds valid config")
+        @DisplayName("builds valid config with all fields")
         void buildsValid() {
             var cfg = new RateConfig.Builder()
                     .base("USD")
@@ -99,92 +179,157 @@ class RateConfigTest {
                     .build();
 
             assertNotNull(cfg);
+            assertTrue(cfg.toString().contains("base=USD"));
+            assertTrue(cfg.toString().contains("quote=EUR"));
         }
 
         @Test
-        @DisplayName("requires base and quote")
-        void requiresBaseAndQuote() {
+        @DisplayName("creates defensive copy of providers")
+        void defensiveCopyProviders() {
+            var providers = new String[]{"ECB"};
+            var cfg = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers(providers)
+                    .build();
+
+            providers[0] = "HACKED"; // mutate original
+
+            var uri = cfg.applyTo(BASE_URI);
+            assertTrue(uri.toString().contains("providers=ECB"));
+            assertFalse(uri.toString().contains("HACKED"));
+        }
+
+        @Test
+        @DisplayName("throws IllegalArgumentException when base equals quote")
+        void rejectsBaseEqualsQuote() {
+            var b = new RateConfig.Builder().base("USD").quote("USD");
+            var ex = assertThrows(IllegalArgumentException.class, b::build);
+            assertEquals("base and quote currencies must be different", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("throws IllegalStateException when quote is missing")
+        void requiresQuote() {
             var b = new RateConfig.Builder();
-            assertThrows(IllegalStateException.class, b::build);
+            var ex = assertThrows(IllegalStateException.class, b::build);
+            assertEquals("quote currency is required", ex.getMessage());
+        }
 
-            b.base("USD");
+        @Test
+        @DisplayName("throws IllegalStateException when only base is set")
+        void requiresQuoteEvenWithBase() {
+            var b = new RateConfig.Builder().base("USD");
             assertThrows(IllegalStateException.class, b::build);
-
-            b.quote("EUR");
-            assertDoesNotThrow(b::build);
         }
     }
 
     @Nested
-    @DisplayName("currency validation")
+    @DisplayName("Builder currency validation")
     class CurrencyValidation {
+
+        @Test
+        @DisplayName("accepts valid ISO codes")
+        void acceptsValidIso() {
+            assertDoesNotThrow(() -> new RateConfig.Builder()
+                    .base("USD")
+                    .quote("EUR")
+                    .build());
+        }
 
         @ParameterizedTest
         @EmptySource
-        @ValueSource(strings = {"  ", "US", "USDD"})
-        @DisplayName("rejects invalid ISO codes")
-        void rejectsInvalidIso(String code) {
+        @ValueSource(strings = {" ", "US", "USDD", "12E"})
+        @DisplayName("rejects invalid ISO codes for base")
+        void rejectsInvalidBase(String code) {
             var b = new RateConfig.Builder();
             assertThrows(IllegalArgumentException.class, () -> b.base(code));
+        }
+
+        @ParameterizedTest
+        @EmptySource
+        @ValueSource(strings = {" ", "EU", "EURO"})
+        @DisplayName("rejects invalid ISO codes for quote")
+        void rejectsInvalidQuote(String code) {
+            var b = new RateConfig.Builder();
             assertThrows(IllegalArgumentException.class, () -> b.quote(code));
         }
     }
 
     @Nested
-    @DisplayName("date validation")
+    @DisplayName("Builder date validation")
     class DateValidation {
+
+        @Test
+        @DisplayName("accepts supported date")
+        void acceptsSupportedDate() {
+            assertDoesNotThrow(() -> new RateConfig.Builder()
+                    .quote("EUR")
+                    .date(LocalDate.of(2000, 1, 1))
+                    .build());
+        }
 
         @Test
         @DisplayName("rejects unsupported dates")
         void rejectsUnsupportedDates() {
-            var b = new RateConfig.Builder();
+            var b = new RateConfig.Builder().quote("EUR");
             assertThrows(IllegalArgumentException.class,
                     () -> b.date(LocalDate.of(1970, 1, 1)));
         }
     }
 
     @Nested
-    @DisplayName("from/to validation")
-    class FromToValidation {
+    @DisplayName("Builder providers validation")
+    class ProvidersValidation {
 
         @Test
-        @DisplayName("accepts valid from/to range")
-        void acceptsValidRange() {
-            var b = new RatesConfig.Builder()
-                    .from(LocalDate.parse("2024-01-01"))
-                    .to(LocalDate.parse("2024-01-10"));
-
-            assertDoesNotThrow(b::build);
+        @DisplayName("rejects null providers array")
+        void rejectsNullArray() {
+            var b = new RateConfig.Builder().quote("EUR");
+            assertThrows(NullPointerException.class, () -> b.providers((String[]) null));
         }
 
         @Test
-        @DisplayName("rejects date combined with from")
-        void rejectsDateWithFrom() {
-            var b = new RatesConfig.Builder()
+        @DisplayName("rejects null provider element")
+        void rejectsNullElement() {
+            var b = new RateConfig.Builder().quote("EUR");
+            assertThrows(NullPointerException.class, () -> b.providers("ECB", null));
+        }
+
+        @Test
+        @DisplayName("removes duplicate providers")
+        void removesDuplicates() {
+            var cfg = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers("ECB", "ECB", "BAM", "ecb") // depends on Validation impl
+                    .build();
+
+            var uri = cfg.applyTo(BASE_URI);
+            // Assuming Validation.requireNonBlankDistinct is case-sensitive
+            assertTrue(uri.toString().contains("providers=ECB,BAM,ecb"));
+            assertFalse(uri.toString().matches(".*ECB.*ECB.*"));
+        }
+    }
+
+    @Nested
+    @DisplayName("toString()")
+    class ToStringTests {
+
+        @Test
+        @DisplayName("includes all fields")
+        void includesAllFields() {
+            var cfg = new RateConfig.Builder()
+                    .base("USD")
+                    .quote("EUR")
                     .date(LocalDate.parse("2024-01-01"))
-                    .from(LocalDate.parse("2024-01-02"));
+                    .providers("ECB")
+                    .build();
 
-            assertThrows(IllegalArgumentException.class, b::build);
-        }
-
-        @Test
-        @DisplayName("rejects date combined with to")
-        void rejectsDateWithTo() {
-            var b = new RatesConfig.Builder()
-                    .date(LocalDate.parse("2024-01-01"))
-                    .to(LocalDate.parse("2024-01-02"));
-
-            assertThrows(IllegalArgumentException.class, b::build);
-        }
-
-        @Test
-        @DisplayName("rejects to < from")
-        void rejectsToBeforeFrom() {
-            var b = new RatesConfig.Builder()
-                    .from(LocalDate.parse("2024-01-10"))
-                    .to(LocalDate.parse("2024-01-01"));
-
-            assertThrows(IllegalArgumentException.class, b::build);
+            var str = cfg.toString();
+            assertTrue(str.startsWith("RateConfig{"));
+            assertTrue(str.contains("base=USD"));
+            assertTrue(str.contains("quote=EUR"));
+            assertTrue(str.contains("date=2024-01-01"));
+            assertTrue(str.contains("providers=[ECB]"));
         }
     }
 }

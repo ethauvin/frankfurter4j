@@ -34,7 +34,6 @@ package net.thauvin.erik.frankfurter.config;
 
 import com.uwyn.urlencoder.UrlEncoder;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.Group;
 
@@ -83,7 +82,6 @@ public final class RatesConfig {
      * @throws IllegalArgumentException if the URI cannot be built
      */
     @NonNull
-    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public URI applyTo(@NonNull URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
