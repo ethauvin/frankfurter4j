@@ -158,6 +158,7 @@ public class Frankfurter4jBuild extends Project {
                 .fromProject(this)
                 .packageName(pkg + ".frankfurter.internal")
                 .classTemplate("GeneratedVersion.txt")
+                .generateAnnotation(true)
                 .execute();
     }
 
