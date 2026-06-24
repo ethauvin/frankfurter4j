@@ -5,19 +5,14 @@ commands:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - bld-deps-{{ arch }}-{{ .Branch }}
-            - bld-deps-{{ arch }}-
-      - run:
-          name: Download dependencies
-          command: ./bld clean download
-      - save_cache:
-          key: bld-deps-{{ arch }}-{{ .Branch }}
-          paths:
-            - lib
+          key: bld-deps-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Compile source
-          command: ./bld compile
+          command: ./bld clean compile
+      - save_cache:
+          key: bld-deps-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
+          paths:
+            - lib
       - run:
           name: Run tests
           command: ./bld jacoco

@@ -200,13 +200,13 @@ public final class Validation {
      * @throws IllegalArgumentException if {@code name} is {@code null} or blank
      */
     public static String requireNonNullOrBlank(String name, String value) {
-        Objects.requireNonNull(name, "name must not be {@code null}");
+        Objects.requireNonNull(name, "name must not be null");
 
         if (name.isBlank()) {
             throw new IllegalArgumentException(" must not be blank");
         }
 
-        Objects.requireNonNull(value, name + " must not be {@code null}");
+        Objects.requireNonNull(value, name + " must not be null");
 
         if (value.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
