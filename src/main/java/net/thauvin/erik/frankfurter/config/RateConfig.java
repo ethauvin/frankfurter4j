@@ -60,6 +60,8 @@ import java.util.stream.Collectors;
  */
 public final class RateConfig {
 
+    private static final String QUOTE = "quote";
+
     @Nullable
     private final String base;
 
@@ -87,7 +89,7 @@ public final class RateConfig {
                        @Nullable LocalDate date,
                        @NonNull String[] providers) {
         this.base = base;
-        this.quote = Objects.requireNonNull(quote, "quote");
+        this.quote = Objects.requireNonNull(quote, QUOTE);
         this.date = date;
         this.providers = providers.clone(); // defensive copy
     }
@@ -307,7 +309,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder quote(@NonNull CurrencyCode quote) {
-            this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage("quote")).getCode();
+            this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage(QUOTE)).getCode();
             return this;
         }
 
@@ -321,7 +323,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder quote(@NonNull String quote) {
-            this.quote = Validation.requireIsoCurrency("quote", quote);
+            this.quote = Validation.requireIsoCurrency(QUOTE, quote);
             return this;
         }
     }

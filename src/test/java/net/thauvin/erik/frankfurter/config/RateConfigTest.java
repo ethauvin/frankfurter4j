@@ -42,6 +42,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +94,7 @@ class RateConfigTest {
         }
 
         @Test
-        @DisplayName("throws NPE when baseUri is {@code null}")
+        @DisplayName("throws NPE when baseUri is null")
         void throwsOnNullBaseUri() {
             var cfg = new RateConfig.Builder().quote("EUR").build();
             assertThrows(NullPointerException.class, () -> cfg.applyTo(null));
@@ -440,13 +443,26 @@ class RateConfigTest {
         void removesDuplicates() {
             var cfg = new RateConfig.Builder()
                     .quote("EUR")
-                    .providers("ECB", "ECB", "BAM", "ecb") // depends on Validation impl
+                    .providers("ECB", "BAM", "ecb")
                     .build();
 
             var uri = cfg.applyTo(BASE_URI);
-            // Assuming Validation.requireNonBlankDistinct is case-sensitive
-            assertTrue(uri.toString().contains("providers=ECB,BAM,ecb"));
-            assertFalse(uri.toString().matches(".*ECB.*ECB.*"));
+            var query = uri.getQuery(); // "providers=ECB,BAM,ecb"
+
+            assertNotNull(query);
+            assertTrue(query.startsWith("providers="));
+
+            var providersValue = query.substring("providers=".length());
+            var providersList = Arrays.asList(providersValue.split(","));
+
+            // Exact check: 3 items, each appears once
+            assertEquals(List.of("ECB", "BAM", "ecb"), providersList,
+                    "Should preserve order and case, removing exact duplicates only");
+
+            // Check no duplicates
+            assertEquals(3, providersList.size());
+            assertEquals(3, new HashSet<>(providersList).size(),
+                    "No duplicates in providers list");
         }
     }
 

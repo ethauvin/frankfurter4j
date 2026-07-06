@@ -161,6 +161,8 @@ public final class RatesConfig {
      */
     public static final class Builder {
 
+        private static final String QUOTES = "quotes";
+
         private String base;
         private LocalDate date;
         private LocalDate from;
@@ -230,7 +232,7 @@ public final class RatesConfig {
                 var encodedQuotes = Arrays.stream(quotes)
                         .map(UrlEncoder::encode)
                         .collect(Collectors.joining(","));
-                params.put("quotes", encodedQuotes);
+                params.put(QUOTES, encodedQuotes);
             }
             if (date != null) {
                 params.put("date", date.toString()); // yyyy-MM-dd is URL-safe
@@ -323,7 +325,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder quotes(@NonNull String... quotes) {
-            this.quotes = Validation.requireIsoCurrencyArray("quotes", quotes);
+            this.quotes = Validation.requireIsoCurrencyArray(QUOTES, quotes);
             return this;
         }
 
@@ -342,7 +344,7 @@ public final class RatesConfig {
                     .map(Objects::requireNonNull)
                     .map(CurrencyCode::getCode)
                     .toArray(String[]::new);
-            this.quotes = Validation.requireIsoCurrencyArray("quotes", this.quotes);
+            this.quotes = Validation.requireIsoCurrencyArray(QUOTES, this.quotes);
             return this;
         }
 

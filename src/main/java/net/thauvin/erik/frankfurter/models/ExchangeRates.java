@@ -50,9 +50,9 @@ import java.util.Optional;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 public final class ExchangeRates implements RatesResult {
 
+    private static final String QUOTE_MUST_NOT_BE_NULL = "quote must not be null";
     private final List<Rate> rates;
 
     /**
@@ -62,7 +62,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code rates} is {@code null}
      */
     public ExchangeRates(Collection<Rate> rates) {
-        Objects.requireNonNull(rates, "rates must not be {@code null}");
+        Objects.requireNonNull(rates, "rates must not be null");
         this.rates = List.copyOf(rates);
     }
 
@@ -101,7 +101,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public Optional<Rate> find(@NonNull String quote) {
-        Objects.requireNonNull(quote, "quote must not be {@code null}");
+        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .findFirst();
@@ -118,7 +118,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public Optional<Rate> find(@NonNull CurrencyCode quote) {
-        Objects.requireNonNull(quote, "quote must not be {@code null}");
+        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
         return find(quote.getCode());
     }
 
@@ -132,7 +132,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public List<Rate> findAll(@NonNull String quote) {
-        Objects.requireNonNull(quote, "quote must not be {@code null}");
+        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
         return rates.stream()
                 .filter(r -> r.quote().equalsIgnoreCase(quote))
                 .toList();
@@ -148,7 +148,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public List<Rate> findAll(@NonNull CurrencyCode quote) {
-        Objects.requireNonNull(quote, "quote must not be {@code null}");
+        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
         return findAll(quote.getCode());
     }
 

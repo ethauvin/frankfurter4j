@@ -57,7 +57,7 @@ final class ValidationTest {
         @Test
         @DisplayName("formats field name correctly")
         void formatsFieldName() {
-            assertEquals("base currency must not be {@code null}", Validation.formatNullMessage("base currency"));
+            assertEquals("base currency must not be null", Validation.formatNullMessage("base currency"));
         }
 
         @Test
@@ -84,7 +84,7 @@ final class ValidationTest {
             var ex = assertThrows(NullPointerException.class,
                     () -> Validation.requireAllNonNull("test", Arrays.asList("A", null, "C")));
 
-            assertEquals("test[1] must not be {@code null}", ex.getMessage());
+            assertEquals("test[1] must not be null", ex.getMessage());
         }
 
         @Test

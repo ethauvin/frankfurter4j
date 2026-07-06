@@ -62,18 +62,18 @@ public final class Validation {
     }
 
     /**
-     * Appends a standard "must not be {@code null}" message to the given field description.
+     * Appends a standard "must not be null" message to the given field description.
      * <p>
      * This is typically used for constructing exception messages when a required
      * parameter is {@code null}. Pass a descriptive field name, not the value itself.
      *
      * @param name a descriptive name for the parameter being validated
-     * @return a string consisting of the given field name followed by " must not be {@code null}"
+     * @return a string consisting of the given field name followed by " must not be null"
      * @throws NullPointerException if {@code name} is {@code null}
      */
     public static String formatNullMessage(@NonNull String name) {
-        Objects.requireNonNull(name, "name must not be {@code null}");
-        return name + " must not be {@code null}";
+        Objects.requireNonNull(name, "name must not be null");
+        return name + " must not be null";
     }
 
     /**
