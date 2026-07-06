@@ -71,7 +71,7 @@ public class Frankfurter4jBuild extends Project {
 
         repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS);
 
-        var junit = version(6, 1, 0);
+        var junit = version(6, 1, 1);
         var gson = version(2, 14, 0);
         scope(compile)
                 .include(dependency("com.uwyn", "urlencoder",
