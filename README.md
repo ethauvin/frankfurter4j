@@ -23,12 +23,12 @@ var client = new Frankfurter();
 
 var latestRates = client.getRates();
 if (latestRates instanceof ExchangeRates latest) {
-    var pound = latest.find("GBP");
+    var pound = latest.find(CurrencyCode.GBP); // or latest.find("GBP")
     pound.ifPresent(rate ->
         System.out.println("1 GBP: " + rate.exchangeRate() + " EUR"));
 }
 
-var rate = client.getRate("USD", "EUR");
+var rate = client.getRate(CurrencyCode.USD, CurrencyCode.EUR);
 if (rate instanceof Rate dollar) {
     System.out.println("1 USD: " + dollar.exchangeRate() + " EUR");
 }
@@ -88,7 +88,7 @@ Find a specific rate.
 
 ```java
 if (latestRates instanceof ExchangeRates rates) {
-   var gbp = rates.find("GBP").orElse(null);
+   var gbp = rates.find(CurrencyCode.GBP).orElse(null);
 }
 ```
 
@@ -101,8 +101,8 @@ Change the base currency with base. Filter target currencies with quotes.
 var client = new Frankfurter();
 var latestResult = client.getRates(
         new RatesConfig.Builder()
-                .base("USD")
-                .quotes("EUR", "GBP")
+                .base(CurrencyCode.USD)
+                .quotes(CurrencyCode.EUR, CurrencyCode.GBP)
                 .build()
     );
 ```
@@ -174,7 +174,7 @@ Get the rate for a single currency pair.
 
 ```java
 var client = new Frankfurter();
-var rate = client.getRate("USD", "EUR");
+var rate = client.getRate(CurrencyCode.USD, CurrencyCode.EUR);
 ```
 
 Optionally add date or providers.
@@ -182,8 +182,8 @@ Optionally add date or providers.
 ```java
 var rate = client.getRate(
         new RateConfig.Builder()
-        .base("USD")
-        .quote("EUR")
+        .base(CurrencyCode.USD)
+        .quote(CurrencyCode.EUR)
         .date(LocalDate.of(2026, 1, 1))
         .build()
     );
@@ -195,7 +195,7 @@ Get details and provider coverage for a single currency.
 
 ```java
 var client = new Frankfurter();
-var currency = client.getCurrency("EUR");
+var currency = client.getCurrency(CurrencyCode.EUR);
 
 if (currency instanceof Currency eur) {
     var name = eur.name();
@@ -211,7 +211,7 @@ var client = new Frankfurter();
 var providers = client.getProviders();
 
 if (providers instanceof Providers p) {
-        var ecb = p.find("ECB");
+        var ecb = p.find(CurrencyCode.ECB);
 }
 
 ```
@@ -225,7 +225,7 @@ var client = new Frankfurter();
 var currencies = client.getCurrencies();
 
 if (currencies instanceof Currencies c) {
-        var usd = c.find("USD");
+        var usd = c.find(CurrencyCode.USD);
 }
 ```
 
@@ -234,12 +234,12 @@ if (currencies instanceof Currencies c) {
 Format amounts to specific local currencies.
 
 ```java
-var rate = client.getRate("USD", "GBP");
+var rate = client.getRate(CurrencyCode.USD, CurrencyCode.GBP);
 
 if (rate instanceof Rate r) {
     var amount = 12;
-    var usd = CurrencyFormatter.format(amount, "USD");
-    var gbp = CurrencyFormatter.format(r.exchangeRate() * amount, "GBP");
+    var usd = CurrencyFormatter.format(amount, CurrencyCode.USD);
+    var gbp = CurrencyFormatter.format(r.exchangeRate() * amount, CurrencyCode.GBP);
     System.out.println(usd + ": " + gbp); // e.g. $12.00: £9.00468
 }
 ```

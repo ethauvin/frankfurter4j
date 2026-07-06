@@ -45,6 +45,52 @@ import static org.junit.jupiter.api.Assertions.*;
 class CurrenciesTest {
 
     @Nested
+    @DisplayName("codes()")
+    class CodesTests {
+
+        @Test
+        @DisplayName("includes codes not in CurrencyCode enum")
+        void includesUnknownCodes() {
+            var c1 = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var c2 = new Currency("XYZ", "999", "Future Currency", "X", null, null);
+            var currencies = new Currencies(List.of(c1, c2));
+
+            var codes = currencies.codes();
+            assertEquals(2, codes.size());
+            assertTrue(codes.contains("USD"));
+            assertTrue(codes.contains("XYZ"));
+        }
+
+        @Test
+        @DisplayName("returns all ISO codes in order")
+        void returnsAllIsoCodes() {
+            var c1 = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var c2 = new Currency("EUR", "978", "Euro", "€", null, null);
+            var c3 = new Currency("JPY", "392", "Japanese Yen", "¥", null, null);
+            var currencies = new Currencies(List.of(c1, c2, c3));
+
+            var codes = currencies.codes();
+            assertEquals(List.of("USD", "EUR", "JPY"), codes);
+        }
+
+        @Test
+        @DisplayName("returns empty list when no currencies")
+        void returnsEmptyWhenNoCurrencies() {
+            var currencies = new Currencies(List.of());
+            assertTrue(currencies.codes().isEmpty());
+        }
+
+        @Test
+        @DisplayName("returns unmodifiable list")
+        void returnsUnmodifiableList() {
+            var c = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var currencies = new Currencies(List.of(c));
+            var codes = currencies.codes();
+            assertThrows(UnsupportedOperationException.class, () -> codes.add("EUR"));
+        }
+    }
+
+    @Nested
     @DisplayName("constructor")
     class ConstructorTests {
 
@@ -139,7 +185,7 @@ class CurrenciesTest {
         @DisplayName("throws on null ISO")
         void throwsOnNullIso() {
             var currencies = new Currencies(List.of());
-            assertThrows(NullPointerException.class, () -> currencies.find(null));
+            assertThrows(NullPointerException.class, () -> currencies.find((String) null));
         }
     }
 
@@ -225,6 +271,82 @@ class CurrenciesTest {
             var c = new Currency("USD", "840", "US Dollar", "$", null, null);
             var currencies = new Currencies(List.of(c));
             assertFalse(currencies.isEmpty());
+        }
+    }
+
+    @Nested
+    @DisplayName("knownCodes()")
+    class KnownCodesTests {
+
+        @Test
+        @DisplayName("filters out codes not in CurrencyCode enum")
+        void filtersOutUnknownCodes() {
+            var c1 = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var c2 = new Currency("XYZ", "999", "Future Currency", "X", null, null);
+            var c3 = new Currency("EUR", "978", "Euro", "€", null, null);
+            var c4 = new Currency("ABC", "000", "Fake Currency", "A", null, null);
+            var currencies = new Currencies(List.of(c1, c2, c3, c4));
+
+            var known = currencies.knownCodes();
+            assertEquals(2, known.size(), "Should only include USD and EUR");
+            assertTrue(known.contains(CurrencyCode.USD));
+            assertTrue(known.contains(CurrencyCode.EUR));
+        }
+
+        @Test
+        @DisplayName("handles mixed case from API")
+        void handlesMixedCaseFromApi() {
+            var c1 = new Currency("usd", "840", "US Dollar", "$", null, null);
+            var c2 = new Currency("Eur", "978", "Euro", "€", null, null);
+            var currencies = new Currencies(List.of(c1, c2));
+
+            var known = currencies.knownCodes();
+            assertEquals(2, known.size());
+            assertTrue(known.contains(CurrencyCode.USD));
+            assertTrue(known.contains(CurrencyCode.EUR));
+        }
+
+        @Test
+        @DisplayName("preserves order but removes duplicates")
+        void preservesOrderRemovesDuplicates() {
+            var c1 = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var c2 = new Currency("EUR", "978", "Euro", "€", null, null);
+            var c3 = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var currencies = new Currencies(List.of(c1, c2, c3));
+
+            var known = currencies.knownCodes();
+            // CurrencyCode.fromCode is case-insensitive, but duplicates in source list stay
+            // since we call .distinct() on the stream after mapping
+            assertEquals(List.of(CurrencyCode.USD, CurrencyCode.EUR), known);
+        }
+
+        @Test
+        @DisplayName("returns empty list when no currencies")
+        void returnsEmptyWhenNoCurrencies() {
+            var currencies = new Currencies(List.of());
+            assertTrue(currencies.knownCodes().isEmpty());
+        }
+
+        @Test
+        @DisplayName("returns only CurrencyCode enums for known codes")
+        void returnsOnlyKnownEnums() {
+            var c1 = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var c2 = new Currency("EUR", "978", "Euro", "€", null, null);
+            var c3 = new Currency("GBP", "826", "British Pound", "£", null, null);
+            var currencies = new Currencies(List.of(c1, c2, c3));
+
+            var known = currencies.knownCodes();
+            assertEquals(3, known.size());
+            assertEquals(List.of(CurrencyCode.USD, CurrencyCode.EUR, CurrencyCode.GBP), known);
+        }
+
+        @Test
+        @DisplayName("returns unmodifiable list")
+        void returnsUnmodifiableList() {
+            var c = new Currency("USD", "840", "US Dollar", "$", null, null);
+            var currencies = new Currencies(List.of(c));
+            var known = currencies.knownCodes();
+            assertThrows(UnsupportedOperationException.class, () -> known.add(CurrencyCode.EUR));
         }
     }
 
@@ -342,5 +464,4 @@ class CurrenciesTest {
             assertEquals("Currencies[]", currencies.toString());
         }
     }
-
 }

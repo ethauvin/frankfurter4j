@@ -35,6 +35,7 @@ package net.thauvin.erik.frankfurter.config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import net.thauvin.erik.frankfurter.models.CurrencyCode;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,6 +52,11 @@ import java.util.stream.Collectors;
  *
  * <p>Use {@code new RateConfig.Builder()} to create instances. Only the quote currency is required.
  * If base is omitted, the API defaults to {@code EUR}.</p>
+ *
+ * <p>This class is thread-safe. All state is immutable.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public final class RateConfig {
 
@@ -66,6 +72,15 @@ public final class RateConfig {
     @NonNull
     private final String quote;
 
+    /**
+     * Creates a new immutable configuration.
+     *
+     * @param base      the base currency ISO code, or {@code null} to use API default
+     * @param quote     the quote currency ISO code (must not be {@code null})
+     * @param date      the historical date, or {@code null} for latest
+     * @param providers the provider IDs, or empty array for all
+     * @throws NullPointerException if {@code quote} is {@code null}
+     */
     @SuppressWarnings("PMD.UseVarargs")
     private RateConfig(@Nullable String base,
                        @NonNull String quote,
@@ -77,6 +92,51 @@ public final class RateConfig {
         this.providers = providers.clone(); // defensive copy
     }
 
+    /**
+     * Returns a hash code value for this configuration.
+     *
+     * <p>The hash code is computed from the base currency, quote currency, date, and
+     * providers. It is consistent with {@link #equals(Object)}: equal objects have
+     * equal hash codes.</p>
+     *
+     * @return a hash code value for this object
+     */
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(base, quote, date);
+        result = 31 * result + Arrays.hashCode(providers);
+        return result;
+    }
+
+    /**
+     * Compares this configuration to the specified object for equality.
+     *
+     * <p>Two {@code RateConfig} instances are equal if they have the same base currency,
+     * quote currency, date, and providers. The comparison is order-sensitive for
+     * providers and case-sensitive for currency codes.</p>
+     *
+     * @param o the object to compare with
+     * @return {@code true} if the objects are equal, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RateConfig that)) {
+            return false;
+        }
+        return Objects.equals(base, that.base)
+                && Objects.equals(quote, that.quote)
+                && Objects.equals(date, that.date)
+                && Arrays.equals(providers, that.providers);
+    }
+
+    /**
+     * Returns a string representation of this configuration.
+     *
+     * @return a string describing the configuration parameters
+     */
     @Override
     public String toString() {
         return "RateConfig{base=" + base + ", quote=" + quote + ", date=" + date
@@ -86,8 +146,12 @@ public final class RateConfig {
     /**
      * Applies this configuration to the given base URI.
      *
+     * <p>Constructs a URI for the {@code /rate/{base}/{quote}} endpoint with optional
+     * query parameters for {@code date} and {@code providers}.</p>
+     *
      * @param baseUri the base URI, e.g. {@code https://api.frankfurter.app/}
      * @return the fully constructed URI for the rate query
+     * @throws NullPointerException     if {@code baseUri} is {@code null}
      * @throws IllegalArgumentException if the resulting URI is invalid
      */
     @NonNull
@@ -99,7 +163,6 @@ public final class RateConfig {
             params.put("date", date.toString()); // yyyy-MM-dd is URL-safe
         }
         if (providers.length > 0) {
-            // Encode each provider separately, then join with literal comma
             var encodedProviders = Arrays.stream(providers)
                     .map(p -> URLEncoder.encode(p, StandardCharsets.UTF_8))
                     .collect(Collectors.joining(","));
@@ -128,7 +191,6 @@ public final class RateConfig {
                 );
             }
 
-            // Params already contain encoded values, so don't encode again
             var query = params.entrySet().stream()
                     .map(e -> e.getKey() + '=' + e.getValue())
                     .collect(Collectors.joining("&"));
@@ -147,6 +209,9 @@ public final class RateConfig {
 
     /**
      * Builder for {@link RateConfig}.
+     *
+     * <p>All setter methods return {@code this} for method chaining. Call {@link #build()}
+     * to create the immutable configuration.</p>
      */
     public static final class Builder {
 
@@ -160,8 +225,24 @@ public final class RateConfig {
          *
          * <p>If not set, the Frankfurter API defaults to {@code EUR}.</p>
          *
+         * @param base the base currency
+         * @return this builder
+         * @throws NullPointerException if {@code base} is {@code null}
+         */
+        @NonNull
+        public Builder base(@NonNull CurrencyCode base) {
+            this.base = Objects.requireNonNull(base, Validation.formatNullMessage("base")).getCode();
+            return this;
+        }
+
+        /**
+         * Sets the base currency. Optional.
+         *
+         * <p>If not set, the Frankfurter API defaults to {@code EUR}.</p>
+         *
          * @param base 3-letter ISO 4217 currency code, e.g. "USD"
          * @return this builder
+         * @throws NullPointerException     if {@code base} is {@code null}
          * @throws IllegalArgumentException if blank or not 3 letters
          */
         @NonNull
@@ -182,7 +263,7 @@ public final class RateConfig {
             if (quote == null) {
                 throw new IllegalStateException("quote currency is required");
             }
-            if (base != null && base.equals(quote)) {
+            if (base != null && base.equalsIgnoreCase(quote)) {
                 throw new IllegalArgumentException("base and quote currencies must be different");
             }
             return new RateConfig(base, quote, date, providers);
@@ -193,6 +274,7 @@ public final class RateConfig {
          *
          * @param date the date to query, must not be before 1994-01-04
          * @return this builder
+         * @throws NullPointerException     if {@code date} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
@@ -204,7 +286,7 @@ public final class RateConfig {
         /**
          * Sets optional provider filters.
          *
-         * <p>Blank entries are ignored. Duplicates are removed.</p>
+         * <p>Blank entries are ignored. Duplicates are removed. The array is defensively copied.</p>
          *
          * @param providers provider IDs, e.g. "ECB", "BANXICO"
          * @return this builder
@@ -219,8 +301,22 @@ public final class RateConfig {
         /**
          * Sets the quote currency. Required.
          *
+         * @param quote the quote currency
+         * @return this builder
+         * @throws NullPointerException if {@code quote} is {@code null}
+         */
+        @NonNull
+        public Builder quote(@NonNull CurrencyCode quote) {
+            this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage("quote")).getCode();
+            return this;
+        }
+
+        /**
+         * Sets the quote currency. Required.
+         *
          * @param quote 3-letter ISO 4217 currency code, e.g. "EUR"
          * @return this builder
+         * @throws NullPointerException     if {@code quote} is {@code null}
          * @throws IllegalArgumentException if blank or not 3 letters
          */
         @NonNull
@@ -230,3 +326,4 @@ public final class RateConfig {
         }
     }
 }
+

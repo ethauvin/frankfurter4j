@@ -56,7 +56,7 @@ class ReadmeTest {
 
         if (currencies instanceof net.thauvin.erik.frankfurter.models.Currencies c) {
             assertFalse(c.isEmpty());
-            var usd = c.find("USD");
+            var usd = c.find(CurrencyCode.USD);
             assertTrue(usd.isPresent());
             assertEquals("United States Dollar", usd.get().name());
         }
@@ -65,7 +65,7 @@ class ReadmeTest {
     @Test
     void currency() throws IOException {
         var client = new Frankfurter();
-        var currency = client.getCurrency("EUR");
+        var currency = client.getCurrency(CurrencyCode.EUR);
 
         if (currency instanceof net.thauvin.erik.frankfurter.models.Currency eur) {
             assertEquals("Euro", eur.name());
@@ -78,12 +78,12 @@ class ReadmeTest {
     @DisabledOnOs(OS.WINDOWS)
     void currencyFormat() throws IOException {
         var client = new Frankfurter();
-        var rate = client.getRate("USD", "GBP");
+        var rate = client.getRate(CurrencyCode.USD, CurrencyCode.GBP);
 
         if (rate instanceof Rate r) {
             var amount = 12;
-            var usd = CurrencyFormatter.format(amount, "USD");
-            var gbp = CurrencyFormatter.format(r.exchangeRate() * amount, "GBP");
+            var usd = CurrencyFormatter.format(amount, CurrencyCode.USD);
+            var gbp = CurrencyFormatter.format(r.exchangeRate() * amount, CurrencyCode.GBP);
             assertEquals("$12.00", usd);
             assertTrue(gbp.startsWith("£"));
         }
@@ -107,7 +107,7 @@ class ReadmeTest {
 
         var latestRates = client.getRates();
         if (latestRates instanceof ExchangeRates latest) {
-            var pound = latest.find("GBP");
+            var pound = latest.find(CurrencyCode.GBP);
             pound.ifPresent(rate -> System.out.println("1 GBP: " + rate.exchangeRate() + " EUR"));
             assertTrue(pound.isPresent());
             assertTrue(pound.get().exchangeRate() > 0);
@@ -115,7 +115,7 @@ class ReadmeTest {
             throw new AssertionFailedError("Expected ExchangeRates, got " + latestRates.getClass());
         }
 
-        var rate = client.getRate("USD", "EUR");
+        var rate = client.getRate(CurrencyCode.USD, CurrencyCode.EUR);
         if (rate instanceof Rate dollar) {
             System.out.println("1 USD: " + dollar.exchangeRate() + " EUR");
             assertTrue(dollar.exchangeRate() > 0);
@@ -166,7 +166,7 @@ class ReadmeTest {
         );
 
         if (historicalRates instanceof ExchangeRates rates) {
-            assertTrue(rates.find("GBP").isPresent());
+            assertTrue(rates.find(CurrencyCode.GBP).isPresent());
         } else {
             throw new AssertionFailedError("Expected ExchangeRates, got " + historicalRates.getClass());
         }
@@ -193,7 +193,7 @@ class ReadmeTest {
     void rate() throws IOException {
         var client = new Frankfurter();
         var rate = client.getRate(
-                new RateConfig.Builder().base("USD").quote("EUR").build()
+                new RateConfig.Builder().base(CurrencyCode.USD).quote(CurrencyCode.EUR).build()
         );
 
         if (rate instanceof net.thauvin.erik.frankfurter.models.Rate eur) {
@@ -204,8 +204,8 @@ class ReadmeTest {
 
         rate = client.getRate(
                 new RateConfig.Builder()
-                        .base("USD")
-                        .quote("EUR")
+                        .base(CurrencyCode.USD)
+                        .quote(CurrencyCode.EUR)
                         .date(LocalDate.of(2026, 1, 1))
                         .build()
         );
@@ -224,7 +224,7 @@ class ReadmeTest {
 
 
         if (latestRates instanceof ExchangeRates rates) {
-            var gbp = rates.find("GBP").orElse(null);
+            var gbp = rates.find(CurrencyCode.GBP).orElse(null);
             assertNotNull(gbp);
         } else {
             throw new AssertionFailedError("Expected ExchangeRates, got " + latestRates.getClass());
@@ -235,14 +235,14 @@ class ReadmeTest {
     void ratesWithQuotes() throws IOException {
         var client = new Frankfurter();
         var latestResult = client.getRates(
-                new RatesConfig.Builder().base("USD").quotes("EUR", "GBP").build()
+                new RatesConfig.Builder().base(CurrencyCode.USD).quotes(CurrencyCode.EUR, CurrencyCode.GBP).build()
         );
 
 
         if (latestResult instanceof ExchangeRates latest) {
-            assertTrue(latest.find("GBP").isPresent());
-            assertTrue(latest.find("EUR").isPresent());
-            assertFalse(latest.find("USD").isPresent());
+            assertTrue(latest.find(CurrencyCode.GBP).isPresent());
+            assertTrue(latest.find(CurrencyCode.EUR).isPresent());
+            assertFalse(latest.find(CurrencyCode.USD).isPresent());
         } else {
             throw new AssertionFailedError("Expected ExchangeRates, got " + latestResult.getClass());
         }

@@ -41,6 +41,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 class RatesConfigTest {
 
     @Nested
@@ -73,6 +74,146 @@ class RatesConfigTest {
                     .from(LocalDate.now())
                     .to(LocalDate.now());
             assertThrows(IllegalArgumentException.class, cfg::build);
+        }
+    }
+
+    @Nested
+    @DisplayName("equals() and hashCode()")
+    class EqualsHashCodeTests {
+
+        @Test
+        @DisplayName("config with only base vs empty not equal")
+        void configWithOnlyBaseVsEmptyNotEqual() {
+            var cfg1 = new RatesConfig.Builder().base("USD").build();
+            var cfg2 = new RatesConfig.Builder().build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different base not equal")
+        void differentBaseNotEqual() {
+            var cfg1 = new RatesConfig.Builder().base("USD").build();
+            var cfg2 = new RatesConfig.Builder().base("GBP").build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different date not equal")
+        void differentDateNotEqual() {
+            var cfg1 = new RatesConfig.Builder()
+                    .date(LocalDate.of(2024, 1, 1))
+                    .build();
+            var cfg2 = new RatesConfig.Builder()
+                    .date(LocalDate.of(2024, 1, 2))
+                    .build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different from/to not equal")
+        void differentFromToNotEqual() {
+            var cfg1 = new RatesConfig.Builder()
+                    .from(LocalDate.of(2024, 1, 1))
+                    .to(LocalDate.of(2024, 1, 31))
+                    .build();
+            var cfg2 = new RatesConfig.Builder()
+                    .from(LocalDate.of(2024, 2, 1))
+                    .to(LocalDate.of(2024, 2, 28))
+                    .build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different group not equal")
+        void differentGroupNotEqual() {
+            var cfg1 = new RatesConfig.Builder()
+                    .date(LocalDate.of(2024, 1, 1))
+                    .group(Group.WEEK)
+                    .build();
+            var cfg2 = new RatesConfig.Builder()
+                    .date(LocalDate.of(2024, 1, 1))
+                    .group(Group.MONTH)
+                    .build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different providers not equal")
+        void differentProvidersNotEqual() {
+            var cfg1 = new RatesConfig.Builder().providers("ECB").build();
+            var cfg2 = new RatesConfig.Builder().providers("BAM").build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different quotes not equal")
+        void differentQuotesNotEqual() {
+            var cfg1 = new RatesConfig.Builder().quotes("EUR").build();
+            var cfg2 = new RatesConfig.Builder().quotes("GBP").build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("does not equal different class")
+        @SuppressWarnings("AssertBetweenInconvertibleTypes")
+        void doesNotEqualDifferentClass() {
+            var cfg = new RatesConfig.Builder().base("USD").build();
+            assertNotEquals("RatesConfig", cfg);
+        }
+
+        @Test
+        @DisplayName("does not equal null")
+        void doesNotEqualNull() {
+            var cfg = new RatesConfig.Builder().base("USD").build();
+            assertNotEquals(null, cfg);
+        }
+
+        @Test
+        @DisplayName("empty configs are equal")
+        void emptyConfigsAreEqual() {
+            var cfg1 = new RatesConfig.Builder().build();
+            var cfg2 = new RatesConfig.Builder().build();
+            assertEquals(cfg1, cfg2);
+            assertEquals(cfg1.hashCode(), cfg2.hashCode());
+        }
+
+        @Test
+        @DisplayName("equal objects have same hashCode")
+        void equalObjectsHaveSameHashCode() {
+            var cfg1 = new RatesConfig.Builder()
+                    .base("USD")
+                    .quotes("EUR", "GBP")
+                    .date(LocalDate.of(2024, 1, 15))
+                    .providers("ECB", "BANXICO")
+                    .group(Group.WEEK)
+                    .build();
+
+            var cfg2 = new RatesConfig.Builder()
+                    .base("USD")
+                    .quotes("EUR", "GBP")
+                    .date(LocalDate.of(2024, 1, 15))
+                    .providers("ECB", "BANXICO")
+                    .group(Group.WEEK)
+                    .build();
+
+            assertEquals(cfg1, cfg2);
+            assertEquals(cfg1.hashCode(), cfg2.hashCode());
+        }
+
+        @Test
+        @DisplayName("quotes order matters")
+        void quotesOrderMatters() {
+            var cfg1 = new RatesConfig.Builder().quotes("EUR", "GBP").build();
+            var cfg2 = new RatesConfig.Builder().quotes("GBP", "EUR").build();
+            assertNotEquals(cfg1, cfg2, "Map stores encoded string, order affects equality");
+        }
+
+        @Test
+        @DisplayName("same instance equals itself")
+        @SuppressWarnings("EqualsWithItself")
+        void sameInstanceEqualsItself() {
+            var cfg = new RatesConfig.Builder().base("USD").build();
+            assertEquals(cfg, cfg);
         }
     }
 

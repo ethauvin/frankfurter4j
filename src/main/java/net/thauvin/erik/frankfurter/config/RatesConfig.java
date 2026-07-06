@@ -35,6 +35,7 @@ package net.thauvin.erik.frankfurter.config;
 import com.uwyn.urlencoder.UrlEncoder;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import net.thauvin.erik.frankfurter.models.CurrencyCode;
 import net.thauvin.erik.frankfurter.models.Group;
 
 import java.net.URI;
@@ -48,6 +49,13 @@ import java.util.stream.Collectors;
 
 /**
  * Immutable configuration for constructing Frankfurter {@code /rates} queries.
+ *
+ * <p>Use {@code new RatesConfig.Builder()} to create instances. All parameters are optional.</p>
+ *
+ * <p>This class is thread-safe. All state is immutable.</p>
+ *
+ * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @since 1.0
  */
 public final class RatesConfig {
 
@@ -56,6 +64,32 @@ public final class RatesConfig {
 
     private RatesConfig(@NonNull Map<String, String> params) {
         this.params = params; // already unmodifiable from Map.copyOf
+    }
+
+    /**
+     * Returns a hash code value for this configuration.
+     *
+     * <p>The hash code is computed from the parameters map. It is consistent with
+     * {@link #equals(Object)}: equal objects have equal hash codes.</p>
+     *
+     * @return a hash code value for this object
+     */
+    @Override
+    public int hashCode() {
+        return params.hashCode();
+    }
+
+    /**
+     * Compares this configuration to the specified object for equality.
+     *
+     * <p>Two {@code RatesConfig} instances are equal if they have the same parameters.</p>
+     *
+     * @param o the object to compare with
+     * @return {@code true} if the objects are equal, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof RatesConfig that && params.equals(that.params);
     }
 
     @Override
@@ -77,8 +111,11 @@ public final class RatesConfig {
     /**
      * Applies this configuration to the given base URI.
      *
-     * @param baseUri the base API endpoint
+     * <p>Constructs a URI for the {@code /rates} endpoint with optional query parameters.</p>
+     *
+     * @param baseUri the base API endpoint, e.g. {@code https://api.frankfurter.app/}
      * @return a new URI with the query parameters appended
+     * @throws NullPointerException     if {@code baseUri} is {@code null}
      * @throws IllegalArgumentException if the URI cannot be built
      */
     @NonNull
@@ -118,6 +155,9 @@ public final class RatesConfig {
 
     /**
      * Builder for creating {@link RatesConfig} instances.
+     *
+     * <p>All setter methods return {@code this} for method chaining. Call {@link #build()}
+     * to create the immutable configuration.</p>
      */
     public static final class Builder {
 
@@ -134,8 +174,24 @@ public final class RatesConfig {
          *
          * <p>If not set, the Frankfurter API defaults to {@code EUR}.</p>
          *
+         * @param base the base currency
+         * @return this builder
+         * @throws NullPointerException if {@code base} is {@code null}
+         */
+        @NonNull
+        public Builder base(@NonNull CurrencyCode base) {
+            this.base = Objects.requireNonNull(base, Validation.formatNullMessage("base")).getCode();
+            return this;
+        }
+
+        /**
+         * Sets the base currency. Optional.
+         *
+         * <p>If not set, the Frankfurter API defaults to {@code EUR}.</p>
+         *
          * @param base 3-letter ISO 4217 currency code, e.g. "USD"
          * @return this builder
+         * @throws NullPointerException     if {@code base} is {@code null}
          * @throws IllegalArgumentException if blank or not 3 letters
          */
         @NonNull
@@ -204,6 +260,7 @@ public final class RatesConfig {
          *
          * @param date the date to query, must not be before 1994-01-04
          * @return this builder
+         * @throws NullPointerException     if {@code date} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
@@ -217,6 +274,7 @@ public final class RatesConfig {
          *
          * @param from the start date, must not be before 1994-01-04
          * @return this builder
+         * @throws NullPointerException     if {@code from} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull
@@ -230,6 +288,7 @@ public final class RatesConfig {
          *
          * @param group the grouping, e.g. DAY, MONTH, YEAR
          * @return this builder
+         * @throws NullPointerException if {@code group} is {@code null}
          */
         @NonNull
         public Builder group(@NonNull Group group) {
@@ -269,10 +328,30 @@ public final class RatesConfig {
         }
 
         /**
+         * Sets one or more quote currencies.
+         *
+         * <p>Blank entries are ignored. Duplicates are removed.</p>
+         *
+         * @param quotes the quote currencies
+         * @return this builder
+         * @throws NullPointerException if array or any element is {@code null}
+         */
+        @NonNull
+        public Builder quotes(@NonNull CurrencyCode... quotes) {
+            this.quotes = Arrays.stream(quotes)
+                    .map(Objects::requireNonNull)
+                    .map(CurrencyCode::getCode)
+                    .toArray(String[]::new);
+            this.quotes = Validation.requireIsoCurrencyArray("quotes", this.quotes);
+            return this;
+        }
+
+        /**
          * Sets the end of a date range query.
          *
          * @param to the end date, must not be before 1994-01-04
          * @return this builder
+         * @throws NullPointerException     if {@code to} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
         @NonNull

@@ -122,6 +122,7 @@ public class Frankfurter4jBuild extends Project {
         javadocOperation()
                 .javadocOptions()
                 .docTitle("Frankfurter4j API Specification")
+                .tag("apiNote", "a", "API Note:")
                 .author()
                 .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson)
                 .link("https://findbugs.sourceforge.net/api/");

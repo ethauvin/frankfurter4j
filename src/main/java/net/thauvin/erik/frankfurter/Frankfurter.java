@@ -55,10 +55,10 @@ import java.util.function.Function;
  *
  * <p>This client provides convenience methods for retrieving:</p>
  * <ul>
- *   <li>currency metadata</li>
- *   <li>provider metadata</li>
- *   <li>exchange rates for a single date or date range</li>
- *   <li>a single exchange rate via the {@code /rate/{base}/{quote}} endpoint</li>
+ * <li>currency metadata</li>
+ * <li>provider metadata</li>
+ * <li>exchange rates for a single date or date range</li>
+ * <li>a single exchange rate via the {@code /rate/{base}/{quote}} endpoint</li>
  * </ul>
  *
  * <p><b>Threading note:</b> All methods in this class block the calling thread until the HTTP
@@ -175,6 +175,18 @@ public final class Frankfurter {
     }
 
     /**
+     * Retrieves metadata for a single currency.
+     *
+     * @param code the currency code (must not be {@code null})
+     * @throws IOException if a network error occurs
+     */
+    @NonNull
+    public CurrencyResult getCurrency(@NonNull CurrencyCode code) throws IOException {
+        Objects.requireNonNull(code, Validation.formatNullMessage("code"));
+        return getCurrency(code.getCode());
+    }
+
+    /**
      * Retrieves the list of available rate providers.
      *
      * @throws IOException if a network error occurs
@@ -195,6 +207,20 @@ public final class Frankfurter {
     public RateResult getRate(@NonNull String base, @NonNull String quote) throws IOException {
         Validation.requireIsoCurrency("base", base);
         Validation.requireIsoCurrency("quote", quote);
+        return getRate(new RateConfig.Builder().base(base).quote(quote).build());
+    }
+
+    /**
+     * Retrieves a single exchange rate for the given currency pair.
+     *
+     * @param base  the base currency (must not be {@code null})
+     * @param quote the quote currency (must not be {@code null})
+     * @throws IOException if a network error occurs
+     */
+    @NonNull
+    public RateResult getRate(@NonNull CurrencyCode base, @NonNull CurrencyCode quote) throws IOException {
+        Objects.requireNonNull(base, Validation.formatNullMessage("base"));
+        Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
         return getRate(new RateConfig.Builder().base(base).quote(quote).build());
     }
 

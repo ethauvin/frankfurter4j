@@ -50,6 +50,7 @@ import java.util.Optional;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@SuppressWarnings({"PMD.AvoidDuplicateLiterals"})
 public final class ExchangeRates implements RatesResult {
 
     private final List<Rate> rates;
@@ -107,6 +108,21 @@ public final class ExchangeRates implements RatesResult {
     }
 
     /**
+     * Finds the first entry matching the given quote currency.
+     * <p>When rates contain multiple entries per currency, e.g. time series data,
+     * this returns the first match in iteration order. The API typically returns
+     * time series in chronological order.</p>
+     *
+     * @param quote the quote currency
+     * @return an optional containing the first matching rate
+     * @throws NullPointerException if {@code quote} is {@code null}
+     */
+    public Optional<Rate> find(@NonNull CurrencyCode quote) {
+        Objects.requireNonNull(quote, "quote must not be {@code null}");
+        return find(quote.getCode());
+    }
+
+    /**
      * Returns all rate entries matching the given quote currency.
      * <p>Useful for time series where the same currency appears multiple times
      * with different dates.</p>
@@ -123,6 +139,20 @@ public final class ExchangeRates implements RatesResult {
     }
 
     /**
+     * Returns all rate entries matching the given quote currency.
+     * <p>Useful for time series where the same currency appears multiple times
+     * with different dates.</p>
+     *
+     * @param quote the quote currency
+     * @return unmodifiable list of matching rates, empty if none found
+     * @throws NullPointerException if {@code quote} is {@code null}
+     */
+    public List<Rate> findAll(@NonNull CurrencyCode quote) {
+        Objects.requireNonNull(quote, "quote must not be {@code null}");
+        return findAll(quote.getCode());
+    }
+
+    /**
      * Returns {@code true} if there are no rate entries.
      *
      * @return {@code true} if the list is empty, {@code false} otherwise
@@ -132,12 +162,40 @@ public final class ExchangeRates implements RatesResult {
     }
 
     /**
+     * Returns all distinct quote currencies as {@link CurrencyCode}, filtering out unknown codes.
+     *
+     * @return unmodifiable list of known currency codes
+     */
+    @NonNull
+    public List<CurrencyCode> knownQuotes() {
+        return rates.stream()
+                .map(Rate::quote)
+                .distinct()
+                .map(CurrencyCode::fromCode)
+                .flatMap(Optional::stream)
+                .toList();
+    }
+
+    /**
      * Returns an unmodifiable list of all rate entries.
      *
      * @return the list of rates
      */
     public List<Rate> list() {
         return rates;
+    }
+
+    /**
+     * Returns all distinct quote currency codes in this result set.
+     *
+     * @return unmodifiable list of ISO 4217 codes
+     */
+    @NonNull
+    public List<String> quotes() {
+        return rates.stream()
+                .map(Rate::quote)
+                .distinct()
+                .toList();
     }
 
     /**

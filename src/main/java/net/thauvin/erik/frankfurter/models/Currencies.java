@@ -68,17 +68,32 @@ public final class Currencies implements CurrenciesResult {
         this.list = List.copyOf(list);
     }
 
+    /**
+     * Returns a hash code value for this object.
+     *
+     * @return a hash code value derived from the backing list
+     */
     @Override
     public int hashCode() {
         return list.hashCode();
     }
 
+    /**
+     * Compares the specified object with this container for equality.
+     *
+     * @param o the reference object with which to compare
+     * @return {@code true} if the specified object is equal to this one; {@code false} otherwise
+     */
     @Override
     public boolean equals(Object o) {
         return this == o || o instanceof Currencies that && list.equals(that.list);
     }
 
-
+    /**
+     * Returns a string representation of this container.
+     *
+     * @return a string containing the class name and the currency list entries
+     */
     @Override
     public String toString() {
         return "Currencies" + list;
@@ -89,8 +104,8 @@ public final class Currencies implements CurrenciesResult {
      *
      * @param json the JSON response
      * @return the parsed currencies
-     * @throws NullPointerException     if json is {@code null}
-     * @throws IllegalArgumentException if json is malformed
+     * @throws NullPointerException     if {@code json} is {@code null}
+     * @throws IllegalArgumentException if {@code json} is malformed
      */
     @NonNull
     public static Currencies fromJson(@NonNull String json) {
@@ -103,6 +118,31 @@ public final class Currencies implements CurrenciesResult {
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Invalid currencies JSON: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Returns all ISO codes in this set.
+     *
+     * @return an unmodifiable list of ISO 4217 codes
+     */
+    @NonNull
+    public List<String> codes() {
+        return list.stream()
+                .map(Currency::isoCode)
+                .toList();
+    }
+
+    /**
+     * Finds a currency by its {@link CurrencyCode}.
+     *
+     * @param code the currency code
+     * @return an optional containing the matching currency
+     * @throws NullPointerException if code is {@code null}
+     */
+    @NonNull
+    public Optional<Currency> find(@NonNull CurrencyCode code) {
+        Objects.requireNonNull(code, Validation.formatNullMessage("code"));
+        return find(code.getCode());
     }
 
     /**
@@ -122,9 +162,26 @@ public final class Currencies implements CurrenciesResult {
 
     /**
      * Returns {@code true} if the list is empty.
+     *
+     * @return {@code true} if this container contains no currencies; {@code false} otherwise
      */
     public boolean isEmpty() {
         return list.isEmpty();
+    }
+
+    /**
+     * Returns all distinct quote currencies as {@link CurrencyCode}, filtering out unknown codes.
+     *
+     * @return an unmodifiable list of known currency codes
+     */
+    @NonNull
+    public List<CurrencyCode> knownCodes() {
+        return list.stream()
+                .map(Currency::isoCode)
+                .distinct() // add this
+                .map(CurrencyCode::fromCode)
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     /**
@@ -155,6 +212,8 @@ public final class Currencies implements CurrenciesResult {
 
     /**
      * Returns the number of currencies.
+     *
+     * @return the total count of currency elements in this container
      */
     public int size() {
         return list.size();

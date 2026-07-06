@@ -278,6 +278,146 @@ class RateConfigTest {
     }
 
     @Nested
+    @DisplayName("equals() and hashCode()")
+    class EqualsHashCodeTests {
+
+        @Test
+        @DisplayName("different base not equal")
+        void differentBaseNotEqual() {
+            var cfg1 = new RateConfig.Builder().base("USD").quote("EUR").build();
+            var cfg2 = new RateConfig.Builder().base("GBP").quote("EUR").build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different date not equal")
+        void differentDateNotEqual() {
+            var cfg1 = new RateConfig.Builder()
+                    .quote("EUR")
+                    .date(LocalDate.of(2024, 1, 1))
+                    .build();
+            var cfg2 = new RateConfig.Builder()
+                    .quote("EUR")
+                    .date(LocalDate.of(2024, 1, 2))
+                    .build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different providers not equal")
+        void differentProvidersNotEqual() {
+            var cfg1 = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers("ECB")
+                    .build();
+            var cfg2 = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers("BAM")
+                    .build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("different quote not equal")
+        void differentQuoteNotEqual() {
+            var cfg1 = new RateConfig.Builder().quote("EUR").build();
+            var cfg2 = new RateConfig.Builder().quote("USD").build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("does not equal different class")
+        @SuppressWarnings("AssertBetweenInconvertibleTypes")
+        void doesNotEqualDifferentClass() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            assertNotEquals("RateConfig", cfg);
+        }
+
+        @Test
+        @DisplayName("does not equal null")
+        void doesNotEqualNull() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            assertNotEquals(null, cfg);
+        }
+
+        @Test
+        @DisplayName("empty providers equals empty providers")
+        void emptyProvidersEqualsEmptyProviders() {
+            var cfg1 = new RateConfig.Builder().quote("EUR").providers().build();
+            var cfg2 = new RateConfig.Builder().quote("EUR").build();
+            assertEquals(cfg1, cfg2);
+            assertEquals(cfg1.hashCode(), cfg2.hashCode());
+        }
+
+        @Test
+        @DisplayName("equal objects have same hashCode")
+        void equalObjectsHaveSameHashCode() {
+            var cfg1 = new RateConfig.Builder()
+                    .base("USD")
+                    .quote("EUR")
+                    .date(LocalDate.of(2024, 1, 15))
+                    .providers("ECB", "BAM")
+                    .build();
+
+            var cfg2 = new RateConfig.Builder()
+                    .base("USD")
+                    .quote("EUR")
+                    .date(LocalDate.of(2024, 1, 15))
+                    .providers("ECB", "BAM")
+                    .build();
+
+            assertEquals(cfg1, cfg2);
+            assertEquals(cfg1.hashCode(), cfg2.hashCode());
+        }
+
+        @Test
+        @DisplayName("null base equals null base")
+        void nullBaseEqualsNullBase() {
+            var cfg1 = new RateConfig.Builder().quote("EUR").build();
+            var cfg2 = new RateConfig.Builder().quote("EUR").build();
+            assertEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("null base not equal to non-null base")
+        void nullBaseNotEqualToNonNullBase() {
+            var cfg1 = new RateConfig.Builder().quote("EUR").build();
+            var cfg2 = new RateConfig.Builder().base("USD").quote("EUR").build();
+            assertNotEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("null date equals null date")
+        void nullDateEqualsNullDate() {
+            var cfg1 = new RateConfig.Builder().quote("EUR").build();
+            var cfg2 = new RateConfig.Builder().quote("EUR").build();
+            assertEquals(cfg1, cfg2);
+        }
+
+        @Test
+        @DisplayName("providers order matters")
+        void providersOrderMatters() {
+            var cfg1 = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers("ECB", "BAM")
+                    .build();
+            var cfg2 = new RateConfig.Builder()
+                    .quote("EUR")
+                    .providers("BAM", "ECB")
+                    .build();
+            assertNotEquals(cfg1, cfg2, "Arrays.equals is order-sensitive");
+        }
+
+        @Test
+        @DisplayName("same instance equals itself")
+        @SuppressWarnings("EqualsWithItself")
+        void sameInstanceEqualsItself() {
+            var cfg = new RateConfig.Builder().quote("EUR").build();
+            assertEquals(cfg, cfg);
+        }
+    }
+
+    @Nested
     @DisplayName("Builder providers validation")
     class ProvidersValidation {
 

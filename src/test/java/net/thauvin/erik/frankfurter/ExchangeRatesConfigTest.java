@@ -33,6 +33,7 @@
 package net.thauvin.erik.frankfurter;
 
 import net.thauvin.erik.frankfurter.config.RatesConfig;
+import net.thauvin.erik.frankfurter.models.CurrencyCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,18 @@ class ExchangeRatesConfigTest {
             var cfg = new RatesConfig.Builder()
                     .base("EUR")
                     .quotes("USD")
+                    .date(LocalDate.parse("2020-01-01"))
+                    .build();
+
+            assertNotNull(cfg);
+        }
+
+        @Test
+        @DisplayName("builds valid config with currency codes")
+        void buildsValidWithCurrencyCodes() {
+            var cfg = new RatesConfig.Builder()
+                    .base(CurrencyCode.EUR)
+                    .quotes(CurrencyCode.USD)
                     .date(LocalDate.parse("2020-01-01"))
                     .build();
 
