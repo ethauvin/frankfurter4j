@@ -5,12 +5,12 @@ commands:
     steps:
       - checkout
       - restore_cache:
-          key: bld-deps-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
+          key: bld-lib-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Compile source
           command: ./bld clean compile
       - save_cache:
-          key: bld-deps-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
+          key: bld-lib-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
           paths:
             - lib
       - run:
