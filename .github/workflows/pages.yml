@@ -49,7 +49,7 @@ jobs:
           restore-keys: ${{ runner.os }}-bld-pages-lib
 
       - name: Build Javadocs
-        run: ./bld clean javadoc
+        run: ./bld clean compile javadoc
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
