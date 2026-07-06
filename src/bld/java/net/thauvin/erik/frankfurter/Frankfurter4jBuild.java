@@ -50,6 +50,8 @@ import static rife.bld.dependencies.Scope.*;
 
 public class Frankfurter4jBuild extends Project {
 
+    final File generatedDirectory = new File(srcDirectory(), "generated");
+
     final PmdOperation pmdOp = new PmdOperation()
             .failOnViolation(true)
             .ruleSets("config/pmd.xml")
@@ -115,6 +117,8 @@ public class Frankfurter4jBuild extends Project {
                 .signKey(property("sign.key"))
                 .signPassphrase(property("sign.passphrase"));
 
+        compileOperation().mainSourceDirectories(generatedDirectory);
+
         javadocOperation()
                 .javadocOptions()
                 .docTitle("Frankfurter4j API Specification")
@@ -156,6 +160,7 @@ public class Frankfurter4jBuild extends Project {
     public void genver() throws Exception {
         new GeneratedVersionOperation()
                 .fromProject(this)
+                .directory(generatedDirectory)
                 .packageName(pkg + ".frankfurter.internal")
                 .classTemplate("GeneratedVersion.txt")
                 .generateAnnotation(true)
