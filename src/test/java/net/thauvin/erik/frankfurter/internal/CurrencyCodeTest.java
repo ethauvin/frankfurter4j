@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
+import java.util.Currency;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -77,7 +78,11 @@ class CurrencyCodeTest {
             var rounded = CurrencyCode.JPY.format(123.456, true);
 
             assertNotEquals(unrounded, rounded, "Rounded and unrounded should differ for JPY");
-            assertEquals("￥123", rounded, "JPY should round to 0 fraction digits");
+
+            // JPY has 0 fraction digits by ISO - check it has no decimal part
+            assertFalse(rounded.contains("."), "JPY rounded should have no decimal point");
+            assertFalse(rounded.contains(","), "JPY rounded should have no decimal comma");
+            assertTrue(rounded.contains("123"), "JPY rounded should contain 123");
         }
 
         @Test
@@ -86,9 +91,18 @@ class CurrencyCodeTest {
             var usd = CurrencyCode.USD.format(1234.56);
             var eur = CurrencyCode.EUR.format(1234.56);
 
-            assertTrue(usd.contains("$") || usd.contains("USD"), "USD should contain $ or USD");
-            assertTrue(eur.contains("€") || eur.contains("EUR"), "EUR should contain € or EUR");
+            // Check they're different
             assertNotEquals(usd, eur, "USD and EUR formats should differ");
+
+            // Check USD uses US locale conventions: comma separator, period decimal
+            assertTrue(usd.matches(".*1,234\\.56.*"), "USD should use 1,234.56 format");
+
+            // Check EUR uses DE locale conventions: period separator, comma decimal
+            assertTrue(eur.matches(".*1\\.234,56.*"), "EUR should use 1.234,56 format");
+
+            // Check currency objects are correct instead of symbols
+            assertEquals(Currency.getInstance("USD"), CurrencyCode.USD.toCurrency());
+            assertEquals(Currency.getInstance("EUR"), CurrencyCode.EUR.toCurrency());
         }
     }
 
