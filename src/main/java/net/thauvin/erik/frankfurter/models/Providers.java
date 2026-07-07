@@ -34,12 +34,16 @@ package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents the set of providers returned by the Frankfurter {@code /providers} endpoint.
@@ -48,24 +52,59 @@ import java.util.*;
  * structure into a list and provides simple lookup helpers.</p>
  *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @apiNote This class is immutable and thread-safe.
  * @since 1.0
  */
 @SuppressWarnings("ClassCanBeRecord")
 public final class Providers implements ProvidersResult, Iterable<Provider> {
 
+    @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
 
+    private static final int TO_STRING_PREVIEW_LIMIT = 10;
+
+    @NonNull
     private final List<Provider> list;
 
     /**
      * Creates a new immutable container for the given list of providers.
      *
-     * @param list the list of provider entries
+     * @param providers the list of provider entries
+     * @throws NullPointerException if {@code providers} is {@code null} or contains null elements
      */
-    public Providers(Collection<Provider> list) {
-        this.list = list == null ? List.of() : List.copyOf(list);
+    public Providers(@NonNull Collection<Provider> providers) {
+        Validation.requireAllNonNull("providers", providers);
+        this.list = List.copyOf(providers);
+    }
+
+    @Override
+    public int hashCode() {
+        return list.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof Providers that && list.equals(that.list);
+    }
+
+    /**
+     * Returns a string representation showing size and preview some entries for debugging.
+     *
+     * @return a string with class name, size, and preview of entries
+     */
+    @Override
+    public String toString() {
+        if (list.isEmpty()) {
+            return "Providers{size=0}";
+        }
+        var preview = list.stream()
+                .limit(TO_STRING_PREVIEW_LIMIT)
+                .map(Provider::toString)
+                .collect(Collectors.joining(", "));
+        var suffix = list.size() > TO_STRING_PREVIEW_LIMIT ? ", ..." : "";
+        return "Providers{size=" + list.size() + ", providers=[" + preview + suffix + "]}";
     }
 
     @Override
@@ -74,22 +113,31 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
         return list.iterator();
     }
 
-    @Override
-    public String toString() {
-        return "Providers" + list;
-    }
-
     /**
      * Parses a JSON array of provider entries into a {@link Providers} instance.
      *
      * @param json the JSON response
      * @return the parsed providers
+     * @throws NullPointerException     if {@code json} is {@code null}
+     * @throws IllegalArgumentException if {@code json} is malformed or contains null elements
      */
-    public static Providers fromJson(String json) {
-        var type = new TypeToken<List<Provider>>() {
-        }.getType();
-        List<Provider> list = GSON.fromJson(json, type);
-        return new Providers(list == null ? List.of() : list);
+    @NonNull
+    public static Providers fromJson(@NonNull String json) {
+        Objects.requireNonNull(json, Validation.formatNullMessage("json"));
+        try {
+            Type type = new TypeToken<List<Provider>>() {
+            }.getType();
+            List<Provider> parsed = GSON.fromJson(json, type);
+            if (parsed == null) {
+                return new Providers(List.of());
+            }
+            if (parsed.stream().anyMatch(Objects::isNull)) {
+                throw new IllegalArgumentException("Invalid providers JSON: contains null element");
+            }
+            return new Providers(parsed);
+        } catch (JsonSyntaxException e) {
+            throw new IllegalArgumentException("Invalid providers JSON: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -97,13 +145,12 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      *
      * @param key the provider key
      * @return an optional containing the matching provider
+     * @throws NullPointerException if {@code key} is {@code null}
      */
-    public Optional<Provider> find(String key) {
-        if (key == null || key.isBlank()) {
-            return Optional.empty();
-        }
+    public Optional<Provider> find(@NonNull String key) {
+        Objects.requireNonNull(key, Validation.formatNullMessage("key"));
         return list.stream()
-                .filter(p -> key.equalsIgnoreCase(p.key()))
+                .filter(p -> p.key().equalsIgnoreCase(key))
                 .findFirst();
     }
 
@@ -121,6 +168,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      *
      * @return the list of providers
      */
+    @NonNull
     public List<Provider> list() {
         return list;
     }
@@ -129,12 +177,16 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      * Searches providers by name substring.
      *
      * @param name the substring to match
-     * @return the list of matching providers
+     * @return the list of matching providers if any
+     * @throws NullPointerException if {@code name} is {@code null}
      */
-    public List<Provider> searchByName(String name) {
-        if (name == null || name.isBlank()) {
+    @NonNull
+    public List<Provider> searchByName(@NonNull String name) {
+        Objects.requireNonNull(name, Validation.formatNullMessage("name"));
+        if (name.isEmpty()) {
             return List.of();
         }
+
         var n = name.toLowerCase(Locale.ROOT);
         return list.stream()
                 .filter(p -> p.name().toLowerCase(Locale.ROOT).contains(n))

@@ -387,12 +387,12 @@ class CurrenciesTest {
     class SearchByNameAdditionalTests {
 
         @Test
-        @DisplayName("returns all on empty string")
-        void emptyStringReturnsAll() {
+        @DisplayName("returns none on empty string")
+        void emptyStringReturnsNone() {
             var c1 = new Currency("USD", "840", "US Dollar", "$", null, null);
             var c2 = new Currency("EUR", "978", "Euro", "€", null, null);
             var currencies = new Currencies(List.of(c1, c2));
-            assertEquals(2, currencies.searchByName("").size());
+            assertTrue(currencies.searchByName("").isEmpty());
         }
 
         @Test

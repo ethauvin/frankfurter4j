@@ -33,11 +33,11 @@
 package net.thauvin.erik.frankfurter.models;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import net.thauvin.erik.frankfurter.internal.Validation;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a list of exchange rates returned by the Frankfurter API.
@@ -45,24 +45,29 @@ import java.util.Optional;
  * <p>The API returns a JSON array of rate objects. For time series or grouped queries,
  * the same quote currency may appear multiple times with different dates.</p>
  *
- * <p>This class is immutable and thread-safe.</p>
- *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @apiNote This class is immutable and thread-safe.
  * @since 1.0
  */
+@SuppressFBWarnings(
+        value = "SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR",
+        justification = "Not a singleton. EMPTY is a cached constant like List.of()"
+)
 public final class ExchangeRates implements RatesResult {
 
-    private static final String QUOTE_MUST_NOT_BE_NULL = "quote must not be null";
+    private static final ExchangeRates EMPTY = new ExchangeRates(List.of());
+    private static final String PARAM_NAME_QUOTE = "quote";
+    private static final int TO_STRING_PREVIEW_LIMIT = 10;
     private final List<Rate> rates;
 
     /**
      * Creates a new immutable container for the given list of rates.
      *
      * @param rates the list of rate entries
-     * @throws NullPointerException if {@code rates} is {@code null}
+     * @throws NullPointerException if {@code rates} is {@code null} or contains null elements
      */
-    public ExchangeRates(Collection<Rate> rates) {
-        Objects.requireNonNull(rates, "rates must not be null");
+    public ExchangeRates(@NonNull Collection<Rate> rates) {
+        Validation.requireAllNonNull("rates", rates);
         this.rates = List.copyOf(rates);
     }
 
@@ -76,9 +81,22 @@ public final class ExchangeRates implements RatesResult {
         return this == o || o instanceof ExchangeRates that && rates.equals(that.rates);
     }
 
+    /**
+     * Returns a string representation showing size and preview some entries for debugging.
+     *
+     * @return a string with class name, size, and preview of entries
+     */
     @Override
     public String toString() {
-        return "ExchangeRates{size=" + rates.size() + ", rates=" + rates + '}';
+        if (rates.isEmpty()) {
+            return "ExchangeRates{size=0}";
+        }
+        var preview = rates.stream()
+                .limit(TO_STRING_PREVIEW_LIMIT)
+                .map(Rate::toString)
+                .collect(Collectors.joining(", "));
+        var suffix = rates.size() > TO_STRING_PREVIEW_LIMIT ? ", ..." : "";
+        return "ExchangeRates{size=" + rates.size() + ", rates=[" + preview + suffix + "]}";
     }
 
     /**
@@ -87,38 +105,37 @@ public final class ExchangeRates implements RatesResult {
      * @return an empty instance
      */
     public static ExchangeRates empty() {
-        return new ExchangeRates(List.of());
+        return EMPTY;
     }
 
     /**
      * Finds the first entry matching the given quote currency.
-     * <p>When rates contain multiple entries per currency, e.g. time series data,
-     * this returns the first match in iteration order. The API typically returns
-     * time series in chronological order.</p>
+     * <p>For time series data with multiple entries per currency, this returns
+     * the first match in iteration order, which matches API response order.</p>
      *
      * @param quote the ISO 4217 quote currency
      * @return an optional containing the first matching rate
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public Optional<Rate> find(@NonNull String quote) {
-        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
+        Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
+        var normalized = quote.toUpperCase(Locale.ROOT);
         return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
+                .filter(r -> r.quote().equals(normalized))
                 .findFirst();
     }
 
     /**
      * Finds the first entry matching the given quote currency.
-     * <p>When rates contain multiple entries per currency, e.g. time series data,
-     * this returns the first match in iteration order. The API typically returns
-     * time series in chronological order.</p>
+     * <p>For time series data with multiple entries per currency, this returns
+     * the first match in iteration order, which matches API response order.</p>
      *
      * @param quote the quote currency
      * @return an optional containing the first matching rate
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public Optional<Rate> find(@NonNull CurrencyCode quote) {
-        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
+        Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
         return find(quote.getCode());
     }
 
@@ -132,9 +149,10 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public List<Rate> findAll(@NonNull String quote) {
-        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
+        Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
+        var normalized = quote.toUpperCase(Locale.ROOT);
         return rates.stream()
-                .filter(r -> r.quote().equalsIgnoreCase(quote))
+                .filter(r -> r.quote().equals(normalized))
                 .toList();
     }
 
@@ -148,7 +166,7 @@ public final class ExchangeRates implements RatesResult {
      * @throws NullPointerException if {@code quote} is {@code null}
      */
     public List<Rate> findAll(@NonNull CurrencyCode quote) {
-        Objects.requireNonNull(quote, QUOTE_MUST_NOT_BE_NULL);
+        Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
         return findAll(quote.getCode());
     }
 

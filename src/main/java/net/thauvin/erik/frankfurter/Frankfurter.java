@@ -65,7 +65,7 @@ import java.util.function.Function;
  * request completes. Do not call from reactive/event-loop threads. In servlet containers,
  * consider using a separate executor to avoid exhausting the request thread pool.</p>
  *
- * <p>Instances of this class are thread-safe and may be reused.</p>
+ * @apiNote Instances of this class are thread-safe and may be reused.
  */
 public final class Frankfurter {
 
@@ -155,10 +155,11 @@ public final class Frankfurter {
     /**
      * Retrieves the list of supported currencies.
      *
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public CurrenciesResult getCurrencies() throws IOException {
+    public CurrenciesResult getCurrencies() throws IOException, InterruptedException {
         return execute(baseUri.resolve("currencies"), JsonParsers::parseCurrencies);
     }
 
@@ -166,10 +167,11 @@ public final class Frankfurter {
      * Retrieves metadata for a single currency.
      *
      * @param code the ISO currency code (must not be {@code null} or blank)
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public CurrencyResult getCurrency(@NonNull String code) throws IOException {
+    public CurrencyResult getCurrency(@NonNull String code) throws IOException, InterruptedException {
         Validation.requireIsoCurrency("code", code);
         return execute(baseUri.resolve("currency/").resolve(code), JsonParsers::parseCurrency);
     }
@@ -178,10 +180,11 @@ public final class Frankfurter {
      * Retrieves metadata for a single currency.
      *
      * @param code the currency code (must not be {@code null})
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public CurrencyResult getCurrency(@NonNull CurrencyCode code) throws IOException {
+    public CurrencyResult getCurrency(@NonNull CurrencyCode code) throws IOException, InterruptedException {
         Objects.requireNonNull(code, Validation.formatNullMessage("code"));
         return getCurrency(code.getCode());
     }
@@ -189,10 +192,11 @@ public final class Frankfurter {
     /**
      * Retrieves the list of available rate providers.
      *
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public ProvidersResult getProviders() throws IOException {
+    public ProvidersResult getProviders() throws IOException, InterruptedException {
         return execute(baseUri.resolve("providers"), JsonParsers::parseProviders);
     }
 
@@ -201,10 +205,11 @@ public final class Frankfurter {
      *
      * @param base  the base ISO currency code (must not be {@code null} or blank)
      * @param quote the quote ISO currency code (must not be {@code null} or blank)
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public RateResult getRate(@NonNull String base, @NonNull String quote) throws IOException {
+    public RateResult getRate(@NonNull String base, @NonNull String quote) throws IOException, InterruptedException {
         Validation.requireIsoCurrency("base", base);
         Validation.requireIsoCurrency("quote", quote);
         return getRate(new RateConfig.Builder().base(base).quote(quote).build());
@@ -215,10 +220,12 @@ public final class Frankfurter {
      *
      * @param base  the base currency (must not be {@code null})
      * @param quote the quote currency (must not be {@code null})
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs\
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public RateResult getRate(@NonNull CurrencyCode base, @NonNull CurrencyCode quote) throws IOException {
+    public RateResult getRate(@NonNull CurrencyCode base, @NonNull CurrencyCode quote)
+            throws IOException, InterruptedException {
         Objects.requireNonNull(base, Validation.formatNullMessage("base"));
         Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
         return getRate(new RateConfig.Builder().base(base).quote(quote).build());
@@ -228,10 +235,11 @@ public final class Frankfurter {
      * Retrieves a single exchange rate using the {@code /rate/{base}/{quote}} endpoint.
      *
      * @param config the rate configuration (must not be {@code null})
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public RateResult getRate(@NonNull RateConfig config) throws IOException {
+    public RateResult getRate(@NonNull RateConfig config) throws IOException, InterruptedException {
         Objects.requireNonNull(config, Validation.formatNullMessage("config"));
         var uri = config.applyTo(baseUri);
         return execute(uri, JsonParsers::parseSingleRate);
@@ -240,10 +248,11 @@ public final class Frankfurter {
     /**
      * Retrieves exchange rates using default configuration.
      *
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public RatesResult getRates() throws IOException {
+    public RatesResult getRates() throws IOException, InterruptedException {
         return getRates(new RatesConfig.Builder().build());
     }
 
@@ -251,10 +260,11 @@ public final class Frankfurter {
      * Retrieves exchange rates using the {@code /rates} endpoint.
      *
      * @param config the rates configuration (must not be {@code null})
-     * @throws IOException if a network error occurs
+     * @throws IOException          if a network error occurs
+     * @throws InterruptedException if the request is interrupted
      */
     @NonNull
-    public RatesResult getRates(@NonNull RatesConfig config) throws IOException {
+    public RatesResult getRates(@NonNull RatesConfig config) throws IOException, InterruptedException {
         Objects.requireNonNull(config, Validation.formatNullMessage("config"));
         var uri = config.applyTo(baseUri.resolve("rates"));
         return execute(uri, JsonParsers::parseRates);
@@ -268,11 +278,12 @@ public final class Frankfurter {
      * @param <T>           the result type
      * @return the parsed result
      * @throws IOException          if a network error occurs
-     * @throws FrankfurterException if the request is interrupted
+     * @throws InterruptedException if the request is interrupted
      */
     @SuppressWarnings("unchecked")
     @NonNull
-    private <T> T execute(@NonNull URI uri, @NonNull Function<String, T> successParser) throws IOException {
+    private <T> T execute(@NonNull URI uri, @NonNull Function<String, T> successParser)
+            throws IOException, InterruptedException {
         Objects.requireNonNull(uri, Validation.formatNullMessage("uri"));
         Objects.requireNonNull(successParser, Validation.formatNullMessage("successParser"));
 
@@ -283,14 +294,8 @@ public final class Frankfurter {
                 .header("User-Agent", USER_AGENT)
                 .build();
 
-        HttpResponse<String> response;
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        } catch (InterruptedException e) {
-            // Do not re-interrupt the thread. This library doesn't own the thread.
-            // In servlet containers, interrupting the request thread can break the container.
-            throw new FrankfurterException("Request interrupted for " + uri, e);
-        }
+
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
         if (response.statusCode() == 200) {
             return successParser.apply(response.body());

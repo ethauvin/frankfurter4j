@@ -52,9 +52,8 @@ import java.util.stream.Collectors;
  *
  * <p>Use {@code new RatesConfig.Builder()} to create instances. All parameters are optional.</p>
  *
- * <p>This class is thread-safe. All state is immutable.</p>
- *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @apiNote This class is thread-safe. All state is immutable.
  * @since 1.0
  */
 public final class RatesConfig {
@@ -161,7 +160,7 @@ public final class RatesConfig {
      */
     public static final class Builder {
 
-        private static final String QUOTES = "quotes";
+        private static final String PARAM_NAME_QUOTES = "quotes";
 
         private String base;
         private LocalDate date;
@@ -232,7 +231,7 @@ public final class RatesConfig {
                 var encodedQuotes = Arrays.stream(quotes)
                         .map(UrlEncoder::encode)
                         .collect(Collectors.joining(","));
-                params.put(QUOTES, encodedQuotes);
+                params.put(PARAM_NAME_QUOTES, encodedQuotes);
             }
             if (date != null) {
                 params.put("date", date.toString()); // yyyy-MM-dd is URL-safe
@@ -325,7 +324,7 @@ public final class RatesConfig {
          */
         @NonNull
         public Builder quotes(@NonNull String... quotes) {
-            this.quotes = Validation.requireIsoCurrencyArray(QUOTES, quotes);
+            this.quotes = Validation.requireIsoCurrencyArray(PARAM_NAME_QUOTES, quotes);
             return this;
         }
 
@@ -344,7 +343,7 @@ public final class RatesConfig {
                     .map(Objects::requireNonNull)
                     .map(CurrencyCode::getCode)
                     .toArray(String[]::new);
-            this.quotes = Validation.requireIsoCurrencyArray(QUOTES, this.quotes);
+            this.quotes = Validation.requireIsoCurrencyArray(PARAM_NAME_QUOTES, this.quotes);
             return this;
         }
 

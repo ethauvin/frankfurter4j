@@ -195,7 +195,7 @@ class CurrencyCodeTest {
         @Test
         @DisplayName("should throw for codes not in java.util.Currency")
         void shouldThrowForUnsupportedCodes() {
-            // XAG, XAU etc are supported, but some custom ones might not be
+            // XAG, XAU, etc. are supported, but some custom ones might not be
             // If you have any that java.util.Currency doesn't know, test them here
             assertDoesNotThrow(CurrencyCode.XAG::toCurrency);
         }

@@ -52,11 +52,126 @@ class ProvidersTest {
     class ConstructorTests {
 
         @Test
-        @DisplayName("handles null collection gracefully")
-        void handlesNullCollection() {
-            var providers = new Providers(null);
-            assertTrue(providers.isEmpty());
-            assertEquals(0, providers.size());
+        @DisplayName("NPE on null collection")
+        @SuppressWarnings("DataFlowIssue")
+        void nullCollection() {
+            assertThrows(NullPointerException.class, () -> new Providers(null));
+        }
+    }
+
+    @Nested
+    @DisplayName("equals() and hashCode()")
+    class EqualsHashCodeTests {
+
+        @Test
+        @DisplayName("equals returns false for different type")
+        @SuppressWarnings("AssertBetweenInconvertibleTypes")
+        void differentTypeInequality() {
+            var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
+            assertNotEquals("not a Providers", providers);
+        }
+
+        @Test
+        @DisplayName("equals returns true for two empty instances")
+        void emptyInstancesEqual() {
+            var p1 = new Providers(List.of());
+            var p2 = new Providers(List.of());
+
+            assertEquals(p1, p2);
+            assertEquals(p1.hashCode(), p2.hashCode());
+        }
+
+        @Test
+        @DisplayName("equals returns false for same elements in different order")
+        void equalsRespectsOrder() {
+            var ecb = provider("ECB", "European Central Bank");
+            var fed = provider("FED", "Federal Reserve");
+
+            var p1 = new Providers(List.of(ecb, fed));
+            var p2 = new Providers(List.of(fed, ecb));
+
+            assertNotEquals(p1, p2, "List.equals is order-sensitive");
+            assertNotEquals(p1.hashCode(), p2.hashCode());
+        }
+
+        @Test
+        @DisplayName("hashCode is consistent across multiple calls")
+        void hashCodeConsistent() {
+            var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
+            int hash1 = providers.hashCode();
+            int hash2 = providers.hashCode();
+
+            assertEquals(hash1, hash2);
+        }
+
+        @Test
+        @DisplayName("hashCode equal for equal objects")
+        void hashCodeForEqualObjects() {
+            var p1 = new Providers(List.of(provider("ECB", "European Central Bank")));
+            var p2 = new Providers(List.of(provider("ECB", "European Central Bank")));
+
+            assertEquals(p1, p2);
+            assertEquals(p1.hashCode(), p2.hashCode(), "Equal objects must have equal hash codes");
+        }
+
+        @Test
+        @DisplayName("equals returns false for null")
+        void nullInequality() {
+            var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
+            assertNotEquals(null, providers);
+        }
+
+        @Test
+        @DisplayName("equals is reflexive")
+        @SuppressWarnings("EqualsWithItself")
+        void reflexive() {
+            var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
+            assertEquals(providers, providers);
+        }
+
+        @Test
+        @DisplayName("equals is symmetric")
+        void symmetric() {
+            var p1 = new Providers(List.of(provider("ECB", "European Central Bank")));
+            var p2 = new Providers(List.of(provider("ECB", "European Central Bank")));
+
+            assertEquals(p1, p2);
+            assertEquals(p2, p1);
+        }
+
+        @Test
+        @DisplayName("equals is transitive")
+        void transitive() {
+            var p1 = new Providers(List.of(provider("ECB", "European Central Bank")));
+            var p2 = new Providers(List.of(provider("ECB", "European Central Bank")));
+            var p3 = new Providers(List.of(provider("ECB", "European Central Bank")));
+
+            assertEquals(p1, p2);
+            assertEquals(p2, p3);
+            assertEquals(p1, p3);
+        }
+
+        @Test
+        @DisplayName("equals returns false when lists differ")
+        void unequalForDifferentContent() {
+            var p1 = new Providers(List.of(provider("ECB", "European Central Bank")));
+            var p2 = new Providers(List.of(provider("FED", "Federal Reserve")));
+            var p3 = new Providers(List.of(
+                    provider("ECB", "European Central Bank"),
+                    provider("FED", "Federal Reserve")
+            ));
+
+            assertNotEquals(p1, p2);
+            assertNotEquals(p1, p3);
+        }
+
+        @Test
+        @DisplayName("equals returns false when same keys but different provider data")
+        void unequalForDifferentProviderDetails() {
+            var p1 = new Providers(List.of(new Provider("ECB", "European Central Bank", "https://ecb.eu", null, null, null, null, List.of())));
+            var p2 = new Providers(List.of(new Provider("ECB", "European Central Bank", "https://other.eu", null, null, null, null, List.of())));
+
+            assertNotEquals(p1, p2, "Provider.equals should consider all fields");
         }
     }
 
@@ -83,9 +198,10 @@ class ProvidersTest {
 
         @Test
         @DisplayName("returns empty for null key")
+        @SuppressWarnings("DataFlowIssue")
         void handlesNullKey() {
             var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
-            assertTrue(providers.find(null).isEmpty());
+            assertThrows(NullPointerException.class, () -> providers.find(null));
         }
 
         @Test
@@ -176,6 +292,7 @@ class ProvidersTest {
 
         @Test
         @DisplayName("returns unmodifiable list")
+        @SuppressWarnings("DataFlowIssue")
         void returnsUnmodifiableList() {
             var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
             var list = providers.list();
@@ -200,13 +317,6 @@ class ProvidersTest {
         }
 
         @Test
-        @DisplayName("returns empty list for null name")
-        void handlesNullName() {
-            var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
-            assertTrue(providers.searchByName(null).isEmpty());
-        }
-
-        @Test
         @DisplayName("is locale-safe for Turkish i")
         void localeSafe() {
             var providers = new Providers(List.of(provider("TCMB", "Türkiye Cumhuriyet Merkez Bankası")));
@@ -222,6 +332,14 @@ class ProvidersTest {
             assertEquals(1, results.size());
             assertEquals("ECB", results.get(0).key());
         }
+
+        @Test
+        @DisplayName("NPE for for null name")
+        @SuppressWarnings("DataFlowIssue")
+        void throwsNullName() {
+            var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
+            assertThrows(NullPointerException.class, () -> providers.searchByName(null));
+        }
     }
 
     @Nested
@@ -233,8 +351,15 @@ class ProvidersTest {
         void includesList() {
             var providers = new Providers(List.of(provider("ECB", "European Central Bank")));
             var str = providers.toString();
-            assertTrue(str.startsWith("Providers["));
+            assertTrue(str.startsWith("Providers{size=1"));
             assertTrue(str.contains("ECB"));
+        }
+
+        @Test
+        @DisplayName("no providers returns empty list")
+        void noProviders() {
+            var provider = new Providers(List.of());
+            assertEquals("Providers{size=0}", provider.toString());
         }
     }
 
@@ -261,4 +386,5 @@ class ProvidersTest {
             assertEquals(2, providers.size());
         }
     }
+
 }

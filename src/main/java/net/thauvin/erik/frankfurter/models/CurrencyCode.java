@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * formatting. Use {@link #format(double)} or {@link #format(double, boolean)}
  * to format amounts directly.</p>
  *
- * <p>This enum is immutable and thread-safe.</p>
+ * @apiNote This enum is immutable and thread-safe.
  */
 public enum CurrencyCode {
     AED("AED", new Locale("ar", "AE")),

@@ -40,7 +40,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.internal.Validation;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -60,12 +59,12 @@ public final class Currencies implements CurrenciesResult {
     /**
      * Creates a new immutable container for the given list of currencies.
      *
-     * @param list the list of currency entries
-     * @throws NullPointerException if list is {@code null} or contains null elements
+     * @param currencies the list of currency entries
+     * @throws NullPointerException if currencies is {@code null} or contains null elements
      */
-    public Currencies(@NonNull Collection<Currency> list) {
-        Validation.requireAllNonNull("currencies", list);
-        this.list = List.copyOf(list);
+    public Currencies(@NonNull Collection<Currency> currencies) {
+        Validation.requireAllNonNull("currencies", currencies);
+        this.list = List.copyOf(currencies);
     }
 
     /**
@@ -105,16 +104,22 @@ public final class Currencies implements CurrenciesResult {
      * @param json the JSON response
      * @return the parsed currencies
      * @throws NullPointerException     if {@code json} is {@code null}
-     * @throws IllegalArgumentException if {@code json} is malformed
+     * @throws IllegalArgumentException if {@code json} is malformed or contains null elements
      */
     @NonNull
     public static Currencies fromJson(@NonNull String json) {
         Objects.requireNonNull(json, Validation.formatNullMessage("json"));
         try {
-            Type type = new TypeToken<List<Currency>>() {
+            var type = new TypeToken<List<Currency>>() {
             }.getType();
-            List<Currency> list = Objects.requireNonNullElse(GSON.fromJson(json, type), List.of());
-            return new Currencies(list);
+            List<Currency> parsed = GSON.fromJson(json, type);
+            if (parsed == null) {
+                return new Currencies(List.of());
+            }
+            if (parsed.stream().anyMatch(Objects::isNull)) {
+                throw new IllegalArgumentException("Invalid currencies JSON: contains null element");
+            }
+            return new Currencies(parsed);
         } catch (JsonSyntaxException e) {
             throw new IllegalArgumentException("Invalid currencies JSON: " + e.getMessage(), e);
         }
@@ -123,12 +128,13 @@ public final class Currencies implements CurrenciesResult {
     /**
      * Returns all ISO codes in this set.
      *
-     * @return an unmodifiable list of ISO 4217 codes
+     * @return an unmodifiable list of distinct ISO 4217 codes
      */
     @NonNull
     public List<String> codes() {
         return list.stream()
                 .map(Currency::isoCode)
+                .distinct()
                 .toList();
     }
 
@@ -138,6 +144,7 @@ public final class Currencies implements CurrenciesResult {
      * @param code the currency code
      * @return an optional containing the matching currency
      * @throws NullPointerException if code is {@code null}
+     * @apiNote Use {@link #find(String)} for codes not in {@link CurrencyCode}
      */
     @NonNull
     public Optional<Currency> find(@NonNull CurrencyCode code) {
@@ -155,8 +162,9 @@ public final class Currencies implements CurrenciesResult {
     @NonNull
     public Optional<Currency> find(@NonNull String iso) {
         Objects.requireNonNull(iso, Validation.formatNullMessage("iso"));
+        var normalized = iso.toUpperCase(Locale.ROOT);
         return list.stream()
-                .filter(c -> c.isoCode().equalsIgnoreCase(iso))
+                .filter(c -> c.isoCode().equals(normalized))
                 .findFirst();
     }
 
@@ -178,7 +186,7 @@ public final class Currencies implements CurrenciesResult {
     public List<CurrencyCode> knownCodes() {
         return list.stream()
                 .map(Currency::isoCode)
-                .distinct() // add this
+                .distinct()
                 .map(CurrencyCode::fromCode)
                 .flatMap(Optional::stream)
                 .toList();
@@ -198,12 +206,16 @@ public final class Currencies implements CurrenciesResult {
      * Searches currencies by name substring.
      *
      * @param name the substring to match
-     * @return the list of matching currencies
+     * @return the list of matching currencies if any
      * @throws NullPointerException if name is {@code null}
      */
     @NonNull
     public List<Currency> searchByName(@NonNull String name) {
         Objects.requireNonNull(name, Validation.formatNullMessage("name"));
+        if (name.isEmpty()) {
+            return List.of();
+        }
+
         var n = name.toLowerCase(Locale.ROOT);
         return list.stream()
                 .filter(c -> c.name().toLowerCase(Locale.ROOT).contains(n))

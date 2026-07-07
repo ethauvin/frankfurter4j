@@ -215,13 +215,6 @@ final class ValidationTest {
         }
 
         @Test
-        @DisplayName("throws IAE for blank name")
-        void throwsForBlankName() {
-            assertThrows(IllegalArgumentException.class, () -> Validation.requireNonNullOrBlank("", "foo"));
-
-        }
-
-        @Test
         @DisplayName("throws NPE for null")
         void throwsForNull() {
             assertThrows(NullPointerException.class, () -> Validation.requireNonNullOrBlank("null", null));

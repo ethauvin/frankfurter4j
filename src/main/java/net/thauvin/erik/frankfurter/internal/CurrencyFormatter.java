@@ -46,9 +46,9 @@ import java.util.Objects;
  * currency to a representative locale. The locale determines grouping,
  * decimal separators, and symbol placement.
  *
- * <p>This class is thread‑safe. All state is immutable and formatting
+ * @apiNote This class is thread‑safe. All state is immutable and formatting
  * operations create new {@link NumberFormat} instances, so no external
- * synchronization is required.</p>
+ * synchronization is required.
  */
 public final class CurrencyFormatter {
 
@@ -67,6 +67,7 @@ public final class CurrencyFormatter {
      * @param code   the currency (must not be {@code null})
      * @return the formatted currency string
      * @throws NullPointerException if {@code code} is {@code null}
+     * @see #format(double, CurrencyCode, boolean)
      */
     @NonNull
     public static String format(double amount, @NonNull CurrencyCode code) {
@@ -82,6 +83,7 @@ public final class CurrencyFormatter {
      * @param rounded whether to round to the locale's default fraction digits
      * @return the formatted currency string
      * @throws NullPointerException if {@code code} is {@code null}
+     * @see #format(double, String, boolean)
      */
     @NonNull
     public static String format(double amount, @NonNull CurrencyCode code, boolean rounded) {
@@ -97,6 +99,7 @@ public final class CurrencyFormatter {
      * @param isoCode the ISO 4217 currency code (must not be {@code null} or blank)
      * @return the formatted currency string
      * @throws IllegalArgumentException if {@code isoCode} is {@code null}, blank, or unknown
+     * @see #format(double, Locale, boolean)
      */
     @NonNull
     public static String format(double amount, @NonNull String isoCode) {
@@ -112,6 +115,7 @@ public final class CurrencyFormatter {
      * @param rounded whether to round to the locale's default fraction digits
      * @return the formatted currency string
      * @throws IllegalArgumentException if {@code isoCode} is {@code null}, blank, or unknown
+     * @see #format(double, String, boolean)
      */
     @NonNull
     public static String format(double amount, @NonNull String isoCode, boolean rounded) {
@@ -121,47 +125,33 @@ public final class CurrencyFormatter {
     }
 
     /**
-     * Formats a monetary amount using the given locale's currency and conventions.
+     * Formats a monetary amount using the locale's currency and conventions.
      *
-     * <p>This is the core formatter used by all ISO‑based overloads. It applies the
-     * locale's default currency, symbol placement, grouping rules, and decimal
-     * separators.</p>
-     *
-     * <p><strong>Warning:</strong> The currency is determined by {@code locale}, not by any
-     * ISO code. For example, {@code format(100, Locale.JAPAN, false)} produces
-     * {@code "￥100"}, not a USD amount formatted with Japanese conventions. To format a
-     * specific currency using a different locale's style, create a {@link NumberFormat}
-     * and call {@link NumberFormat#setCurrency setCurrency} yourself.</p>
-     *
-     * <p>When {@code rounded} is {@code true}, the formatter rounds to the currency's
-     * default fraction digits using {@link java.math.RoundingMode#HALF_UP HALF_UP}.
-     * When {@code false}, rounding is still applied, but the maximum fraction digits are
-     * increased to {@code 15} to preserve precision while avoiding the excessive decimal
-     * places you would get from a raw {@code double}. This is especially useful for
-     * currencies like {@code JPY} that normally have {@code 0} fraction digits.</p>
-     *
-     * <p>This method is thread‑safe. A new {@link NumberFormat} instance is created on
-     * each call, so no external synchronization is required.</p>
+     * <ul>
+     *   <li><b>Currency</b> – Determined by {@code locale} only. Passing {@code Locale.US} formats as USD.</li>
+     *   <li><b>Rounding</b> – Always uses {@link RoundingMode#HALF_UP}
+     *     <ul>
+     *       <li><b>{@code rounded=true}</b> – Uses currency's default fraction digits. USD=2, JPY=0.</li>
+     *       <li><b>{@code rounded=false}</b> – Uses up to 15 fraction digits to preserve precision.</li>
+     *     </ul>
+     *   </li>
+     * </ul>
      *
      * @param amount  the numeric amount to format
-     * @param locale  the locale whose currency and formatting rules to apply; must not be {@code null}
-     * @param rounded {@code true} to round to the currency's default fraction digits,
-     *                {@code false} to allow up to 15 fraction digits for extra precision
-     * @return the formatted currency string, never {@code null}
+     * @param locale  locale for currency + format rules; must not be {@code null}
+     * @param rounded {@code true} for currency digits, {@code false} for 15 digits max
+     * @return formatted currency string, never {@code null}
      * @throws NullPointerException if {@code locale} is {@code null}
      */
     @NonNull
     public static String format(double amount, @NonNull Locale locale, boolean rounded) {
         Objects.requireNonNull(locale, Validation.formatNullMessage("locale"));
         var formatter = NumberFormat.getCurrencyInstance(locale);
+        formatter.setRoundingMode(RoundingMode.HALF_UP);
 
-        if (rounded) {
-            formatter.setRoundingMode(RoundingMode.HALF_UP);
-            // uses currency.getDefaultFractionDigits() by default
-        } else {
-            formatter.setMaximumFractionDigits(15); // cap precision, avoids 0.30000000000000004 issues
+        if (!rounded) {
+            formatter.setMaximumFractionDigits(15);
         }
-
         return formatter.format(amount);
     }
 }

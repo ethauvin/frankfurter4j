@@ -32,11 +32,13 @@
 
 package net.thauvin.erik.frankfurter.internal;
 
-
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -52,23 +54,19 @@ import java.util.function.Predicate;
  */
 public final class Validation {
 
+    // The earliest date supported by the Frankfurter API: 1994-01-04
     private static final LocalDate MIN_SUPPORTED_DATE = LocalDate.of(1994, 1, 4);
 
-    /**
-     * You can't call the constructor.
-     */
+    // Utility class
     private Validation() {
-
     }
 
     /**
-     * Appends a standard "must not be null" message to the given field description.
-     * <p>
-     * This is typically used for constructing exception messages when a required
-     * parameter is {@code null}. Pass a descriptive field name, not the value itself.
+     * Formats a standard "must not be null" message for the given parameter name.
+     * <p>Used by validation methods to ensure consistent exception messages.</p>
      *
-     * @param name a descriptive name for the parameter being validated
-     * @return a string consisting of the given field name followed by " must not be null"
+     * @param name the parameter name
+     * @return {@code name + " must not be null"}
      * @throws NullPointerException if {@code name} is {@code null}
      */
     public static String formatNullMessage(@NonNull String name) {
@@ -79,19 +77,18 @@ public final class Validation {
     /**
      * Ensures that the given varargs array and all of its elements are non‑null.
      *
-     * <p>This method delegates to the list‑based validator after converting the
-     * varargs array to a list using {@link List#of(Object[])}. The exception
-     * semantics and messages are identical to the list‑based version.</p>
-     *
      * @param name   a descriptive name for the parameter being validated
      * @param values the array to validate
      * @throws NullPointerException if the array or any element is {@code null}
      */
+    @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
     public static void requireAllNonNull(@NonNull String name, @NonNull String... values) {
         Objects.requireNonNull(values, formatNullMessage(name));
-
-        // Delegate to the list-based version
-        requireAllNonNull(name, List.of(values));
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] == null) {
+                throw new NullPointerException(formatNullMessage(name + '[' + i + ']'));
+            }
+        }
     }
 
     /**
@@ -111,7 +108,6 @@ public final class Validation {
     @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
     public static <T> void requireAllNonNull(@NonNull String name, @NonNull Collection<T> values) {
         Objects.requireNonNull(values, formatNullMessage(name));
-
         int i = 0;
         for (T v : values) {
             if (v == null) {
@@ -124,46 +120,48 @@ public final class Validation {
     /**
      * Validates that the given value is a non-blank ISO 4217 alphabetic currency code.
      *
-     * <p>The code must consist of exactly three letters. This method performs only
-     * structural validation; it does not verify that the code corresponds to a
-     * known currency.</p>
+     * <p>The code must consist of exactly three letters. Whitespace is not trimmed.
+     * This method performs only structural validation; it does not verify that the
+     * code corresponds to a known currency.</p>
      *
      * @param name a descriptive name for the parameter being validated
      * @param code the currency code to validate
-     * @return the validated currency code
-     * @throws IllegalArgumentException if the {@code code} blank, or not three letters
-     * @throws NullPointerException     if the {@code code} or {@code name} are {@code null}
+     * @return the validated currency code in uppercase
+     * @throws IllegalArgumentException if the {@code code} is blank, or not three letters
+     * @throws NullPointerException     if the {@code code} is {@code null}
      */
     public static String requireIsoCurrency(@NonNull String name, @NonNull String code) {
         Objects.requireNonNull(code, formatNullMessage(name + " currency"));
-
         if (code.isBlank()) {
             throw new IllegalArgumentException(name + " currency must not be blank");
         }
-
         if (!code.matches("[A-Za-z]{3}")) {
             throw new IllegalArgumentException(name + " currency must be a 3-letter ISO code");
         }
-
         return code.toUpperCase(Locale.ROOT);
     }
 
     /**
-     * Validates an array of ISO currency codes, filters out blanks, trims, uppercases, and removes duplicates.
+     * Validates an array of ISO currency codes, uppercases, and removes duplicates.
+     *
+     * <p>Each element must be non-null and a valid 3-letter ISO 4217 code.
+     * Blank strings, whitespace-only strings, and strings with leading/trailing
+     * whitespace are rejected. Whitespace is not trimmed.</p>
      *
      * @param name   a descriptive name for the parameter being validated
-     * @param values the currency codes to validate and clean
+     * @param values the currency codes to validate
      * @return a new array with validated, normalized currency codes
      * @throws NullPointerException     if array or any element is {@code null}
-     * @throws IllegalArgumentException if any code is blank or not 3 letters
+     * @throws IllegalArgumentException if any element is blank or not 3 letters
      */
     @NonNull
     @SuppressWarnings("PMD.UseVarargs")
     public static String[] requireIsoCurrencyArray(@NonNull String name, @NonNull String[] values) {
         Objects.requireNonNull(values, formatNullMessage(name));
-        requireAllNonNull(name, values);
+        for (int i = 0; i < values.length; i++) {
+            Objects.requireNonNull(values[i], formatNullMessage(name + '[' + i + ']'));
+        }
         return Arrays.stream(values)
-                .filter(Predicate.not(String::isBlank))
                 .map(code -> requireIsoCurrency(name, code))
                 .distinct()
                 .toArray(String[]::new);
@@ -197,21 +195,12 @@ public final class Validation {
      * @return {@code value} if it is not {@code null} and not blank
      * @throws NullPointerException     if {@code value} is {@code null}
      * @throws IllegalArgumentException if {@code value} is blank
-     * @throws IllegalArgumentException if {@code name} is {@code null} or blank
      */
     public static String requireNonNullOrBlank(String name, String value) {
-        Objects.requireNonNull(name, "name must not be null");
-
-        if (name.isBlank()) {
-            throw new IllegalArgumentException(" must not be blank");
-        }
-
         Objects.requireNonNull(value, name + " must not be null");
-
         if (value.isBlank()) {
             throw new IllegalArgumentException(name + " must not be blank");
         }
-
         return value;
     }
 
@@ -219,7 +208,7 @@ public final class Validation {
      * Validates that the given date is not earlier than the earliest supported
      * Frankfurter reference date.
      *
-     * <p>This method enforces the minimum supported date of {@code 1994-01-04}.
+     * <p>This method enforces the minimum supported date of {@link #MIN_SUPPORTED_DATE}.
      * It does not validate future dates, which are permitted by the API.</p>
      *
      * @param name a descriptive name for the parameter being validated
@@ -229,11 +218,9 @@ public final class Validation {
      */
     public static LocalDate requireSupportedDate(@NonNull String name, @NonNull LocalDate date) {
         Objects.requireNonNull(date, formatNullMessage(name));
-
         if (date.isBefore(MIN_SUPPORTED_DATE)) {
             throw new IllegalArgumentException(name + " must not be earlier than " + MIN_SUPPORTED_DATE);
         }
-
         return date;
     }
 }

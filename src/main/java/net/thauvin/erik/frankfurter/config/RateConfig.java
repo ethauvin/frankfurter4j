@@ -53,14 +53,13 @@ import java.util.stream.Collectors;
  * <p>Use {@code new RateConfig.Builder()} to create instances. Only the quote currency is required.
  * If base is omitted, the API defaults to {@code EUR}.</p>
  *
- * <p>This class is thread-safe. All state is immutable.</p>
- *
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
+ * @apiNote This class is thread-safe. All state is immutable.
  * @since 1.0
  */
 public final class RateConfig {
 
-    private static final String QUOTE = "quote";
+    private static final String PARAM_NAME_QUOTE = "quote";
 
     @Nullable
     private final String base;
@@ -89,7 +88,7 @@ public final class RateConfig {
                        @Nullable LocalDate date,
                        @NonNull String[] providers) {
         this.base = base;
-        this.quote = Objects.requireNonNull(quote, QUOTE);
+        this.quote = Objects.requireNonNull(quote, PARAM_NAME_QUOTE);
         this.date = date;
         this.providers = providers.clone(); // defensive copy
     }
@@ -309,7 +308,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder quote(@NonNull CurrencyCode quote) {
-            this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage(QUOTE)).getCode();
+            this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE)).getCode();
             return this;
         }
 
@@ -323,7 +322,7 @@ public final class RateConfig {
          */
         @NonNull
         public Builder quote(@NonNull String quote) {
-            this.quote = Validation.requireIsoCurrency(QUOTE, quote);
+            this.quote = Validation.requireIsoCurrency(PARAM_NAME_QUOTE, quote);
             return this;
         }
     }

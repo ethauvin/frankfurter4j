@@ -52,12 +52,12 @@ import java.util.Objects;
  */
 public final class JsonParsers {
 
-    public static final String JSON_MUST_NOT_BE_NULL = Validation.formatNullMessage("json");
-
     @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
+
+    private static final String JSON_MUST_NOT_BE_NULL = Validation.formatNullMessage("json");
 
     /**
      * You can't call the constructor.
