@@ -45,7 +45,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -319,6 +321,152 @@ class FrankfurterTest {
     }
 
     @Nested
+    @DisplayName("Timeout Configuration")
+    class TimeoutTests {
+
+        @Test
+        @DisplayName("Frankfurter accepts HttpClient with valid connect timeout")
+        void acceptsValidConnectTimeout() {
+            var client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(1))
+                    .build();
+
+            assertDoesNotThrow(() -> new Frankfurter(client, URI.create("https://example.com/")));
+
+            var api = new Frankfurter(client, URI.create("https://example.com/"));
+            assertTrue(api.getConnectTimeout().isPresent());
+            assertEquals(Duration.ofSeconds(1), api.getConnectTimeout().get());
+        }
+
+        @Test
+        @DisplayName("constructor with both timeouts sets them correctly")
+        void customBothTimeouts() {
+            var connectTimeout = Duration.ofSeconds(3);
+            var requestTimeout = Duration.ofSeconds(15);
+            var api = new Frankfurter(connectTimeout, requestTimeout);
+
+            assertTrue(api.getConnectTimeout().isPresent());
+            assertEquals(connectTimeout, api.getConnectTimeout().get());
+            assertEquals(requestTimeout, api.getRequestTimeout());
+        }
+
+        @Test
+        @DisplayName("constructor with requestTimeout uses default 5s connect timeout")
+        void customRequestTimeoutOnly() {
+            var customRequest = Duration.ofSeconds(20);
+            var api = new Frankfurter(customRequest);
+
+            assertEquals(customRequest, api.getRequestTimeout());
+            assertTrue(api.getConnectTimeout().isPresent());
+            assertEquals(Duration.ofSeconds(5), api.getConnectTimeout().get());
+        }
+
+        @Test
+        @DisplayName("default constructor uses 5s connect and 10s request timeout")
+        void defaultTimeouts() {
+            var api = new Frankfurter();
+
+            assertEquals(Duration.ofSeconds(10), api.getRequestTimeout());
+            assertTrue(api.getConnectTimeout().isPresent());
+            assertEquals(Duration.ofSeconds(5), api.getConnectTimeout().get());
+        }
+
+        @Test
+        @DisplayName("constructor with HttpClient uses its connect timeout")
+        void httpClientConnectTimeout() {
+            var connectTimeout = Duration.ofSeconds(2);
+            var client = HttpClient.newBuilder()
+                    .connectTimeout(connectTimeout)
+                    .build();
+
+            var api = new Frankfurter(client, URI.create("https://example.com/"));
+
+            assertTrue(api.getConnectTimeout().isPresent());
+            assertEquals(connectTimeout, api.getConnectTimeout().get());
+            assertEquals(Duration.ofSeconds(10), api.getRequestTimeout());
+        }
+
+        @Test
+        @DisplayName("HttpClient.Builder itself rejects ZERO connect timeout before Frankfurter sees it")
+        void jdkRejectsZeroConnectTimeout() {
+            var builder = HttpClient.newBuilder();
+
+            var ex = assertThrows(IllegalArgumentException.class,
+                    () -> builder.connectTimeout(Duration.ZERO));
+
+            assertEquals("Invalid duration: PT0S", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("getConnectTimeout returns empty when HttpClient has no connect timeout")
+        void noConnectTimeoutReturnsEmpty() {
+            var client = HttpClient.newHttpClient(); // JDK default has no connect timeout
+            var api = new Frankfurter(client, URI.create("https://example.com/"));
+
+            assertTrue(api.getConnectTimeout().isEmpty());
+        }
+
+        @Test
+        @DisplayName("constructor rejects negative connectTimeout")
+        void rejectsNegativeConnectTimeout() {
+            var ex = assertThrows(IllegalArgumentException.class,
+                    () -> new Frankfurter(Duration.ofSeconds(-5), Duration.ofSeconds(10)));
+            assertTrue(ex.getMessage().contains("connectTimeout must be positive"));
+        }
+
+        @Test
+        @DisplayName("constructor rejects negative requestTimeout")
+        void rejectsNegativeRequestTimeout() {
+            var ex = assertThrows(IllegalArgumentException.class,
+                    () -> new Frankfurter(Duration.ofSeconds(-1)));
+            assertTrue(ex.getMessage().contains("requestTimeout must be positive"));
+        }
+
+        @Test
+        @DisplayName("constructor rejects ZERO connectTimeout")
+        void rejectsZeroConnectTimeout() {
+            var ex = assertThrows(IllegalArgumentException.class,
+                    () -> new Frankfurter(Duration.ZERO, Duration.ofSeconds(10)));
+            assertTrue(ex.getMessage().contains("connectTimeout must be positive"));
+        }
+
+        @Test
+        @DisplayName("constructor rejects ZERO requestTimeout")
+        void rejectsZeroRequestTimeout() {
+            var ex = assertThrows(IllegalArgumentException.class,
+                    () -> new Frankfurter(Duration.ZERO));
+            assertTrue(ex.getMessage().contains("requestTimeout must be positive"));
+        }
+
+        @Test
+        @DisplayName("request timeout is actually applied to HttpRequest")
+        @SuppressWarnings("unchecked")
+        void requestTimeoutApplied() throws Exception {
+            var mockClient = mock(HttpClient.class);
+            var mockResponse = mock(HttpResponse.class);
+            var timeout = Duration.ofSeconds(7);
+
+            when(mockResponse.statusCode()).thenReturn(200);
+            when(mockResponse.body()).thenReturn("[]");
+
+            // Capture the request to verify timeout
+            //noinspection unchecked
+            when(mockClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class)))
+                    .thenAnswer(inv -> {
+                        HttpRequest req = inv.getArgument(0);
+                        assertTrue(req.timeout().isPresent());
+                        assertEquals(timeout, req.timeout().get());
+                        return mockResponse;
+                    });
+
+            var api = new Frankfurter(mockClient, URI.create("https://example.com/"), timeout);
+            api.getCurrencies();
+
+            verify(mockClient).send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class));
+        }
+    }
+
+    @Nested
     @DisplayName("URI Handling")
     class URIHandlingTests {
 
@@ -336,4 +484,5 @@ class FrankfurterTest {
             assertEquals("https://example.com/v2/", api.getBaseUri().toString());
         }
     }
+
 }

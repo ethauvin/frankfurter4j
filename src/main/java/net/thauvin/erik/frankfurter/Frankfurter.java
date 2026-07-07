@@ -48,29 +48,25 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Main entry point for interacting with the Frankfurter.dev API.
+ * Client for the Frankfurter.dev exchange rates API.
  *
- * <p>This client provides convenience methods for retrieving:</p>
- * <ul>
- * <li>currency metadata</li>
- * <li>provider metadata</li>
- * <li>exchange rates for a single date or date range</li>
- * <li>a single exchange rate via the {@code /rate/{base}/{quote}} endpoint</li>
- * </ul>
+ * <p>Provides methods to fetch currency metadata, providers, and exchange rates.
+ * All calls are blocking. Instances are thread-safe and reusable.</p>
  *
- * <p><b>Threading note:</b> All methods in this class block the calling thread until the HTTP
- * request completes. Do not call from reactive/event-loop threads. In servlet containers,
- * consider using a separate executor to avoid exhausting the request thread pool.</p>
+ * <p><b>Timeouts:</b> 5s connect timeout, 10s request timeout by default.
+ * Both must be positive.</p>
  *
- * @apiNote Instances of this class are thread-safe and may be reused.
+ * @see <a href="https://frankfurter.dev">Frankfurter.dev API</a>
  */
 public final class Frankfurter {
 
     private static final URI DEFAULT_API = URI.create("https://api.frankfurter.dev/v2/");
-    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
+    private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration DEFAULT_REQUEST_TIMEOUT = Duration.ofSeconds(10);
     private static final String USER_AGENT =
             GeneratedVersion.PROJECT + '/' + GeneratedVersion.VERSION + " (+https://github.com/ethauvin/frankfurter4j)";
 
@@ -81,45 +77,89 @@ public final class Frankfurter {
     private final HttpClient client;
 
     @NonNull
-    private final Duration timeout;
+    private final Duration requestTimeout;
 
     /**
-     * Creates a new client using the default API endpoint, default {@link HttpClient}, and 10s timeout.
+     * Creates a new client using the default API endpoint, default {@link HttpClient} with
+     * 5s connect timeout, and 10s request timeout.
      */
     public Frankfurter() {
-        this(HttpClient.newHttpClient(), DEFAULT_API, DEFAULT_TIMEOUT);
+        this(buildDefaultClient(DEFAULT_CONNECT_TIMEOUT), DEFAULT_API, DEFAULT_REQUEST_TIMEOUT);
     }
 
     /**
-     * Creates a new client using the given base URI and a default {@link HttpClient}.
+     * Creates a new client using the default API endpoint and connect timeout, with a custom
+     * request timeout.
+     *
+     * @param requestTimeout the request timeout (must be positive, not {@code null})
+     * @throws IllegalArgumentException if {@code requestTimeout} is zero or negative
+     */
+    public Frankfurter(@NonNull Duration requestTimeout) {
+        this(buildDefaultClient(DEFAULT_CONNECT_TIMEOUT), DEFAULT_API, requestTimeout);
+    }
+
+    /**
+     * Creates a new client using the default API endpoint with custom connect and request timeouts.
+     *
+     * @param connectTimeout the connect timeout (must be positive, not {@code null})
+     * @param requestTimeout the request timeout (must be positive, not {@code null})
+     * @throws IllegalArgumentException if either timeout is zero or negative
+     */
+    public Frankfurter(@NonNull Duration connectTimeout, @NonNull Duration requestTimeout) {
+        this(buildDefaultClient(connectTimeout), DEFAULT_API, requestTimeout);
+    }
+
+    /**
+     * Creates a new client using the given base URI, default {@link HttpClient} with
+     * 5s connect timeout, and 10s request timeout.
      *
      * @param baseUri the base API URI (must not be {@code null})
      */
     public Frankfurter(@NonNull URI baseUri) {
-        this(HttpClient.newHttpClient(), baseUri, DEFAULT_TIMEOUT);
+        this(buildDefaultClient(DEFAULT_CONNECT_TIMEOUT), baseUri, DEFAULT_REQUEST_TIMEOUT);
     }
 
     /**
-     * Creates a new client using the given HTTP client, base URI, and timeout.
+     * Creates a new client using the given HTTP client and base URI with default 10s request timeout.
      *
-     * @param client  the HTTP client to use (must not be {@code null})
-     * @param baseUri the base API URI (must not be {@code null})
-     * @param timeout the request timeout (must not be {@code null})
-     */
-    public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri, @NonNull Duration timeout) {
-        this.client = Objects.requireNonNull(client, Validation.formatNullMessage("client"));
-        this.baseUri = normalizeBase(baseUri);
-        this.timeout = Objects.requireNonNull(timeout, Validation.formatNullMessage("timeout"));
-    }
-
-    /**
-     * Creates a new client using the given HTTP client and base URI with default timeout.
+     * <p>Note: The connect timeout is determined by the provided {@link HttpClient}. If the
+     * client was built without an explicit connect timeout, {@link #getConnectTimeout()} will
+     * return an empty {@link Optional}.</p>
      *
      * @param client  the HTTP client to use (must not be {@code null})
      * @param baseUri the base API URI (must not be {@code null})
      */
     public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri) {
-        this(client, baseUri, DEFAULT_TIMEOUT);
+        this(client, baseUri, DEFAULT_REQUEST_TIMEOUT);
+    }
+
+    /**
+     * Creates a new client using the given HTTP client, base URI, and request timeout.
+     *
+     * <p>Note: The connect timeout is determined by the provided {@link HttpClient}. If the
+     * client was built without an explicit connect timeout, {@link #getConnectTimeout()} will
+     * return an empty {@link Optional}.</p>
+     *
+     * @param client         the HTTP client to use (must not be {@code null})
+     * @param baseUri        the base API URI (must not be {@code null})
+     * @param requestTimeout the request timeout (must be positive, not {@code null})
+     * @throws IllegalArgumentException if {@code requestTimeout} is zero or negative
+     */
+    public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri, @NonNull Duration requestTimeout) {
+        this.client = Objects.requireNonNull(client, Validation.formatNullMessage("client"));
+        this.baseUri = normalizeBase(baseUri);
+        this.requestTimeout = Objects.requireNonNull(requestTimeout, Validation.formatNullMessage("requestTimeout"));
+        validateTimeouts();
+    }
+
+    private static HttpClient buildDefaultClient(@NonNull Duration connectTimeout) {
+        Objects.requireNonNull(connectTimeout, Validation.formatNullMessage("connectTimeout"));
+        if (connectTimeout.isZero() || connectTimeout.isNegative()) {
+            throw new IllegalArgumentException("connectTimeout must be positive, got: " + connectTimeout);
+        }
+        return HttpClient.newBuilder()
+                .connectTimeout(connectTimeout)
+                .build();
     }
 
     @NonNull
@@ -153,9 +193,23 @@ public final class Frankfurter {
     }
 
     /**
+     * Returns the connect timeout configured on the underlying {@link HttpClient}.
+     *
+     * <p>Returns an empty {@link Optional} if the {@link HttpClient} was built without an
+     * explicit connect timeout, which means connections may block indefinitely.</p>
+     *
+     * @return the connect timeout, or empty if not configured
+     */
+    @NonNull
+    public Optional<Duration> getConnectTimeout() {
+        return client.connectTimeout();
+    }
+
+    /**
      * Retrieves the list of supported currencies.
      *
-     * @throws IOException          if a network error occurs
+     * @return the currencies result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -167,7 +221,8 @@ public final class Frankfurter {
      * Retrieves metadata for a single currency.
      *
      * @param code the ISO currency code (must not be {@code null} or blank)
-     * @throws IOException          if a network error occurs
+     * @return the currency result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -180,7 +235,8 @@ public final class Frankfurter {
      * Retrieves metadata for a single currency.
      *
      * @param code the currency code (must not be {@code null})
-     * @throws IOException          if a network error occurs
+     * @return the currency result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -192,7 +248,8 @@ public final class Frankfurter {
     /**
      * Retrieves the list of available rate providers.
      *
-     * @throws IOException          if a network error occurs
+     * @return the providers result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -205,7 +262,8 @@ public final class Frankfurter {
      *
      * @param base  the base ISO currency code (must not be {@code null} or blank)
      * @param quote the quote ISO currency code (must not be {@code null} or blank)
-     * @throws IOException          if a network error occurs
+     * @return the rate result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -220,7 +278,8 @@ public final class Frankfurter {
      *
      * @param base  the base currency (must not be {@code null})
      * @param quote the quote currency (must not be {@code null})
-     * @throws IOException          if a network error occurs\
+     * @return the rate result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -235,7 +294,8 @@ public final class Frankfurter {
      * Retrieves a single exchange rate using the {@code /rate/{base}/{quote}} endpoint.
      *
      * @param config the rate configuration (must not be {@code null})
-     * @throws IOException          if a network error occurs
+     * @return the rate result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -248,7 +308,8 @@ public final class Frankfurter {
     /**
      * Retrieves exchange rates using default configuration.
      *
-     * @throws IOException          if a network error occurs
+     * @return the rates result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -260,7 +321,8 @@ public final class Frankfurter {
      * Retrieves exchange rates using the {@code /rates} endpoint.
      *
      * @param config the rates configuration (must not be {@code null})
-     * @throws IOException          if a network error occurs
+     * @return the rates result
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @NonNull
@@ -271,13 +333,23 @@ public final class Frankfurter {
     }
 
     /**
+     * Returns the request timeout configured for this client.
+     *
+     * @return the request timeout (never null)
+     */
+    @NonNull
+    public Duration getRequestTimeout() {
+        return requestTimeout;
+    }
+
+    /**
      * Executes a GET request and parses the response.
      *
      * @param uri           the URI to request (must not be {@code null})
      * @param successParser function to parse successful responses
      * @param <T>           the result type
      * @return the parsed result
-     * @throws IOException          if a network error occurs
+     * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
     @SuppressWarnings("unchecked")
@@ -289,11 +361,10 @@ public final class Frankfurter {
 
         var request = HttpRequest.newBuilder(uri)
                 .GET()
-                .timeout(timeout)
+                .timeout(requestTimeout)
                 .header("Accept", "application/json")
                 .header("User-Agent", USER_AGENT)
                 .build();
-
 
         var response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
 
@@ -302,5 +373,16 @@ public final class Frankfurter {
         }
 
         return (T) JsonParsers.parseError(response.body(), response.statusCode());
+    }
+
+    private void validateTimeouts() {
+        if (requestTimeout.isZero() || requestTimeout.isNegative()) {
+            throw new IllegalArgumentException("requestTimeout must be positive, got: " + requestTimeout);
+        }
+        client.connectTimeout().ifPresent(ct -> {
+            if (ct.isZero() || ct.isNegative()) {
+                throw new IllegalArgumentException("HttpClient connectTimeout must be positive, got: " + ct);
+            }
+        });
     }
 }
