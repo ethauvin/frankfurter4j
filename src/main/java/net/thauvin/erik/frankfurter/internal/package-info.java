@@ -34,7 +34,7 @@
  * Internal implementation details for the Frankfurter API client.
  * <p>
  * This package contains helper classes for JSON parsing, input validation,
- * type adapters, and data formatting.
+ * and type adapters.
  * <p>
  * These classes are not part of the public API and may change or be removed
  * without notice.

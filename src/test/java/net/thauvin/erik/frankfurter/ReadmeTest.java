@@ -34,7 +34,6 @@ package net.thauvin.erik.frankfurter;
 
 import net.thauvin.erik.frankfurter.config.RateConfig;
 import net.thauvin.erik.frankfurter.config.RatesConfig;
-import net.thauvin.erik.frankfurter.internal.CurrencyFormatter;
 import net.thauvin.erik.frankfurter.models.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;

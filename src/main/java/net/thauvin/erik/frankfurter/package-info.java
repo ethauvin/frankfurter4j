@@ -31,6 +31,9 @@
  */
 
 /**
- * Main entry points for interacting with the Frankfurter.dev API.
- */
+ * Provides core API types for the Frankfurter.dev Java client.
+ *
+ * <p>This package contains the main entry points for interacting with the API,
+ * common exceptions, and general-purpose utilities such as currency formatting.
+ **/
 package net.thauvin.erik.frankfurter;

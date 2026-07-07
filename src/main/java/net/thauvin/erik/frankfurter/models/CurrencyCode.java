@@ -33,7 +33,7 @@
 package net.thauvin.erik.frankfurter.models;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import net.thauvin.erik.frankfurter.internal.CurrencyFormatter;
+import net.thauvin.erik.frankfurter.CurrencyFormatter;
 
 import java.util.*;
 import java.util.Currency;

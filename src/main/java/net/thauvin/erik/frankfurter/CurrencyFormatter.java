@@ -30,9 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.thauvin.erik.frankfurter.internal;
+package net.thauvin.erik.frankfurter;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.CurrencyCode;
 
 import java.math.RoundingMode;
