@@ -32,9 +32,9 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
  * @apiNote This class is immutable and thread-safe.
  * @since 1.0
  */
+@NullMarked
 @SuppressFBWarnings(
         value = "SING_SINGLETON_HAS_NONPRIVATE_CONSTRUCTOR",
         justification = "Not a singleton. EMPTY is a cached constant like List.of()"
@@ -66,7 +67,7 @@ public final class ExchangeRates implements RatesResult {
      * @param rates the list of rate entries
      * @throws NullPointerException if {@code rates} is {@code null} or contains null elements
      */
-    public ExchangeRates(@NonNull Collection<Rate> rates) {
+    public ExchangeRates(Collection<Rate> rates) {
         Validation.requireAllNonNull("rates", rates);
         this.rates = List.copyOf(rates);
     }
@@ -117,7 +118,7 @@ public final class ExchangeRates implements RatesResult {
      * @return an optional containing the first matching rate
      * @throws NullPointerException if {@code quote} is {@code null}
      */
-    public Optional<Rate> find(@NonNull String quote) {
+    public Optional<Rate> find(String quote) {
         Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
         var normalized = quote.toUpperCase(Locale.ROOT);
         return rates.stream()
@@ -134,7 +135,7 @@ public final class ExchangeRates implements RatesResult {
      * @return an optional containing the first matching rate
      * @throws NullPointerException if {@code quote} is {@code null}
      */
-    public Optional<Rate> find(@NonNull CurrencyCode quote) {
+    public Optional<Rate> find(CurrencyCode quote) {
         Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
         return find(quote.getCode());
     }
@@ -148,7 +149,7 @@ public final class ExchangeRates implements RatesResult {
      * @return unmodifiable list of matching rates, empty if none found
      * @throws NullPointerException if {@code quote} is {@code null}
      */
-    public List<Rate> findAll(@NonNull String quote) {
+    public List<Rate> findAll(String quote) {
         Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
         var normalized = quote.toUpperCase(Locale.ROOT);
         return rates.stream()
@@ -165,7 +166,7 @@ public final class ExchangeRates implements RatesResult {
      * @return unmodifiable list of matching rates, empty if none found
      * @throws NullPointerException if {@code quote} is {@code null}
      */
-    public List<Rate> findAll(@NonNull CurrencyCode quote) {
+    public List<Rate> findAll(CurrencyCode quote) {
         Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE));
         return findAll(quote.getCode());
     }
@@ -184,7 +185,6 @@ public final class ExchangeRates implements RatesResult {
      *
      * @return unmodifiable list of known currency codes
      */
-    @NonNull
     public List<CurrencyCode> knownQuotes() {
         return rates.stream()
                 .map(Rate::quote)
@@ -208,7 +208,6 @@ public final class ExchangeRates implements RatesResult {
      *
      * @return unmodifiable list of ISO 4217 codes
      */
-    @NonNull
     public List<String> quotes() {
         return rates.stream()
                 .map(Rate::quote)

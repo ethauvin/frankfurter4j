@@ -33,9 +33,9 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -57,12 +57,13 @@ import java.util.List;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@NullMarked
 public record Provider(
         @SerializedName("key")
-        @NonNull String key,
+        String key,
 
         @SerializedName("name")
-        @NonNull String name,
+        String name,
 
         @SerializedName("description")
         @Nullable String description,
@@ -80,7 +81,7 @@ public record Provider(
         @Nullable LocalDate endDate,
 
         @SerializedName("currencies")
-        @NonNull List<String> currencies
+        List<String> currencies
 ) {
 
     /**

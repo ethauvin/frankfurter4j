@@ -32,9 +32,9 @@
 
 package net.thauvin.erik.frankfurter;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.CurrencyCode;
+import org.jspecify.annotations.NullMarked;
 
 import java.math.RoundingMode;
 import java.text.NumberFormat;
@@ -43,14 +43,17 @@ import java.util.Objects;
 
 /**
  * Provides locale‑aware formatting of monetary amounts using ISO 4217
- * currency codes. The formatter uses a static lookup table mapping each
- * currency to a representative locale. The locale determines grouping,
- * decimal separators, and symbol placement.
+ * currency codes.
+ * <p>
+ * The formatter uses a static lookup table mapping each currency to
+ * a representative locale. The locale determines grouping, decimal
+ * separators, and symbol placement.
  *
  * @apiNote This class is thread‑safe. All state is immutable and formatting
  * operations create new {@link NumberFormat} instances, so no external
  * synchronization is required.
  */
+@NullMarked
 public final class CurrencyFormatter {
 
     /**
@@ -70,8 +73,7 @@ public final class CurrencyFormatter {
      * @throws NullPointerException if {@code code} is {@code null}
      * @see #format(double, CurrencyCode, boolean)
      */
-    @NonNull
-    public static String format(double amount, @NonNull CurrencyCode code) {
+    public static String format(double amount, CurrencyCode code) {
         return format(amount, code, false);
     }
 
@@ -86,8 +88,7 @@ public final class CurrencyFormatter {
      * @throws NullPointerException if {@code code} is {@code null}
      * @see #format(double, String, boolean)
      */
-    @NonNull
-    public static String format(double amount, @NonNull CurrencyCode code, boolean rounded) {
+    public static String format(double amount, CurrencyCode code, boolean rounded) {
         Objects.requireNonNull(code, Validation.formatNullMessage("code"));
         return format(amount, code.getLocale(), rounded);
     }
@@ -102,8 +103,7 @@ public final class CurrencyFormatter {
      * @throws IllegalArgumentException if {@code isoCode} is {@code null}, blank, or unknown
      * @see #format(double, Locale, boolean)
      */
-    @NonNull
-    public static String format(double amount, @NonNull String isoCode) {
+    public static String format(double amount, String isoCode) {
         return format(amount, isoCode, false);
     }
 
@@ -118,8 +118,7 @@ public final class CurrencyFormatter {
      * @throws IllegalArgumentException if {@code isoCode} is {@code null}, blank, or unknown
      * @see #format(double, String, boolean)
      */
-    @NonNull
-    public static String format(double amount, @NonNull String isoCode, boolean rounded) {
+    public static String format(double amount, String isoCode, boolean rounded) {
         return CurrencyCode.fromCode(isoCode)
                 .map(c -> format(amount, c.getLocale(), rounded))
                 .orElseThrow(() -> new IllegalArgumentException("Unknown ISO currency code: " + isoCode));
@@ -144,8 +143,7 @@ public final class CurrencyFormatter {
      * @return formatted currency string, never {@code null}
      * @throws NullPointerException if {@code locale} is {@code null}
      */
-    @NonNull
-    public static String format(double amount, @NonNull Locale locale, boolean rounded) {
+    public static String format(double amount, Locale locale, boolean rounded) {
         Objects.requireNonNull(locale, Validation.formatNullMessage("locale"));
         var formatter = NumberFormat.getCurrencyInstance(locale);
         formatter.setRoundingMode(RoundingMode.HALF_UP);

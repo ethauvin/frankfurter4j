@@ -33,10 +33,11 @@
 package net.thauvin.erik.frankfurter.config;
 
 import com.uwyn.urlencoder.UrlEncoder;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.CurrencyCode;
 import net.thauvin.erik.frankfurter.models.Group;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -56,12 +57,12 @@ import java.util.stream.Collectors;
  * @apiNote This class is thread-safe. All state is immutable.
  * @since 1.0
  */
+@NullMarked
 public final class RatesConfig {
 
-    @NonNull
     private final Map<String, String> params;
 
-    private RatesConfig(@NonNull Map<String, String> params) {
+    private RatesConfig(Map<String, String> params) {
         this.params = params; // already unmodifiable from Map.copyOf
     }
 
@@ -97,17 +98,6 @@ public final class RatesConfig {
     }
 
     /**
-     * URL-encodes a string using UTF-8.
-     *
-     * @param s the string to encode
-     * @return the encoded string
-     */
-    @NonNull
-    private static String encode(@NonNull String s) {
-        return UrlEncoder.encode(s);
-    }
-
-    /**
      * Applies this configuration to the given base URI.
      *
      * <p>Constructs a URI for the {@code /rates} endpoint with optional query parameters.</p>
@@ -117,8 +107,7 @@ public final class RatesConfig {
      * @throws NullPointerException     if {@code baseUri} is {@code null}
      * @throws IllegalArgumentException if the URI cannot be built
      */
-    @NonNull
-    public URI applyTo(@NonNull URI baseUri) {
+    public URI applyTo(URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
         if (params.isEmpty()) {
@@ -134,7 +123,7 @@ public final class RatesConfig {
             }
             first = false;
 
-            sb.append(encode(e.getKey()))
+            sb.append(UrlEncoder.encode(e.getKey()))
                     .append('=')
                     .append(e.getValue()); // values already encoded in build()
         }
@@ -162,13 +151,13 @@ public final class RatesConfig {
 
         private static final String PARAM_NAME_QUOTES = "quotes";
 
-        private String base;
-        private LocalDate date;
-        private LocalDate from;
-        private Group group;
+        private @Nullable String base;
+        private @Nullable LocalDate date;
+        private @Nullable LocalDate from;
+        private @Nullable Group group;
         private String[] providers = new String[0];
         private String[] quotes = new String[0];
-        private LocalDate to;
+        private @Nullable LocalDate to;
 
         /**
          * Sets the base currency. Optional.
@@ -179,8 +168,7 @@ public final class RatesConfig {
          * @return this builder
          * @throws NullPointerException if {@code base} is {@code null}
          */
-        @NonNull
-        public Builder base(@NonNull CurrencyCode base) {
+        public Builder base(CurrencyCode base) {
             this.base = Objects.requireNonNull(base, Validation.formatNullMessage("base")).getCode();
             return this;
         }
@@ -195,8 +183,7 @@ public final class RatesConfig {
          * @throws NullPointerException     if {@code base} is {@code null}
          * @throws IllegalArgumentException if blank or not 3 letters
          */
-        @NonNull
-        public Builder base(@NonNull String base) {
+        public Builder base(String base) {
             this.base = Validation.requireIsoCurrency("base", base);
             return this;
         }
@@ -209,7 +196,6 @@ public final class RatesConfig {
          *                                  or if to is before from
          * @throws IllegalStateException    if group is set without a date or date range
          */
-        @NonNull
         public RatesConfig build() {
             if (date != null && (from != null || to != null)) {
                 throw new IllegalArgumentException("date is mutually exclusive with from and to");
@@ -264,8 +250,7 @@ public final class RatesConfig {
          * @throws NullPointerException     if {@code date} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
-        @NonNull
-        public Builder date(@NonNull LocalDate date) {
+        public Builder date(LocalDate date) {
             this.date = Validation.requireSupportedDate("date", date);
             return this;
         }
@@ -278,8 +263,7 @@ public final class RatesConfig {
          * @throws NullPointerException     if {@code from} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
-        @NonNull
-        public Builder from(@NonNull LocalDate from) {
+        public Builder from(LocalDate from) {
             this.from = Validation.requireSupportedDate("from", from);
             return this;
         }
@@ -291,8 +275,7 @@ public final class RatesConfig {
          * @return this builder
          * @throws NullPointerException if {@code group} is {@code null}
          */
-        @NonNull
-        public Builder group(@NonNull Group group) {
+        public Builder group(Group group) {
             this.group = Objects.requireNonNull(group, Validation.formatNullMessage("group"));
             return this;
         }
@@ -306,8 +289,7 @@ public final class RatesConfig {
          * @return this builder
          * @throws NullPointerException if array or any element is {@code null}
          */
-        @NonNull
-        public Builder providers(@NonNull String... providers) {
+        public Builder providers(String... providers) {
             this.providers = Validation.requireNonBlankDistinct("providers", providers);
             return this;
         }
@@ -322,8 +304,7 @@ public final class RatesConfig {
          * @throws NullPointerException     if array or any element is {@code null}
          * @throws IllegalArgumentException if any quote is not 3 letters
          */
-        @NonNull
-        public Builder quotes(@NonNull String... quotes) {
+        public Builder quotes(String... quotes) {
             this.quotes = Validation.requireIsoCurrencyArray(PARAM_NAME_QUOTES, quotes);
             return this;
         }
@@ -337,8 +318,7 @@ public final class RatesConfig {
          * @return this builder
          * @throws NullPointerException if array or any element is {@code null}
          */
-        @NonNull
-        public Builder quotes(@NonNull CurrencyCode... quotes) {
+        public Builder quotes(CurrencyCode... quotes) {
             this.quotes = Arrays.stream(quotes)
                     .map(Objects::requireNonNull)
                     .map(CurrencyCode::getCode)
@@ -355,8 +335,7 @@ public final class RatesConfig {
          * @throws NullPointerException     if {@code to} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
-        @NonNull
-        public Builder to(@NonNull LocalDate to) {
+        public Builder to(LocalDate to) {
             this.to = Validation.requireSupportedDate("to", to);
             return this;
         }

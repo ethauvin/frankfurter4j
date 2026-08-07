@@ -32,15 +32,14 @@
 
 package net.thauvin.erik.frankfurter.config;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import com.uwyn.urlencoder.UrlEncoder;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.CurrencyCode;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -57,20 +56,17 @@ import java.util.stream.Collectors;
  * @apiNote This class is thread-safe. All state is immutable.
  * @since 1.0
  */
+@NullMarked
 public final class RateConfig {
 
     private static final String PARAM_NAME_QUOTE = "quote";
 
-    @Nullable
-    private final String base;
+    private final @Nullable String base;
 
-    @Nullable
-    private final LocalDate date;
+    private final @Nullable LocalDate date;
 
-    @NonNull
     private final String[] providers;
 
-    @NonNull
     private final String quote;
 
     /**
@@ -84,9 +80,9 @@ public final class RateConfig {
      */
     @SuppressWarnings("PMD.UseVarargs")
     private RateConfig(@Nullable String base,
-                       @NonNull String quote,
+                       String quote,
                        @Nullable LocalDate date,
-                       @NonNull String[] providers) {
+                       String[] providers) {
         this.base = base;
         this.quote = Objects.requireNonNull(quote, PARAM_NAME_QUOTE);
         this.date = date;
@@ -155,8 +151,7 @@ public final class RateConfig {
      * @throws NullPointerException     if {@code baseUri} is {@code null}
      * @throws IllegalArgumentException if the resulting URI is invalid
      */
-    @NonNull
-    public URI applyTo(@NonNull URI baseUri) {
+    public URI applyTo(URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 
         var params = new LinkedHashMap<String, String>();
@@ -165,7 +160,7 @@ public final class RateConfig {
         }
         if (providers.length > 0) {
             var encodedProviders = Arrays.stream(providers)
-                    .map(p -> URLEncoder.encode(p, StandardCharsets.UTF_8))
+                    .map(UrlEncoder::encode)
                     .collect(Collectors.joining(","));
             params.put("providers", encodedProviders);
         }
@@ -216,10 +211,10 @@ public final class RateConfig {
      */
     public static final class Builder {
 
-        private String base;
-        private LocalDate date;
+        private @Nullable String base;
+        private @Nullable LocalDate date;
         private String[] providers = new String[0];
-        private String quote;
+        private @Nullable String quote;
 
         /**
          * Sets the base currency. Optional.
@@ -230,8 +225,7 @@ public final class RateConfig {
          * @return this builder
          * @throws NullPointerException if {@code base} is {@code null}
          */
-        @NonNull
-        public Builder base(@NonNull CurrencyCode base) {
+        public Builder base(CurrencyCode base) {
             this.base = Objects.requireNonNull(base, Validation.formatNullMessage("base")).getCode();
             return this;
         }
@@ -246,8 +240,7 @@ public final class RateConfig {
          * @throws NullPointerException     if {@code base} is {@code null}
          * @throws IllegalArgumentException if blank or not 3 letters
          */
-        @NonNull
-        public Builder base(@NonNull String base) {
+        public Builder base(String base) {
             this.base = Validation.requireIsoCurrency("base", base);
             return this;
         }
@@ -259,7 +252,6 @@ public final class RateConfig {
          * @throws IllegalStateException    if quote currency not set
          * @throws IllegalArgumentException if base and quote are the same
          */
-        @NonNull
         public RateConfig build() {
             if (quote == null) {
                 throw new IllegalStateException("quote currency is required");
@@ -278,8 +270,7 @@ public final class RateConfig {
          * @throws NullPointerException     if {@code date} is {@code null}
          * @throws IllegalArgumentException if date is earlier than the minimum supported
          */
-        @NonNull
-        public Builder date(@NonNull LocalDate date) {
+        public Builder date(LocalDate date) {
             this.date = Validation.requireSupportedDate("date", date);
             return this;
         }
@@ -293,8 +284,7 @@ public final class RateConfig {
          * @return this builder
          * @throws NullPointerException if array or any element is {@code null}
          */
-        @NonNull
-        public Builder providers(@NonNull String... providers) {
+        public Builder providers(String... providers) {
             this.providers = Validation.requireNonBlankDistinct("providers", providers);
             return this;
         }
@@ -306,8 +296,7 @@ public final class RateConfig {
          * @return this builder
          * @throws NullPointerException if {@code quote} is {@code null}
          */
-        @NonNull
-        public Builder quote(@NonNull CurrencyCode quote) {
+        public Builder quote(CurrencyCode quote) {
             this.quote = Objects.requireNonNull(quote, Validation.formatNullMessage(PARAM_NAME_QUOTE)).getCode();
             return this;
         }
@@ -320,8 +309,7 @@ public final class RateConfig {
          * @throws NullPointerException     if {@code quote} is {@code null}
          * @throws IllegalArgumentException if blank or not 3 letters
          */
-        @NonNull
-        public Builder quote(@NonNull String quote) {
+        public Builder quote(String quote) {
             this.quote = Validation.requireIsoCurrency(PARAM_NAME_QUOTE, quote);
             return this;
         }

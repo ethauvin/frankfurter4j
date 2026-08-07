@@ -28,9 +28,15 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>1.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.github.spotbugs</groupId>
       <artifactId>spotbugs-annotations</artifactId>
-      <version>4.10.2</version>
+      <version>4.10.3</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>

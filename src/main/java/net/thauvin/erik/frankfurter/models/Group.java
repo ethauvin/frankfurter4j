@@ -33,8 +33,8 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Objects;
 
@@ -51,6 +51,7 @@ import java.util.Objects;
  * @author Erik C. Thauvin
  * @since 1.0
  */
+@NullMarked
 public enum Group {
 
     /**
@@ -65,7 +66,6 @@ public enum Group {
     @SerializedName("month")
     MONTH("month");
 
-    @NonNull
     private final String value;
 
     /**
@@ -78,7 +78,7 @@ public enum Group {
      * @param value the lowercase API value for this grouping period
      * @throws NullPointerException if {@code value} is {@code null}
      */
-    Group(@NonNull String value) {
+    Group(String value) {
         this.value = Objects.requireNonNull(value, Validation.formatNullMessage("value"));
     }
 
@@ -88,7 +88,6 @@ public enum Group {
      *
      * @return the lowercase string value used in query strings
      */
-    @NonNull
     public String value() {
         return value;
     }

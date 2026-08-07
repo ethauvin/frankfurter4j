@@ -78,10 +78,11 @@ public class Frankfurter4jBuild extends Project {
                         version(1, 3, 5)))
                 .include(dependency("com.google.code.gson", "gson", gson));
         scope(provided)
+                .include(dependency("org.jspecify", "jspecify", "1.0.1"))
                 .include(dependency("com.github.spotbugs", "spotbugs-annotations",
-                        version(4, 10, 2)));
+                        version(4, 10, 3)));
         scope(test)
-                .include(dependency("com.uwyn.rife2", "bld-extensions-testing-helpers",
+                .include(dependency("com.uwyn.rife2", "bld-testing-helpers",
                         version(1, 1, 0, "SNAPSHOT")))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 23, 0)))
@@ -125,7 +126,7 @@ public class Frankfurter4jBuild extends Project {
                 .tag("apiNote", "a", "API Note:")
                 .author()
                 .link("https://www.javadoc.io/doc/com.google.code.gson/gson/" + gson)
-                .link("https://findbugs.sourceforge.net/api/");
+                .link("https://jspecify.dev/docs/api/");
     }
 
     @Override

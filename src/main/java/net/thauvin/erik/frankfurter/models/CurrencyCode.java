@@ -32,8 +32,8 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.CurrencyFormatter;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.*;
 import java.util.Currency;
@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
  *
  * @apiNote This enum is immutable and thread-safe.
  */
+@NullMarked
 public enum CurrencyCode {
     AED("AED", new Locale("ar", "AE")),
     AFN("AFN", new Locale("fa", "AF")),
@@ -229,8 +230,7 @@ public enum CurrencyCode {
      * @param code ISO 4217 code, case-insensitive
      * @return Optional containing the currency if found
      */
-    @NonNull
-    public static Optional<CurrencyCode> fromCode(@NonNull String code) {
+    public static Optional<CurrencyCode> fromCode(String code) {
         return Optional.ofNullable(BY_CODE.get(code.toUpperCase(Locale.ROOT)));
     }
 
@@ -239,7 +239,6 @@ public enum CurrencyCode {
      *
      * @see CurrencyFormatter#format(double, Locale, boolean)
      */
-    @NonNull
     public String format(double amount) {
         return CurrencyFormatter.format(amount, locale, false);
     }
@@ -250,7 +249,6 @@ public enum CurrencyCode {
      * @param rounded true to round to default fraction digits
      * @see CurrencyFormatter#format(double, Locale, boolean)
      */
-    @NonNull
     public String format(double amount, boolean rounded) {
         return CurrencyFormatter.format(amount, locale, rounded);
     }
@@ -258,7 +256,6 @@ public enum CurrencyCode {
     /**
      * @return the ISO 4217 currency code
      */
-    @NonNull
     public String getCode() {
         return code;
     }
@@ -266,7 +263,6 @@ public enum CurrencyCode {
     /**
      * @return the representative locale for formatting
      */
-    @NonNull
     public Locale getLocale() {
         return locale;
     }
@@ -274,7 +270,6 @@ public enum CurrencyCode {
     /**
      * @return the {@link java.util.Currency} instance, if available
      */
-    @NonNull
     public Currency toCurrency() {
         return Currency.getInstance(code);
     }

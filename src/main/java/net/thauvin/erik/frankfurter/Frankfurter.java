@@ -32,13 +32,13 @@
 
 package net.thauvin.erik.frankfurter;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.config.RateConfig;
 import net.thauvin.erik.frankfurter.config.RatesConfig;
 import net.thauvin.erik.frankfurter.internal.GeneratedVersion;
 import net.thauvin.erik.frankfurter.internal.JsonParsers;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.*;
+import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
 import java.net.URI;
@@ -62,6 +62,7 @@ import java.util.function.Function;
  *
  * @see <a href="https://frankfurter.dev">Frankfurter.dev API</a>
  */
+@NullMarked
 public final class Frankfurter {
 
     private static final URI DEFAULT_API = URI.create("https://api.frankfurter.dev/v2/");
@@ -70,18 +71,15 @@ public final class Frankfurter {
     private static final String USER_AGENT =
             GeneratedVersion.PROJECT + '/' + GeneratedVersion.VERSION + " (+https://github.com/ethauvin/frankfurter4j)";
 
-    @NonNull
     private final URI baseUri;
 
-    @NonNull
     private final HttpClient client;
 
-    @NonNull
     private final Duration requestTimeout;
 
     /**
      * Creates a new client using the default API endpoint, default {@link HttpClient} with
-     * 5s connect timeout, and 10s request timeout.
+     * default timeouts.
      */
     public Frankfurter() {
         this(buildDefaultClient(DEFAULT_CONNECT_TIMEOUT), DEFAULT_API, DEFAULT_REQUEST_TIMEOUT);
@@ -94,7 +92,7 @@ public final class Frankfurter {
      * @param requestTimeout the request timeout (must be positive, not {@code null})
      * @throws IllegalArgumentException if {@code requestTimeout} is zero or negative
      */
-    public Frankfurter(@NonNull Duration requestTimeout) {
+    public Frankfurter(Duration requestTimeout) {
         this(buildDefaultClient(DEFAULT_CONNECT_TIMEOUT), DEFAULT_API, requestTimeout);
     }
 
@@ -105,17 +103,16 @@ public final class Frankfurter {
      * @param requestTimeout the request timeout (must be positive, not {@code null})
      * @throws IllegalArgumentException if either timeout is zero or negative
      */
-    public Frankfurter(@NonNull Duration connectTimeout, @NonNull Duration requestTimeout) {
+    public Frankfurter(Duration connectTimeout, Duration requestTimeout) {
         this(buildDefaultClient(connectTimeout), DEFAULT_API, requestTimeout);
     }
 
     /**
-     * Creates a new client using the given base URI, default {@link HttpClient} with
-     * 5s connect timeout, and 10s request timeout.
+     * Creates a new client using the given base URI, default {@link HttpClient} with default timeouts.
      *
      * @param baseUri the base API URI (must not be {@code null})
      */
-    public Frankfurter(@NonNull URI baseUri) {
+    public Frankfurter(URI baseUri) {
         this(buildDefaultClient(DEFAULT_CONNECT_TIMEOUT), baseUri, DEFAULT_REQUEST_TIMEOUT);
     }
 
@@ -129,7 +126,7 @@ public final class Frankfurter {
      * @param client  the HTTP client to use (must not be {@code null})
      * @param baseUri the base API URI (must not be {@code null})
      */
-    public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri) {
+    public Frankfurter(HttpClient client, URI baseUri) {
         this(client, baseUri, DEFAULT_REQUEST_TIMEOUT);
     }
 
@@ -145,14 +142,14 @@ public final class Frankfurter {
      * @param requestTimeout the request timeout (must be positive, not {@code null})
      * @throws IllegalArgumentException if {@code requestTimeout} is zero or negative
      */
-    public Frankfurter(@NonNull HttpClient client, @NonNull URI baseUri, @NonNull Duration requestTimeout) {
+    public Frankfurter(HttpClient client, URI baseUri, Duration requestTimeout) {
         this.client = Objects.requireNonNull(client, Validation.formatNullMessage("client"));
         this.baseUri = normalizeBase(baseUri);
         this.requestTimeout = Objects.requireNonNull(requestTimeout, Validation.formatNullMessage("requestTimeout"));
         validateTimeouts();
     }
 
-    private static HttpClient buildDefaultClient(@NonNull Duration connectTimeout) {
+    private static HttpClient buildDefaultClient(Duration connectTimeout) {
         Objects.requireNonNull(connectTimeout, Validation.formatNullMessage("connectTimeout"));
         if (connectTimeout.isZero() || connectTimeout.isNegative()) {
             throw new IllegalArgumentException("connectTimeout must be positive, got: " + connectTimeout);
@@ -162,8 +159,7 @@ public final class Frankfurter {
                 .build();
     }
 
-    @NonNull
-    private static URI normalizeBase(@NonNull URI base) {
+    private static URI normalizeBase(URI base) {
         Objects.requireNonNull(base, Validation.formatNullMessage("base"));
         String baseStr = base.toString();
         if (!baseStr.endsWith("/")) {
@@ -177,7 +173,6 @@ public final class Frankfurter {
      *
      * @return the base URI (never null)
      */
-    @NonNull
     public URI getBaseUri() {
         return baseUri;
     }
@@ -187,7 +182,6 @@ public final class Frankfurter {
      *
      * @return the HTTP client (never null)
      */
-    @NonNull
     public HttpClient getClient() {
         return client;
     }
@@ -200,7 +194,6 @@ public final class Frankfurter {
      *
      * @return the connect timeout, or empty if not configured
      */
-    @NonNull
     public Optional<Duration> getConnectTimeout() {
         return client.connectTimeout();
     }
@@ -212,7 +205,6 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
     public CurrenciesResult getCurrencies() throws IOException, InterruptedException {
         return execute(baseUri.resolve("currencies"), JsonParsers::parseCurrencies);
     }
@@ -225,8 +217,7 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
-    public CurrencyResult getCurrency(@NonNull String code) throws IOException, InterruptedException {
+    public CurrencyResult getCurrency(String code) throws IOException, InterruptedException {
         Validation.requireIsoCurrency("code", code);
         return execute(baseUri.resolve("currency/").resolve(code), JsonParsers::parseCurrency);
     }
@@ -239,8 +230,7 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
-    public CurrencyResult getCurrency(@NonNull CurrencyCode code) throws IOException, InterruptedException {
+    public CurrencyResult getCurrency(CurrencyCode code) throws IOException, InterruptedException {
         Objects.requireNonNull(code, Validation.formatNullMessage("code"));
         return getCurrency(code.getCode());
     }
@@ -252,7 +242,6 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
     public ProvidersResult getProviders() throws IOException, InterruptedException {
         return execute(baseUri.resolve("providers"), JsonParsers::parseProviders);
     }
@@ -266,8 +255,7 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
-    public RateResult getRate(@NonNull String base, @NonNull String quote) throws IOException, InterruptedException {
+    public RateResult getRate(String base, String quote) throws IOException, InterruptedException {
         Validation.requireIsoCurrency("base", base);
         Validation.requireIsoCurrency("quote", quote);
         return getRate(new RateConfig.Builder().base(base).quote(quote).build());
@@ -282,8 +270,7 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
-    public RateResult getRate(@NonNull CurrencyCode base, @NonNull CurrencyCode quote)
+    public RateResult getRate(CurrencyCode base, CurrencyCode quote)
             throws IOException, InterruptedException {
         Objects.requireNonNull(base, Validation.formatNullMessage("base"));
         Objects.requireNonNull(quote, Validation.formatNullMessage("quote"));
@@ -298,8 +285,7 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
-    public RateResult getRate(@NonNull RateConfig config) throws IOException, InterruptedException {
+    public RateResult getRate(RateConfig config) throws IOException, InterruptedException {
         Objects.requireNonNull(config, Validation.formatNullMessage("config"));
         var uri = config.applyTo(baseUri);
         return execute(uri, JsonParsers::parseSingleRate);
@@ -312,7 +298,6 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
     public RatesResult getRates() throws IOException, InterruptedException {
         return getRates(new RatesConfig.Builder().build());
     }
@@ -325,8 +310,7 @@ public final class Frankfurter {
      * @throws IOException          if a network error occurs or the request times out
      * @throws InterruptedException if the request is interrupted
      */
-    @NonNull
-    public RatesResult getRates(@NonNull RatesConfig config) throws IOException, InterruptedException {
+    public RatesResult getRates(RatesConfig config) throws IOException, InterruptedException {
         Objects.requireNonNull(config, Validation.formatNullMessage("config"));
         var uri = config.applyTo(baseUri.resolve("rates"));
         return execute(uri, JsonParsers::parseRates);
@@ -337,7 +321,6 @@ public final class Frankfurter {
      *
      * @return the request timeout (never null)
      */
-    @NonNull
     public Duration getRequestTimeout() {
         return requestTimeout;
     }
@@ -353,8 +336,7 @@ public final class Frankfurter {
      * @throws InterruptedException if the request is interrupted
      */
     @SuppressWarnings("unchecked")
-    @NonNull
-    private <T> T execute(@NonNull URI uri, @NonNull Function<String, T> successParser)
+    private <T> T execute(URI uri, Function<String, T> successParser)
             throws IOException, InterruptedException {
         Objects.requireNonNull(uri, Validation.formatNullMessage("uri"));
         Objects.requireNonNull(successParser, Validation.formatNullMessage("successParser"));

@@ -35,9 +35,9 @@ package net.thauvin.erik.frankfurter.internal;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.Frankfurter;
 import net.thauvin.erik.frankfurter.models.*;
+import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -50,9 +50,9 @@ import java.util.Objects;
  * <p>These methods convert raw JSON strings into strongly typed model objects.
  * They are used internally by {@link Frankfurter}.</p>
  */
+@NullMarked
 public final class JsonParsers {
 
-    @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
@@ -71,8 +71,7 @@ public final class JsonParsers {
      * @param json the JSON response (must not be {@code null})
      * @return the parsed currencies (never null)
      */
-    @NonNull
-    public static Currencies parseCurrencies(@NonNull String json) {
+    public static Currencies parseCurrencies(String json) {
         Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return Currencies.fromJson(json);
     }
@@ -83,8 +82,7 @@ public final class JsonParsers {
      * @param json the JSON response (must not be {@code null})
      * @return the parsed currency (never null)
      */
-    @NonNull
-    public static Currency parseCurrency(@NonNull String json) {
+    public static Currency parseCurrency(String json) {
         Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return GSON.fromJson(json, Currency.class);
     }
@@ -96,8 +94,7 @@ public final class JsonParsers {
      * @param status the HTTP status code
      * @return the parsed error response (never null)
      */
-    @NonNull
-    public static ErrorResponse parseError(@NonNull String json, int status) {
+    public static ErrorResponse parseError(String json, int status) {
         Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
 
         try {
@@ -113,8 +110,7 @@ public final class JsonParsers {
      * @param json the JSON response (must not be {@code null})
      * @return the parsed providers (never null)
      */
-    @NonNull
-    public static Providers parseProviders(@NonNull String json) {
+    public static Providers parseProviders(String json) {
         Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return Providers.fromJson(json);
     }
@@ -125,8 +121,7 @@ public final class JsonParsers {
      * @param json the JSON response (must not be {@code null})
      * @return the parsed exchange rates (never null)
      */
-    @NonNull
-    public static ExchangeRates parseRates(@NonNull String json) {
+    public static ExchangeRates parseRates(String json) {
         Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
 
         Type type = new TypeToken<List<Rate>>() {
@@ -142,8 +137,7 @@ public final class JsonParsers {
      * @param json the JSON response (must not be {@code null})
      * @return the parsed rate (never null)
      */
-    @NonNull
-    public static Rate parseSingleRate(@NonNull String json) {
+    public static Rate parseSingleRate(String json) {
         Objects.requireNonNull(json, JSON_MUST_NOT_BE_NULL);
         return GSON.fromJson(json, Rate.class);
     }

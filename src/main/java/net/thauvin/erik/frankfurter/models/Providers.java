@@ -36,9 +36,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import org.jspecify.annotations.NullMarked;
 
 import java.lang.reflect.Type;
 import java.time.LocalDate;
@@ -55,17 +55,16 @@ import java.util.stream.Collectors;
  * @apiNote This class is immutable and thread-safe.
  * @since 1.0
  */
+@NullMarked
 @SuppressWarnings("ClassCanBeRecord")
 public final class Providers implements ProvidersResult, Iterable<Provider> {
 
-    @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
             .create();
 
     private static final int TO_STRING_PREVIEW_LIMIT = 10;
 
-    @NonNull
     private final List<Provider> list;
 
     /**
@@ -74,7 +73,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      * @param providers the list of provider entries
      * @throws NullPointerException if {@code providers} is {@code null} or contains null elements
      */
-    public Providers(@NonNull Collection<Provider> providers) {
+    public Providers(Collection<Provider> providers) {
         Validation.requireAllNonNull("providers", providers);
         this.list = List.copyOf(providers);
     }
@@ -108,7 +107,6 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
     }
 
     @Override
-    @NonNull
     public Iterator<Provider> iterator() {
         return list.iterator();
     }
@@ -121,8 +119,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      * @throws NullPointerException     if {@code json} is {@code null}
      * @throws IllegalArgumentException if {@code json} is malformed or contains null elements
      */
-    @NonNull
-    public static Providers fromJson(@NonNull String json) {
+    public static Providers fromJson(String json) {
         Objects.requireNonNull(json, Validation.formatNullMessage("json"));
         try {
             Type type = new TypeToken<List<Provider>>() {
@@ -131,7 +128,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
             if (parsed == null) {
                 return new Providers(List.of());
             }
-            if (parsed.stream().anyMatch(Objects::isNull)) {
+            if (parsed.contains(null)) {
                 throw new IllegalArgumentException("Invalid providers JSON: contains null element");
             }
             return new Providers(parsed);
@@ -147,7 +144,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      * @return an optional containing the matching provider
      * @throws NullPointerException if {@code key} is {@code null}
      */
-    public Optional<Provider> find(@NonNull String key) {
+    public Optional<Provider> find(String key) {
         Objects.requireNonNull(key, Validation.formatNullMessage("key"));
         return list.stream()
                 .filter(p -> p.key().equalsIgnoreCase(key))
@@ -168,7 +165,6 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      *
      * @return the list of providers
      */
-    @NonNull
     public List<Provider> list() {
         return list;
     }
@@ -180,8 +176,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      * @return the list of matching providers if any
      * @throws NullPointerException if {@code name} is {@code null}
      */
-    @NonNull
-    public List<Provider> searchByName(@NonNull String name) {
+    public List<Provider> searchByName(String name) {
         Objects.requireNonNull(name, Validation.formatNullMessage("name"));
         if (name.isEmpty()) {
             return List.of();

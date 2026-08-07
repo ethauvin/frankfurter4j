@@ -36,24 +36,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.internal.Validation;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.*;
 
 /**
  * Represents the set of currencies returned by the Frankfurter API.
  */
+@NullMarked
 @SuppressWarnings("ClassCanBeRecord")
 public final class Currencies implements CurrenciesResult {
 
-    @NonNull
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(java.time.LocalDate.class, new LocalDateAdapter())
             .create();
 
-    @NonNull
     private final List<Currency> list;
 
     /**
@@ -62,7 +61,7 @@ public final class Currencies implements CurrenciesResult {
      * @param currencies the list of currency entries
      * @throws NullPointerException if currencies is {@code null} or contains null elements
      */
-    public Currencies(@NonNull Collection<Currency> currencies) {
+    public Currencies(Collection<Currency> currencies) {
         Validation.requireAllNonNull("currencies", currencies);
         this.list = List.copyOf(currencies);
     }
@@ -106,8 +105,7 @@ public final class Currencies implements CurrenciesResult {
      * @throws NullPointerException     if {@code json} is {@code null}
      * @throws IllegalArgumentException if {@code json} is malformed or contains null elements
      */
-    @NonNull
-    public static Currencies fromJson(@NonNull String json) {
+    public static Currencies fromJson(String json) {
         Objects.requireNonNull(json, Validation.formatNullMessage("json"));
         try {
             var type = new TypeToken<List<Currency>>() {
@@ -116,7 +114,7 @@ public final class Currencies implements CurrenciesResult {
             if (parsed == null) {
                 return new Currencies(List.of());
             }
-            if (parsed.stream().anyMatch(Objects::isNull)) {
+            if (parsed.contains(null)) {
                 throw new IllegalArgumentException("Invalid currencies JSON: contains null element");
             }
             return new Currencies(parsed);
@@ -130,7 +128,6 @@ public final class Currencies implements CurrenciesResult {
      *
      * @return an unmodifiable list of distinct ISO 4217 codes
      */
-    @NonNull
     public List<String> codes() {
         return list.stream()
                 .map(Currency::isoCode)
@@ -146,8 +143,7 @@ public final class Currencies implements CurrenciesResult {
      * @throws NullPointerException if code is {@code null}
      * @apiNote Use {@link #find(String)} for codes not in {@link CurrencyCode}
      */
-    @NonNull
-    public Optional<Currency> find(@NonNull CurrencyCode code) {
+    public Optional<Currency> find(CurrencyCode code) {
         Objects.requireNonNull(code, Validation.formatNullMessage("code"));
         return find(code.getCode());
     }
@@ -159,8 +155,7 @@ public final class Currencies implements CurrenciesResult {
      * @return an optional containing the matching currency
      * @throws NullPointerException if iso is {@code null}
      */
-    @NonNull
-    public Optional<Currency> find(@NonNull String iso) {
+    public Optional<Currency> find(String iso) {
         Objects.requireNonNull(iso, Validation.formatNullMessage("iso"));
         var normalized = iso.toUpperCase(Locale.ROOT);
         return list.stream()
@@ -182,7 +177,6 @@ public final class Currencies implements CurrenciesResult {
      *
      * @return an unmodifiable list of known currency codes
      */
-    @NonNull
     public List<CurrencyCode> knownCodes() {
         return list.stream()
                 .map(Currency::isoCode)
@@ -197,7 +191,6 @@ public final class Currencies implements CurrenciesResult {
      *
      * @return an unmodifiable list of currencies
      */
-    @NonNull
     public List<Currency> list() {
         return list;
     }
@@ -209,8 +202,7 @@ public final class Currencies implements CurrenciesResult {
      * @return the list of matching currencies if any
      * @throws NullPointerException if name is {@code null}
      */
-    @NonNull
-    public List<Currency> searchByName(@NonNull String name) {
+    public List<Currency> searchByName(String name) {
         Objects.requireNonNull(name, Validation.formatNullMessage("name"));
         if (name.isEmpty()) {
             return List.of();

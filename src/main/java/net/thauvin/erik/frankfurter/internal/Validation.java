@@ -32,7 +32,7 @@
 
 package net.thauvin.erik.frankfurter.internal;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -52,6 +52,7 @@ import java.util.function.Predicate;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
+@NullMarked
 public final class Validation {
 
     // The earliest date supported by the Frankfurter API: 1994-01-04
@@ -69,7 +70,7 @@ public final class Validation {
      * @return {@code name + " must not be null"}
      * @throws NullPointerException if {@code name} is {@code null}
      */
-    public static String formatNullMessage(@NonNull String name) {
+    public static String formatNullMessage(String name) {
         Objects.requireNonNull(name, "name must not be null");
         return name + " must not be null";
     }
@@ -82,12 +83,10 @@ public final class Validation {
      * @throws NullPointerException if the array or any element is {@code null}
      */
     @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
-    public static void requireAllNonNull(@NonNull String name, @NonNull String... values) {
+    public static void requireAllNonNull(String name, String... values) {
         Objects.requireNonNull(values, formatNullMessage(name));
         for (int i = 0; i < values.length; i++) {
-            if (values[i] == null) {
-                throw new NullPointerException(formatNullMessage(name + '[' + i + ']'));
-            }
+            Objects.requireNonNull(values[i], formatNullMessage(name + '[' + i + ']'));
         }
     }
 
@@ -106,13 +105,11 @@ public final class Validation {
      * @throws NullPointerException if the collection or any element is {@code null}
      */
     @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
-    public static <T> void requireAllNonNull(@NonNull String name, @NonNull Collection<T> values) {
+    public static <T> void requireAllNonNull(String name, Collection<T> values) {
         Objects.requireNonNull(values, formatNullMessage(name));
         int i = 0;
         for (T v : values) {
-            if (v == null) {
-                throw new NullPointerException(formatNullMessage(name + '[' + i + ']'));
-            }
+            Objects.requireNonNull(v, formatNullMessage(name + '[' + i + ']'));
             i++;
         }
     }
@@ -130,7 +127,7 @@ public final class Validation {
      * @throws IllegalArgumentException if the {@code code} is blank, or not three letters
      * @throws NullPointerException     if the {@code code} is {@code null}
      */
-    public static String requireIsoCurrency(@NonNull String name, @NonNull String code) {
+    public static String requireIsoCurrency(String name, String code) {
         Objects.requireNonNull(code, formatNullMessage(name + " currency"));
         if (code.isBlank()) {
             throw new IllegalArgumentException(name + " currency must not be blank");
@@ -154,9 +151,8 @@ public final class Validation {
      * @throws NullPointerException     if array or any element is {@code null}
      * @throws IllegalArgumentException if any element is blank or not 3 letters
      */
-    @NonNull
     @SuppressWarnings("PMD.UseVarargs")
-    public static String[] requireIsoCurrencyArray(@NonNull String name, @NonNull String[] values) {
+    public static String[] requireIsoCurrencyArray(String name, String[] values) {
         Objects.requireNonNull(values, formatNullMessage(name));
         for (int i = 0; i < values.length; i++) {
             Objects.requireNonNull(values[i], formatNullMessage(name + '[' + i + ']'));
@@ -175,9 +171,8 @@ public final class Validation {
      * @return a new array with blanks removed, values trimmed, and duplicates removed
      * @throws NullPointerException if array or any element is {@code null}
      */
-    @NonNull
     @SuppressWarnings("PMD.UseVarargs")
-    public static String[] requireNonBlankDistinct(@NonNull String name, @NonNull String[] values) {
+    public static String[] requireNonBlankDistinct(String name, String[] values) {
         Objects.requireNonNull(values, formatNullMessage(name));
         requireAllNonNull(name, values);
         return Arrays.stream(values)
@@ -216,7 +211,7 @@ public final class Validation {
      * @return the validated date
      * @throws IllegalArgumentException if the date is earlier than the minimum supported date
      */
-    public static LocalDate requireSupportedDate(@NonNull String name, @NonNull LocalDate date) {
+    public static LocalDate requireSupportedDate(String name, LocalDate date) {
         Objects.requireNonNull(date, formatNullMessage(name));
         if (date.isBefore(MIN_SUPPORTED_DATE)) {
             throw new IllegalArgumentException(name + " must not be earlier than " + MIN_SUPPORTED_DATE);

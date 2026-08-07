@@ -33,7 +33,6 @@
 package net.thauvin.erik.frankfurter.models;
 
 import com.google.gson.annotations.SerializedName;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import net.thauvin.erik.frankfurter.internal.Validation;
 
 import java.time.LocalDate;
@@ -59,19 +58,19 @@ public record Currency(
         String isoCode,
 
         @SerializedName("iso_numeric")
-        @Nullable String isoNumeric,
+        String isoNumeric,
 
         @SerializedName("name")
         String name,
 
         @SerializedName("symbol")
-        @Nullable String symbol,
+        String symbol,
 
         @SerializedName("start_date")
-        @Nullable LocalDate startDate,
+        LocalDate startDate,
 
         @SerializedName("end_date")
-        @Nullable LocalDate endDate
+        LocalDate endDate
 ) implements CurrencyResult {
 
     /**

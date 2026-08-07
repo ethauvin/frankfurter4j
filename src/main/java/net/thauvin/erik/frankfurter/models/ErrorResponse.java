@@ -32,8 +32,6 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
-
 /**
  * Represents an error response returned by the Frankfurter API.
  *
@@ -51,7 +49,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
  * @author <a href="https://erik.thauvin.net/">Erik C. Thauvin</a>
  * @since 1.0
  */
-public record ErrorResponse(int status, @Nullable String message)
+public record ErrorResponse(int status, String message)
         implements CurrenciesResult, CurrencyResult, ProvidersResult, RatesResult, RateResult {
 
 }
