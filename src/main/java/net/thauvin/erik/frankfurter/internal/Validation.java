@@ -82,7 +82,6 @@ public final class Validation {
      * @param values the array to validate
      * @throws NullPointerException if the array or any element is {@code null}
      */
-    @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
     public static void requireAllNonNull(String name, String... values) {
         Objects.requireNonNull(values, formatNullMessage(name));
         for (int i = 0; i < values.length; i++) {
@@ -104,7 +103,6 @@ public final class Validation {
      * @param <T>    the element type
      * @throws NullPointerException if the collection or any element is {@code null}
      */
-    @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
     public static <T> void requireAllNonNull(String name, Collection<T> values) {
         Objects.requireNonNull(values, formatNullMessage(name));
         int i = 0;

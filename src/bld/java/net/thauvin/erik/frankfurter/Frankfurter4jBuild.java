@@ -52,10 +52,6 @@ public class Frankfurter4jBuild extends Project {
 
     final File generatedDirectory = new File(srcDirectory(), "generated");
 
-    final PmdOperation pmdOp = new PmdOperation()
-            .failOnViolation(true)
-            .ruleSets("config/pmd.xml")
-            .fromProject(this);
     final File testResultsDirectory = IOTools.resolveFile(buildDirectory(), "test-results", "test");
 
     public Frankfurter4jBuild() {
@@ -178,12 +174,11 @@ public class Frankfurter4jBuild extends Project {
 
     @BuildCommand(summary = "Runs PMD analysis")
     public void pmd() throws Exception {
-        pmdOp.execute();
-    }
-
-    @BuildCommand(value = "pmd-cli", summary = "Runs PMD analysis (CLI)")
-    public void pmdCli() throws Exception {
-        pmdOp.includeLineNumber(false).execute();
+        new PmdOperation()
+            .failOnViolation(true)
+            .ruleSets("config/pmd.xml")
+            .fromProject(this)
+            .execute();
     }
 
     @BuildCommand(value = "pom-root", summary = "Generates the POM file in the root directory")
