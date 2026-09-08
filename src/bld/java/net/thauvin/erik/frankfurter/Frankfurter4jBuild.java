@@ -65,7 +65,7 @@ public class Frankfurter4jBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS);
+        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS, RIFE2_RELEASES);
 
         var junit = version(6, 1, 3);
         var gson = version(2, 14, 0);
@@ -79,7 +79,7 @@ public class Frankfurter4jBuild extends Project {
                         version(4, 10, 4)));
         scope(test)
                 .include(dependency("com.uwyn.rife2", "bld-testing-helpers",
-                        version(1, 1, 0, "SNAPSHOT")))
+                        version(1, 1, 0)))
                 .include(dependency("org.mockito", "mockito-core",
                         version(5, 23, 0)))
                 .include(dependency("org.junit.jupiter", "junit-jupiter", junit))
