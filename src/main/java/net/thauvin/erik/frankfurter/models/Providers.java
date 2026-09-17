@@ -36,6 +36,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.internal.LocalDateAdapter;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import org.jspecify.annotations.NullMarked;
@@ -119,6 +120,7 @@ public final class Providers implements ProvidersResult, Iterable<Provider> {
      * @throws NullPointerException     if {@code json} is {@code null}
      * @throws IllegalArgumentException if {@code json} is malformed or contains null elements
      */
+    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public static Providers fromJson(String json) {
         Objects.requireNonNull(json, Validation.formatNullMessage("json"));
         try {

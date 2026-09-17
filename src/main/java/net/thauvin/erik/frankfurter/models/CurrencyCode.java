@@ -32,21 +32,24 @@
 
 package net.thauvin.erik.frankfurter.models;
 
-import net.thauvin.erik.frankfurter.CurrencyFormatter;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.Currency;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * ISO 4217 currency codes with representative locales.
+ * ISO 4217 currency codes with a representative {@link Locale} for formatting.
+ * <p>
+ * Each constant holds its ISO code and a locale that provides appropriate
+ * grouping, decimal separators, and symbol placement when used with
+ * {@link java.text.NumberFormat#getCurrencyInstance(Locale)}.
+ * </p>
  *
- * <p>Each constant provides the ISO code and a locale used for
- * formatting. Use {@link #format(double)} or {@link #format(double, boolean)}
- * to format amounts directly.</p>
- *
- * @apiNote This enum is immutable and thread-safe.
+ * @apiNote This enum is immutable and thread-safe. The lookup map is
+ * unmodifiable and built once in {@code <clinit>}.
  */
 @NullMarked
 public enum CurrencyCode {
@@ -214,7 +217,7 @@ public enum CurrencyCode {
     ZWG("ZWG", new Locale("en", "ZW"));
 
     private static final Map<String, CurrencyCode> BY_CODE = Arrays.stream(values())
-            .collect(Collectors.toUnmodifiableMap(CurrencyCode::getCode, c -> c));
+            .collect(Collectors.toUnmodifiableMap(CurrencyCode::getCode, Function.identity()));
 
     private final String code;
     private final Locale locale;
@@ -225,50 +228,52 @@ public enum CurrencyCode {
     }
 
     /**
-     * Look up a currency by ISO code.
+     * Looks up a currency by its ISO 4217 code.
+     * <p>
+     * The lookup is case-insensitive and trims surrounding whitespace.
+     * </p>
      *
-     * @param code ISO 4217 code, case-insensitive
-     * @return Optional containing the currency if found
+     * @param code the ISO 4217 code, e.g. {@code "USD"} or {@code "eur"};
+     *             may be {@code null}
+     * @return an {@link Optional} containing the matching constant, or
+     * an empty {@code Optional} if {@code code} is {@code null}, blank, or unknown
      */
-    public static Optional<CurrencyCode> fromCode(String code) {
-        return Optional.ofNullable(BY_CODE.get(code.toUpperCase(Locale.ROOT)));
+    public static Optional<CurrencyCode> fromCode(@Nullable String code) {
+        if (code == null || code.isBlank()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(BY_CODE.get(code.trim().toUpperCase(Locale.ROOT)));
     }
 
     /**
-     * Format an amount using this currency's locale conventions.
+     * Returns the ISO 4217 code.
      *
-     * @see CurrencyFormatter#format(double, Locale, boolean)
-     */
-    public String format(double amount) {
-        return CurrencyFormatter.format(amount, locale, false);
-    }
-
-    /**
-     * Format an amount using this currency's locale conventions.
-     *
-     * @param rounded true to round to default fraction digits
-     * @see CurrencyFormatter#format(double, Locale, boolean)
-     */
-    public String format(double amount, boolean rounded) {
-        return CurrencyFormatter.format(amount, locale, rounded);
-    }
-
-    /**
-     * @return the ISO 4217 currency code
+     * @return the three-letter code, never {@code null}
      */
     public String getCode() {
         return code;
     }
 
     /**
-     * @return the representative locale for formatting
+     * Returns the representative locale used for formatting this currency.
+     * <p>
+     * The locale determines grouping separators, decimal separators, and symbol
+     * placement when used with {@link java.text.NumberFormat}.
+     * </p>
+     *
+     * @return the locale, never {@code null}
      */
     public Locale getLocale() {
         return locale;
     }
 
     /**
-     * @return the {@link java.util.Currency} instance, if available
+     * Returns the corresponding {@link Currency} instance.
+     *
+     * @return the JDK currency instance
+     * @throws IllegalArgumentException if the code is not supported by
+     *                                  {@link Currency#getInstance(String)} (e.g. {@code GGP}, {@code IMP},
+     *                                  precious metals like {@code XAU})
      */
     public Currency toCurrency() {
         return Currency.getInstance(code);

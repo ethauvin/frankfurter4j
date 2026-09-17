@@ -33,6 +33,7 @@
 package net.thauvin.erik.frankfurter.config;
 
 import com.uwyn.urlencoder.UrlEncoder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.CurrencyCode;
 import net.thauvin.erik.frankfurter.models.Group;
@@ -58,6 +59,7 @@ import java.util.stream.Collectors;
  * @since 1.0
  */
 @NullMarked
+@SuppressWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
 public final class RatesConfig {
 
     private final Map<String, String> params;
@@ -107,6 +109,7 @@ public final class RatesConfig {
      * @throws NullPointerException     if {@code baseUri} is {@code null}
      * @throws IllegalArgumentException if the URI cannot be built
      */
+    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public URI applyTo(URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 

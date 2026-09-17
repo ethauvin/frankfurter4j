@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
-import java.util.Currency;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -47,64 +46,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("CurrencyCode enum")
 class CurrencyCodeTest {
-
-    @Nested
-    @DisplayName("format()")
-    class Format {
-
-        static Stream<Arguments> formatArgs() {
-            return Stream.of(
-                    Arguments.of(CurrencyCode.USD, 1234.56),
-                    Arguments.of(CurrencyCode.EUR, 1234.56),
-                    Arguments.of(CurrencyCode.JPY, 1234),
-                    Arguments.of(CurrencyCode.GBP, 1234.56),
-                    Arguments.of(CurrencyCode.INR, 1234.56)
-            );
-        }
-
-        @ParameterizedTest(name = "{0}.format({1}) should not be blank")
-        @MethodSource("formatArgs")
-        @DisplayName("should format amounts using currency locale")
-        void shouldFormatAmounts(CurrencyCode code, double amount) {
-            var result = code.format(amount);
-            assertNotNull(result);
-            assertFalse(result.isBlank(), "Formatted result should not be blank");
-        }
-
-        @Test
-        @DisplayName("should respect rounded parameter")
-        void shouldRespectRoundedFlag() {
-            var unrounded = CurrencyCode.JPY.format(123.456, false);
-            var rounded = CurrencyCode.JPY.format(123.456, true);
-
-            assertNotEquals(unrounded, rounded, "Rounded and unrounded should differ for JPY");
-
-            // JPY has 0 fraction digits by ISO - check it has no decimal part
-            assertFalse(rounded.contains("."), "JPY rounded should have no decimal point");
-            assertFalse(rounded.contains(","), "JPY rounded should have no decimal comma");
-            assertTrue(rounded.contains("123"), "JPY rounded should contain 123");
-        }
-
-        @Test
-        @DisplayName("should use locale-specific symbols and grouping")
-        void shouldUseLocaleSpecificFormat() {
-            var usd = CurrencyCode.USD.format(1234.56);
-            var eur = CurrencyCode.EUR.format(1234.56);
-
-            // Check they're different
-            assertNotEquals(usd, eur, "USD and EUR formats should differ");
-
-            // Check USD uses US locale conventions: comma separator, period decimal
-            assertTrue(usd.matches(".*1,234\\.56.*"), "USD should use 1,234.56 format");
-
-            // Check EUR uses DE locale conventions: period separator, comma decimal
-            assertTrue(eur.matches(".*1\\.234,56.*"), "EUR should use 1.234,56 format");
-
-            // Check currency objects are correct instead of symbols
-            assertEquals(Currency.getInstance("USD"), CurrencyCode.USD.toCurrency());
-            assertEquals(Currency.getInstance("EUR"), CurrencyCode.EUR.toCurrency());
-        }
-    }
 
     @Nested
     @DisplayName("fromCode()")
@@ -119,18 +60,24 @@ class CurrencyCodeTest {
             assertEquals(code.toUpperCase(Locale.ROOT), result.get().getCode());
         }
 
+        @Test
+        @DisplayName("should return empty for blank")
+        void shouldReturnEmptyForBlank() {
+            assertTrue(CurrencyCode.fromCode("   ").isEmpty());
+            assertTrue(CurrencyCode.fromCode("").isEmpty());
+        }
+
+        @Test
+        @DisplayName("should return empty for null")
+        void shouldReturnEmptyForNull() {
+            assertTrue(CurrencyCode.fromCode(null).isEmpty());
+        }
+
         @ParameterizedTest(name = "should return empty for \"{0}\"")
         @ValueSource(strings = {"", " ", "XXX", "ABC", "FAKE"})
         @DisplayName("should return empty for unknown codes")
         void shouldReturnEmptyForUnknown(String code) {
             assertTrue(CurrencyCode.fromCode(code).isEmpty());
-        }
-
-        @Test
-        @DisplayName("should throw NPE for null")
-        @SuppressWarnings("DataFlowIssue")
-        void shouldThrowForNull() {
-            assertThrows(NullPointerException.class, () -> CurrencyCode.fromCode(null));
         }
     }
 

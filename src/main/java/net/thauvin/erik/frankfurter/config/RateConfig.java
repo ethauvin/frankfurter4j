@@ -33,6 +33,7 @@
 package net.thauvin.erik.frankfurter.config;
 
 import com.uwyn.urlencoder.UrlEncoder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.internal.Validation;
 import net.thauvin.erik.frankfurter.models.CurrencyCode;
 import org.jspecify.annotations.NullMarked;
@@ -101,8 +102,7 @@ public final class RateConfig {
     @Override
     public int hashCode() {
         int result = Objects.hash(base, quote, date);
-        result = 31 * result + Arrays.hashCode(providers);
-        return result;
+        return 31 * result + Arrays.hashCode(providers);
     }
 
     /**
@@ -151,6 +151,7 @@ public final class RateConfig {
      * @throws NullPointerException     if {@code baseUri} is {@code null}
      * @throws IllegalArgumentException if the resulting URI is invalid
      */
+    @SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
     public URI applyTo(URI baseUri) {
         Objects.requireNonNull(baseUri, Validation.formatNullMessage("baseUri"));
 

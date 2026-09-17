@@ -65,7 +65,7 @@ public class Frankfurter4jBuild extends Project {
         downloadSources = true;
         autoDownloadPurge = true;
 
-        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_SNAPSHOTS, RIFE2_RELEASES);
+        repositories = List.of(MAVEN_LOCAL, MAVEN_CENTRAL, RIFE2_RELEASES);
 
         var junit = version(6, 1, 3);
         var gson = version(2, 14, 0);
@@ -175,10 +175,10 @@ public class Frankfurter4jBuild extends Project {
     @BuildCommand(summary = "Runs PMD analysis")
     public void pmd() throws Exception {
         new PmdOperation()
-            .failOnViolation(true)
-            .ruleSets("config/pmd.xml")
-            .fromProject(this)
-            .execute();
+                .failOnViolation(true)
+                .ruleSets("config/pmd.xml")
+                .fromProject(this)
+                .execute();
     }
 
     @BuildCommand(value = "pom-root", summary = "Generates the POM file in the root directory")

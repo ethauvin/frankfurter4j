@@ -131,7 +131,7 @@ class CurrencyFormatterTest {
         @NullSource
         @DisplayName("rejects null ISO codes")
         void rejectsNull(String code) {
-            assertThrows(NullPointerException.class,
+            assertThrows(IllegalArgumentException.class,
                     () -> CurrencyFormatter.format(10.0, code));
         }
 
