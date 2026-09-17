@@ -32,6 +32,7 @@
 
 package net.thauvin.erik.frankfurter;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.thauvin.erik.frankfurter.config.RateConfig;
 import net.thauvin.erik.frankfurter.config.RatesConfig;
 import net.thauvin.erik.frankfurter.internal.GeneratedVersion;
@@ -42,6 +43,7 @@ import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -63,6 +65,7 @@ import java.util.function.Function;
  * @see <a href="https://frankfurter.dev">Frankfurter.dev API</a>
  */
 @NullMarked
+@SuppressFBWarnings("EXS_EXCEPTION_SOFTENING_NO_CONSTRAINTS")
 public final class Frankfurter {
 
     private static final URI DEFAULT_API = URI.create("https://api.frankfurter.dev/v2/");
@@ -161,11 +164,24 @@ public final class Frankfurter {
 
     private static URI normalizeBase(URI base) {
         Objects.requireNonNull(base, Validation.formatNullMessage("base"));
-        String baseStr = base.toString();
-        if (!baseStr.endsWith("/")) {
-            baseStr += "/";
+
+        String path = base.getPath();
+        if (path == null || path.endsWith("/")) {
+            return base;
         }
-        return URI.create(baseStr);
+
+        try {
+            // Rebuild with "/" appended to the path only
+            return new URI(
+                    base.getScheme(),
+                    base.getAuthority(),
+                    path + '/',
+                    base.getQuery(),
+                    base.getFragment()
+            );
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     /**
